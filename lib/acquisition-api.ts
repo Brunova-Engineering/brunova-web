@@ -658,9 +658,61 @@ export const acquisitionApi = {
                   "INTERRUPTED",
                   "TERMINAL",
                 ]),
+                activity_phase: z.string().nullable().optional(),
+                activity_detail: z.string().nullable().optional(),
+                current_decision_sequence: z.number().nullable().optional(),
+                latest_completed_action: z.string().nullable().optional(),
+                latest_meaningful_result: z.string().nullable().optional(),
+                wait_reason: z.string().nullable().optional(),
+                activity_observed_at: z.string().nullable().optional(),
+                wall_clock_seconds: z.number().optional(),
               })
               .passthrough(),
           )
+          .optional(),
+        routineSemanticTelemetry: z
+          .array(
+            z.object({
+              id: z.string(),
+              session_id: z.string(),
+              work_class: z.string(),
+              dimension: z.string().nullable(),
+              started_at: z.string(),
+              finished_at: z.string().nullable(),
+              elapsed_ms: z.number().nullable(),
+              current_elapsed_ms: z.number(),
+              status: z.enum([
+                "STARTED",
+                "SUCCESS",
+                "TIMEOUT",
+                "FAILED",
+                "BYPASSED_DETERMINISTIC_NO_YIELD",
+              ]),
+              prompt_bytes: z.number(),
+              outcome_class: z.string().nullable(),
+              deterministic_bypass: z.boolean(),
+            }),
+          )
+          .optional(),
+        managementFunnel: z
+          .object({
+            currentCycle: z.record(
+              z.string(),
+              z.object({
+                value: z.number().nullable(),
+                available: z.boolean(),
+                definition: z.string(),
+              }),
+            ),
+            recent7Days: z.record(
+              z.string(),
+              z.object({
+                value: z.number().nullable(),
+                available: z.boolean(),
+                definition: z.string(),
+              }),
+            ),
+          })
           .optional(),
         productionOperatingState: z
           .object({

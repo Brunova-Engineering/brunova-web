@@ -69,7 +69,7 @@ export function ManagementOverview({
   const [discoveryError, setDiscoveryError] = useState(false)
   useEffect(() => {
     let live = true
-    Promise.allSettled([api.cycleReview(cycleId), readDiscovery()]).then(
+    const load = () => Promise.allSettled([api.cycleReview(cycleId), readDiscovery()]).then(
       ([reviewResult, discoveryResult]) => {
         if (!live) return
         setReviewError(reviewResult.status === "rejected")
@@ -80,8 +80,11 @@ export function ManagementOverview({
           setDiscovery(discoveryResult.value)
       },
     )
+    void load()
+    const timer = window.setInterval(() => void load(), 15_000)
     return () => {
       live = false
+      window.clearInterval(timer)
     }
   }, [cycleId])
   if (discoveryError)
@@ -110,6 +113,7 @@ export function ManagementOverview({
   const contacted = candidates.filter((candidate) => candidate.contacted)
   const latest = discovery.routineOperatingSessions?.[0]
   const interrupted = latest?.operational_status === "INTERRUPTED"
+  const running = latest?.operational_status === "ACTIVE"
   const executed = latest ? countExecuted(latest) : 0
   const deferred = latest?.decisions.at(-1)?.decision === "STOP"
   const acceptedFourthWindow =
@@ -127,6 +131,15 @@ export function ManagementOverview({
     latest?.timezone,
   )
   const duration = elapsedMinutes(latest?.started_at, latest?.closed_at)
+  const wallMinutes = Math.max(0, Math.floor(Number(latest?.wall_clock_seconds ?? 0) / 60))
+  const semantic = (discovery.routineSemanticTelemetry ?? []).filter(
+    (entry) => entry.session_id === latest?.id,
+  )
+  const semanticTimeouts = semantic.filter((entry) => entry.status === "TIMEOUT").length
+  const semanticSuccesses = semantic.filter((entry) => entry.status === "SUCCESS").length
+  const semanticBypasses = semantic.filter(
+    (entry) => entry.status === "BYPASSED_DETERMINISTIC_NO_YIELD",
+  ).length
   const closingBoundary =
     unitBudget > 0 && unitsUsed >= unitBudget
       ? es
@@ -237,10 +250,14 @@ export function ManagementOverview({
       <div className="acq-overview-grid">
         <section className="acq-panel">
           <p className="acq-eyebrow">
-            {es ? "Último resultado" : "Latest outcome"}
+            {running ? (es ? "Sesión en vivo" : "Live session") : es ? "Último resultado" : "Latest outcome"}
           </p>
           <h2>
-            {held
+            {running
+              ? es
+                ? "Trabajando ahora"
+                : "Working now"
+              : held
               ? es
                 ? "La ventana se cerró sin nueva investigación"
                 : "Window closed without new research"
@@ -251,7 +268,10 @@ export function ManagementOverview({
           {latest ? (
             <>
               <p>
-                {deferred
+                {running
+                  ? latest.activity_detail ??
+                    (es ? "El Engine está progresando trabajo autorizado." : "The Engine is progressing authorized work.")
+                  : deferred
                   ? es
                     ? "El sistema decidió esperar. El trabajo restante no justificaba otra unidad de capacidad."
                     : "The Engine deferred. Remaining work did not justify another capacity unit."
@@ -269,7 +289,22 @@ export function ManagementOverview({
                 <span>
                   {requests} {es ? "consultas de fuente" : "source requests"}
                 </span>
+                {running ? (
+                  <span>
+                    {wallMinutes} {es ? "min de reloj" : "wall-clock min"}
+                  </span>
+                ) : null}
               </div>
+              {running ? (
+                <div role="status" aria-live="polite">
+                  <p><strong>{es ? "Actividad" : "Activity"}:</strong>{" "}
+                    {String(latest.activity_phase ?? "ALLOCATOR_REASONING").replaceAll("_", " ").toLocaleLowerCase()}</p>
+                  {latest.current_decision_sequence ? <p>{es ? "Decisión actual" : "Current decision"}: {latest.current_decision_sequence}</p> : null}
+                  {latest.latest_completed_action ? <p>{es ? "Última acción terminada" : "Latest completed action"}: {latest.latest_completed_action}</p> : null}
+                  {latest.latest_meaningful_result ? <p>{es ? "Último resultado con significado" : "Latest meaningful result"}: {latest.latest_meaningful_result}</p> : null}
+                  {latest.wait_reason ? <p>{es ? "Espera actual" : "Current wait"}: {latest.wait_reason}</p> : null}
+                </div>
+              ) : null}
               <p className="acq-muted">
                 {acceptedFourthWindow && executed === 0 && requests === 0
                   ? es
@@ -293,6 +328,9 @@ export function ManagementOverview({
                     `${requests} / ${requestBudget} ${es ? "consultas" : "requests"}. `}
                   {minuteBudget > 0 &&
                     `${minutesUsed} / ${minuteBudget} ${es ? "minutos efectivos" : "effective minutes"}.`}
+                </p>
+                <p>
+                  {es ? "Evaluación semántica" : "Semantic evaluation"}: {semanticSuccesses} {es ? "exitosas" : "successful"}, {semanticTimeouts} timeout, {semanticBypasses} {es ? "atajos deterministas sin yield" : "deterministic no-yield bypasses"}.
                 </p>
                 <p>
                   {es ? "Estado" : "State"}:{" "}
@@ -371,6 +409,34 @@ export function ManagementOverview({
           </button>
         </section>
       </div>
+      <section className="acq-panel" aria-labelledby="management-funnel-title">
+        <p className="acq-eyebrow">{es ? "Progresión de Dirección" : "Management progression"}</p>
+        <h2 id="management-funnel-title">{es ? "Del mercado a una conversación" : "From market to conversation"}</h2>
+        <div className="acq-summary-metrics">
+          {([
+            ["candidates", es ? "Candidatas" : "Candidates"],
+            ["identitiesResolved", es ? "Identidades resueltas" : "Resolved identities"],
+            ["accounts", "Accounts"],
+            ["emailsSent", es ? "Emails enviados" : "Emails sent"],
+            ["replies", es ? "Respuestas" : "Replies"],
+            ["handoffs", "Handoffs"],
+            ["clients", es ? "Clientes" : "Clients"],
+          ] as const).map(([key, label]) => {
+            const item = discovery.managementFunnel?.currentCycle[key]
+            return (
+              <div key={key} title={item?.definition}>
+                <strong>{item?.available ? item.value : "—"}</strong>
+                <span>{label}</span>
+              </div>
+            )
+          })}
+        </div>
+        <p className="acq-muted">
+          {es
+            ? "— significa que el Engine no tiene una medición canónica confiable; no se infiere desde estados parecidos. Ventana reciente: últimos 7 días."
+            : "— means the Engine has no reliable canonical measurement; it is not inferred from similar states. Recent window: trailing 7 days."}
+        </p>
+      </section>
       <section className="acq-overview-strip">
         <div>
           <span>{es ? "Mercados explorados" : "Markets explored"}</span>
