@@ -65,32 +65,34 @@ export function ManagementOverview({
   const es = locale === "es"
   const [review, setReview] = useState<CycleReview | null>(null)
   const [discovery, setDiscovery] = useState<DiscoveryTruth | null>(null)
-  const [error, setError] = useState(false)
+  const [reviewError, setReviewError] = useState(false)
+  const [discoveryError, setDiscoveryError] = useState(false)
   useEffect(() => {
     let live = true
-    Promise.all([api.cycleReview(cycleId), readDiscovery()])
-      .then(([result, snapshot]) => {
-        if (live) {
-          setReview(result.review)
-          setDiscovery(snapshot)
-        }
-      })
-      .catch(() => {
-        if (live) setError(true)
-      })
+    Promise.allSettled([api.cycleReview(cycleId), readDiscovery()]).then(
+      ([reviewResult, discoveryResult]) => {
+        if (!live) return
+        setReviewError(reviewResult.status === "rejected")
+        setDiscoveryError(discoveryResult.status === "rejected")
+        if (reviewResult.status === "fulfilled")
+          setReview(reviewResult.value.review)
+        if (discoveryResult.status === "fulfilled")
+          setDiscovery(discoveryResult.value)
+      },
+    )
     return () => {
       live = false
     }
   }, [cycleId])
-  if (error)
+  if (discoveryError)
     return (
       <section role="alert" className="acq-panel">
         {es
-          ? "No se pudo verificar el estado del ciclo. Actualiza antes de decidir."
-          : "Cycle state could not be verified. Refresh before deciding."}
+          ? "No se pudo verificar el estado operativo. Actualiza antes de decidir."
+          : "Operating state could not be verified. Refresh before deciding."}
       </section>
     )
-  if (!review || !discovery)
+  if (!discovery || (!review && !reviewError))
     return (
       <p role="status">
         {es ? "Consultando estado del ciclo…" : "Loading Cycle state…"}
@@ -146,9 +148,9 @@ export function ManagementOverview({
     discovery.productionOperatingState?.current === true &&
     discovery.productionOperatingState.recurrence_authorized === true
   const held = !continuous && latest?.status === "HELD_REVIEW"
-  const wave = review.waves.at(-1)
+  const wave = review?.waves.at(-1)
   const technicalHalt =
-    review.control?.technical_halt || review.control?.state === "STOPPED"
+    review?.control?.technical_halt || review?.control?.state === "STOPPED"
   const decisionNeeded =
     interrupted ||
     !!technicalHalt ||
@@ -156,6 +158,13 @@ export function ManagementOverview({
     wave?.state === "PLANNED"
   return (
     <div className="acq-overview">
+      {reviewError ? (
+        <p role="status" className="acq-muted">
+          {es
+            ? "La revisión de Dirección no está disponible; se muestra sólo el estado operativo verificado."
+            : "Management review is unavailable; only verified operating state is shown."}
+        </p>
+      ) : null}
       <section className="acq-summary acq-panel">
         <div>
           <p className="acq-eyebrow">
@@ -189,7 +198,7 @@ export function ManagementOverview({
           </div>
           <div>
             <strong>
-              {review.discovery?.admitted ?? discovery.totals.admitted}
+              {review?.discovery?.admitted ?? discovery.totals.admitted}
             </strong>
             <span>{es ? "cuentas admitidas" : "admitted Accounts"}</span>
           </div>
