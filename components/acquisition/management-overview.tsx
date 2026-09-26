@@ -25,6 +25,32 @@ const countExecuted = (
     )
   }).length
 
+const formatOperatingTime = (
+  value: string | null | undefined,
+  locale: Locale,
+  timeZone = "America/Mexico_City",
+) => {
+  if (!value) return null
+  const date = new Date(value)
+  if (!Number.isFinite(date.getTime())) return null
+  return new Intl.DateTimeFormat(locale === "es" ? "es-MX" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone,
+  }).format(date)
+}
+
+const elapsedMinutes = (
+  startedAt: string | null | undefined,
+  closedAt: string | null | undefined,
+) => {
+  if (!startedAt || !closedAt) return null
+  const elapsed = new Date(closedAt).getTime() - new Date(startedAt).getTime()
+  return Number.isFinite(elapsed) && elapsed >= 0
+    ? Math.max(1, Math.round(elapsed / 60_000))
+    : null
+}
+
 export function ManagementOverview({
   cycleId,
   cycleStatus,
@@ -87,6 +113,34 @@ export function ManagementOverview({
   const acceptedFourthWindow =
     deferred && String(latest?.local_date ?? "").startsWith("2026-09-20")
   const requests = Number(latest?.capacity.requestsUsed ?? 0)
+  const unitsUsed = Number(latest?.capacity.unitsUsed ?? 0)
+  const unitBudget = Number(latest?.capacity.workUnitBudget ?? 0)
+  const requestBudget = Number(latest?.capacity.sourceRequestBudget ?? 0)
+  const minutesUsed = Number(latest?.capacity.minutesUsed ?? 0)
+  const minuteBudget = Number(latest?.capacity.timeCapacityMinutes ?? 0)
+  const latestTimestamp = latest?.closed_at ?? latest?.started_at
+  const latestTime = formatOperatingTime(
+    latestTimestamp,
+    locale,
+    latest?.timezone,
+  )
+  const duration = elapsedMinutes(latest?.started_at, latest?.closed_at)
+  const closingBoundary =
+    unitBudget > 0 && unitsUsed >= unitBudget
+      ? es
+        ? `límite de ${unitBudget} slots alcanzado`
+        : `${unitBudget}-slot limit reached`
+      : requestBudget > 0 && requests >= requestBudget
+        ? es
+          ? `límite de ${requestBudget} consultas alcanzado`
+          : `${requestBudget}-request limit reached`
+        : minuteBudget > 0 && minutesUsed >= minuteBudget
+          ? es
+            ? `límite de ${minuteBudget} minutos efectivos alcanzado`
+            : `${minuteBudget}-effective-minute limit reached`
+          : latest?.early_stop_reason
+            ? latest.early_stop_reason.replaceAll("_", " ").toLocaleLowerCase()
+            : null
   const markets = marketContextCounts(discovery)
   const continuous =
     discovery.productionOperatingState?.current === true &&
@@ -225,11 +279,29 @@ export function ManagementOverview({
                     ? "Las decisiones comparativas consumen un slot de decisión, no una unidad de investigación ejecutada."
                     : "Comparative decisions consume a decision slot, not an executed research unit."}{" "}
                   {es ? "Slots registrados" : "Recorded slots"}:{" "}
-                  {String(latest.capacity.unitsUsed ?? 0)}.
+                  {unitBudget > 0 ? `${unitsUsed} / ${unitBudget}` : unitsUsed}.{" "}
+                  {requestBudget > 0 &&
+                    `${requests} / ${requestBudget} ${es ? "consultas" : "requests"}. `}
+                  {minuteBudget > 0 &&
+                    `${minutesUsed} / ${minuteBudget} ${es ? "minutos efectivos" : "effective minutes"}.`}
                 </p>
                 <p>
-                  {es ? "Estado" : "State"}: {interrupted ? (es ? "INTERRUMPIDA" : "INTERRUPTED") : latest.status} ·{" "}
-                  {es ? "Fecha" : "Date"}: {latest.local_date}
+                  {es ? "Estado" : "State"}:{" "}
+                  {interrupted
+                    ? es
+                      ? "INTERRUMPIDA"
+                      : "INTERRUPTED"
+                    : latest.status}{" "}
+                  · {es ? "Cierre" : "Closed"}: {latestTime ?? "—"}
+                  {duration !== null &&
+                    ` · ${es ? "duración" : "duration"}: ${duration} min`}
+                  {closingBoundary &&
+                    ` · ${es ? "límite determinante" : "binding limit"}: ${closingBoundary}`}
+                </p>
+                <p className="acq-muted">
+                  {es
+                    ? "La ventana de 110 minutos es capacidad máxima, no una duración obligatoria; la sesión cierra cuando alcanza primero un límite o ya no existe trabajo autorizado con valor suficiente."
+                    : "The 110-minute window is maximum capacity, not a required duration; the session closes when it first reaches a limit or no sufficiently valuable authorized work remains."}
                 </p>
               </details>
             </>
@@ -254,9 +326,9 @@ export function ManagementOverview({
                 ? es
                   ? "El Engine continúa automáticamente"
                   : "The Engine continues automatically"
-              : es
-                ? "Aceptación del Portal pendiente"
-                : "Portal acceptance pending"}
+                : es
+                  ? "Aceptación del Portal pendiente"
+                  : "Portal acceptance pending"}
           </h2>
           <p>
             {decisionNeeded
@@ -267,11 +339,15 @@ export function ManagementOverview({
                 ? es
                   ? "La siguiente ventana abre diariamente a las 17:00. No se requiere aprobación por unidad; cualquier efecto comercial exige razonamiento de Pancracio y validación exacta del Engine."
                   : "The next window opens daily at 17:00. No per-unit approval is required; every commercial effect requires Pancracio reasoning and exact Engine validation."
-              : es
-                ? "La recurrencia permanece detenida. No hay una siguiente acción comercial automática ni autoridad de seguimiento."
-                : "Recurrence remains held. There is no automatic next commercial action or follow-up authority."}
+                : es
+                  ? "La recurrencia permanece detenida. No hay una siguiente acción comercial automática ni autoridad de seguimiento."
+                  : "Recurrence remains held. There is no automatic next commercial action or follow-up authority."}
           </p>
-          <button onClick={() => onNavigate(continuous ? "Opportunities" : "Attention")}>
+          <button
+            onClick={() =>
+              onNavigate(continuous ? "Opportunities" : "Attention")
+            }
+          >
             {decisionNeeded
               ? es
                 ? "Ver decisión"
@@ -280,9 +356,9 @@ export function ManagementOverview({
                 ? es
                   ? "Ver oportunidades"
                   : "View opportunities"
-              : es
-                ? "Revisar frontera de aceptación"
-                : "Review acceptance boundary"}
+                : es
+                  ? "Revisar frontera de aceptación"
+                  : "Review acceptance boundary"}
           </button>
         </section>
       </div>

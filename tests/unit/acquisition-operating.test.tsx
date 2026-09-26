@@ -6,6 +6,7 @@ import {
   OpportunityPool,
 } from "@/components/acquisition/operating-overview"
 import { CandidateOpportunities } from "@/components/acquisition/candidate-opportunities"
+import { ManagementOverview } from "@/components/acquisition/management-overview"
 import { acquisitionApi as api } from "@/lib/acquisition-api"
 import type { DiscoveryTruth } from "@/lib/acquisition-management-truth"
 afterEach(() => vi.restoreAllMocks())
@@ -259,4 +260,88 @@ it("archives through the governed command while preserving an explicit disabled 
     ),
   )
   expect(changed).toHaveBeenCalledOnce()
+})
+
+it("shows the actual local close time, elapsed duration and binding capacity limit", async () => {
+  vi.spyOn(api, "cycleReview").mockResolvedValue({
+    schemaVersion: "1",
+    review: {
+      cycleId: "real-cycle",
+      control: null,
+      pool: {},
+      markets: [],
+      waves: [],
+      attempts: 0,
+      newProspects: 0,
+      attemptsToday: 0,
+      responses: {},
+      quality: {},
+      zeroResponseMeansFailure: false,
+      automaticIcpMutation: false,
+      productionExecution: "DISABLED",
+    },
+  })
+  vi.spyOn(api, "discovery").mockResolvedValue({
+    totals: {
+      observations: 0,
+      candidates: 0,
+      resolved: 0,
+      ambiguous: 0,
+      unresolved: 0,
+      held: 0,
+      admitted: 0,
+      pending_work: 0,
+    },
+    candidates: [],
+    routineOperatingSessions: [
+      {
+        id: "manual-session",
+        cycle_id: "real-cycle",
+        local_date: "2026-09-26T00:00:00.000Z",
+        timezone: "America/Mexico_City",
+        window_opens_at: "2026-09-26T19:06:58.384Z",
+        window_closes_at: "2026-09-26T20:56:58.345Z",
+        status: "COMPLETE",
+        started_at: "2026-09-26T19:06:58.384Z",
+        closed_at: "2026-09-26T19:18:21.143Z",
+        opened_late: false,
+        early_stop_reason: "DAILY_OR_WORK_BUDGET_EXHAUSTED",
+        close_reason: "DAILY_CONTINUOUS_WINDOW_COMPLETE",
+        decisions: [],
+        report: {},
+        capacity: {
+          unitsUsed: 4,
+          workUnitBudget: 4,
+          requestsUsed: 6,
+          sourceRequestBudget: 12,
+          minutesUsed: 5,
+          timeCapacityMinutes: 110,
+        },
+        recurrence_state: "CONTINUOUS_INTERNAL",
+        prospect_effects_authorized: false,
+        lease_expires_at: null,
+        operational_status: "TERMINAL",
+      },
+    ],
+    productionOperatingState: {
+      current: true,
+      recurrence_authorized: true,
+    },
+    archiveEligibility: [],
+  } as never)
+  render(
+    <ManagementOverview
+      cycleId="real-cycle"
+      cycleStatus="ACTIVE"
+      locale="es"
+      onNavigate={vi.fn()}
+    />,
+  )
+  fireEvent.click(await screen.findByText("Contabilidad técnica"))
+  expect(screen.getByText(/26 sep 2026, 1:18 p\.m\./i)).toBeVisible()
+  expect(screen.getByText(/duración: 11 min/i)).toBeVisible()
+  expect(screen.getByText(/límite de 4 slots alcanzado/i)).toBeVisible()
+  expect(screen.getByText(/4 \/ 4/)).toBeVisible()
+  expect(screen.getByText(/6 \/ 12 consultas/)).toBeVisible()
+  expect(screen.getByText(/5 \/ 110 minutos efectivos/)).toBeVisible()
 })
