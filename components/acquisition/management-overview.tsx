@@ -81,6 +81,7 @@ export function ManagementOverview({
   )
   const contacted = candidates.filter((candidate) => candidate.contacted)
   const latest = discovery.routineOperatingSessions?.[0]
+  const interrupted = latest?.operational_status === "INTERRUPTED"
   const executed = latest ? countExecuted(latest) : 0
   const deferred = latest?.decisions.at(-1)?.decision === "STOP"
   const acceptedFourthWindow =
@@ -95,6 +96,7 @@ export function ManagementOverview({
   const technicalHalt =
     review.control?.technical_halt || review.control?.state === "STOPPED"
   const decisionNeeded =
+    interrupted ||
     !!technicalHalt ||
     wave?.state === "REVIEW_REQUIRED" ||
     wave?.state === "PLANNED"
@@ -226,7 +228,7 @@ export function ManagementOverview({
                   {String(latest.capacity.unitsUsed ?? 0)}.
                 </p>
                 <p>
-                  {es ? "Estado" : "State"}: {latest.status} ·{" "}
+                  {es ? "Estado" : "State"}: {interrupted ? (es ? "INTERRUMPIDA" : "INTERRUPTED") : latest.status} ·{" "}
                   {es ? "Fecha" : "Date"}: {latest.local_date}
                 </p>
               </details>

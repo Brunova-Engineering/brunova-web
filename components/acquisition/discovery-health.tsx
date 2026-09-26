@@ -40,6 +40,7 @@ export function DiscoveryHealth({ locale }: { locale: Locale }) {
   const held =
     data.productionOperatingState?.recurrence_authorized !== true &&
     session?.status === "HELD_REVIEW"
+  const interrupted = session?.operational_status === "INTERRUPTED"
   return (
     <section className="acq-panel">
       <h2>
@@ -56,7 +57,11 @@ export function DiscoveryHealth({ locale }: { locale: Locale }) {
         <p>
           {es ? "Última ventana" : "Latest window"}:{" "}
           {String(session.local_date).slice(0, 10)} ·{" "}
-          {held
+          {interrupted
+            ? es
+              ? "interrumpida; recuperación pendiente"
+              : "interrupted; recovery pending"
+            : held
             ? es
               ? "cerrada y detenida para revisión"
               : "closed and held for review"

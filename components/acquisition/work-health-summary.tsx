@@ -42,6 +42,7 @@ export function WorkHealthSummary({
     }
   }, [])
   const latest = discovery?.routineOperatingSessions?.[0]
+  const interrupted = latest?.operational_status === "INTERRUPTED"
   const continuous =
     discovery?.productionOperatingState?.current === true &&
     discovery.productionOperatingState.recurrence_authorized === true
@@ -144,7 +145,11 @@ export function WorkHealthSummary({
         <div>
           <span>{es ? "Última ventana" : "Latest window"}</span>
           <strong>
-            {latest?.status === "HELD_REVIEW"
+            {interrupted
+              ? es
+                ? "Interrumpida · sin ejecución activa"
+                : "Interrupted · no active execution"
+              : latest?.status === "HELD_REVIEW"
               ? es
                 ? "Cerrada · revisión"
                 : "Closed · review"

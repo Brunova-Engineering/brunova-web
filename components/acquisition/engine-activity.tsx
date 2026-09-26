@@ -31,6 +31,7 @@ export function EngineActivity({ locale }: { locale: Locale }) {
     }
   }, [])
   const latestWindow = discovery?.routineOperatingSessions?.[0],
+    interrupted = latestWindow?.operational_status === "INTERRUPTED",
     continuous =
       discovery?.productionOperatingState?.current === true &&
       discovery.productionOperatingState.recurrence_authorized === true,
@@ -86,7 +87,11 @@ export function EngineActivity({ locale }: { locale: Locale }) {
                 ? "Sin observación disponible"
                 : "No observation available"}{" "}
             ·{" "}
-            {held
+            {interrupted
+              ? es
+                ? "interrumpida; no está ejecutándose y espera recuperación"
+                : "interrupted; not executing and awaiting recovery"
+              : held
               ? es
                 ? "cerrada; espera revisión"
                 : "closed; awaiting review"

@@ -652,6 +652,12 @@ export const acquisitionApi = {
                 capacity: z.record(z.string(), z.unknown()),
                 recurrence_state: z.string(),
                 prospect_effects_authorized: z.literal(false),
+                lease_expires_at: z.string().nullable(),
+                operational_status: z.enum([
+                  "ACTIVE",
+                  "INTERRUPTED",
+                  "TERMINAL",
+                ]),
               })
               .passthrough(),
           )
