@@ -179,3 +179,34 @@ it.skipIf(!process.env.NZT48_REAL_MODE_INPUT)(
     )
   },
 )
+
+it.skipIf(!process.env.NZT48_CRM_BOUNDARY_INPUT)(
+  "keeps the real-mode CRM boundary read only after synthetic identity and contact evidence",
+  async () => {
+    const payload = JSON.parse(
+      readFileSync(process.env.NZT48_CRM_BOUNDARY_INPUT!, "utf8"),
+    )
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+    )
+    const data = await acquisitionApi.discovery()
+    const route = data.commercialRoutes?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )
+    expect(route?.next_gate).toBe("GENERIC_CRM_BOUNDARY_REQUIRED")
+    expect(route?.executable).toBe(false)
+    expect(route?.effect_authorized).toBe(false)
+    expect(route?.effects_disabled).toBe(true)
+    render(<CandidateOpportunities data={data} locale="en" />)
+    expect(screen.getByText(/validate the generic CRM boundary/)).toBeVisible()
+    expect(
+      screen.getAllByText(/The CRM and email route is not executable/),
+    ).toHaveLength(data.conversationPreparations?.length ?? 0)
+  },
+)
