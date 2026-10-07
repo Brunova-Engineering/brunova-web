@@ -1103,6 +1103,14 @@ export const acquisitionApi = {
                 }),
               ),
               decisions: z.array(z.unknown()),
+              historyOmissions: z
+                .object({
+                  origins: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  investigations: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  decisions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  executions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                })
+                .optional(),
             }),
           )
           .optional(),
@@ -1198,7 +1206,22 @@ export const acquisitionApi = {
           missions: z.number(),
           candidates: z.number(),
           planning: z.number(),
+          allocationComparisons: z.number().optional(),
+          learningWaves: z.number().optional(),
+          routineOperatingSessions: z.number().optional(),
         }),
+        historyOmissions: z
+          .object({
+            allocationComparisons: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+            learningWaves: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+            routineOperatingSessions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+            candidateJourneyEvents: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }).optional(),
+          })
+          .optional(),
+        historicalCollections: z.record(z.string(), z.object({
+          fetched: z.number(), shown: z.number(), omittedFromFetched: z.number(),
+          sourceReadLimit: z.number(), mayHaveMoreAtSource: z.boolean(),
+        })).optional(),
       }),
     ),
   activationPreflight: () =>

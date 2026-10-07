@@ -35,6 +35,10 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
     )
     vi.stubGlobal("fetch", fetch)
     const data = await acquisitionApi.discovery()
+    expect(data.historyOmissions?.allocationComparisons.omitted).toBeGreaterThanOrEqual(0)
+    expect(data.historyOmissions?.candidateJourneyEvents?.omitted).toBeGreaterThanOrEqual(0)
+    expect(data.historicalCollections?.missions?.shown).toBe(data.missions.length)
+    expect(data.displayLimits.allocationComparisons).toBe(26)
     expect(fetch).toHaveBeenCalledWith(
       "/api/acquisition/v1/discovery",
       expect.objectContaining({ credentials: "same-origin" }),
