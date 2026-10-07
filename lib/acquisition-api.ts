@@ -439,6 +439,61 @@ export const acquisitionApi = {
               .passthrough(),
           )
           .optional(),
+        conversationPreparations: z
+          .array(
+            z.object({
+              id: z.string(),
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              version: z.number(),
+              evidence_snapshot: z.array(z.record(z.string(), z.unknown())),
+              body: z
+                .object({
+                  signalKind: z.enum([
+                    "RELATIONSHIP_CHANGE",
+                    "REGIONAL_IMPLEMENTATION",
+                    "OTHER",
+                  ]),
+                  hypothesis: z.string(),
+                  unknowns: z.array(z.string()),
+                  question: z.string(),
+                  subject: z.string(),
+                  message: z.string(),
+                  positions: z.array(
+                    z
+                      .object({
+                        role: z.string(),
+                        actor: z.string().nullable().optional(),
+                        epistemicStatus: z.string(),
+                        reason: z.string(),
+                        evidenceObservationId: z.string().nullable().optional(),
+                      })
+                      .passthrough(),
+                  ),
+                  chosenPosition: z.number(),
+                  claims: z.array(
+                    z.object({ text: z.string(), observationId: z.string() }),
+                  ),
+                  feedbackConsideration: z.string().nullable().optional(),
+                })
+                .passthrough(),
+              body_hash: z.string(),
+              created_at: z.string(),
+              authority_state: z.literal("PREPARATION_ONLY"),
+              effect_authorized: z.literal(false),
+              feedback: z.array(
+                z.object({
+                  id: z.string(),
+                  decision: z.string(),
+                  target: z.string(),
+                  comment: z.string().nullable(),
+                  actorId: z.string(),
+                  createdAt: z.string(),
+                }),
+              ),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({
@@ -1097,6 +1152,40 @@ export const acquisitionApi = {
         body: JSON.stringify({
           commandId,
           request: { operation: action, candidateId, reason },
+        }),
+      },
+    ),
+  conversationFeedback: (
+    commandId: string,
+    proposalId: string,
+    decision: "APPROVE" | "COMMENT" | "CORRECT",
+    target:
+      "PATTERN" | "POSITION" | "EVIDENCE" | "QUESTION" | "MESSAGE" | "GENERAL",
+    comment: string,
+    csrf: string,
+  ) =>
+    request(
+      "/commands/discovery",
+      z.object({
+        status: z.string(),
+        proposalId: z.string(),
+        candidateId: z.string(),
+        effectCreated: z.literal(false),
+        wakeRequired: z.literal(false),
+        blocking: z.literal(false),
+      }),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({
+          commandId,
+          request: {
+            operation: "RECORD_CONVERSATION_FEEDBACK",
+            proposalId,
+            decision,
+            target,
+            comment,
+          },
         }),
       },
     ),

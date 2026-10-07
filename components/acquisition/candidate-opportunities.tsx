@@ -19,6 +19,7 @@ function Opportunity({
   candidate,
   locale,
   record,
+  preparations,
   session,
   onChanged,
   archiveEligible = false,
@@ -26,6 +27,7 @@ function Opportunity({
   candidate: CandidateView
   locale: Locale
   record?: string
+  preparations?: DiscoveryTruth["conversationPreparations"]
   session?: PortalSession
   onChanged?: () => void
   archiveEligible?: boolean
@@ -58,6 +60,14 @@ function Opportunity({
           </span>
         </div>
       </div>
+      {preparations?.[0] && (
+        <ConversationPreparation
+          preparation={preparations[0]}
+          locale={locale}
+          session={session}
+          onChanged={onChanged}
+        />
+      )}
       <div className="acq-memo-grid">
         <section>
           <h4>{es ? "Por qué importa" : "Why it matters"}</h4>
@@ -236,6 +246,203 @@ function Opportunity({
   )
 }
 
+export function ConversationPreparation({
+  preparation,
+  locale,
+  session,
+  onChanged,
+}: {
+  preparation: NonNullable<DiscoveryTruth["conversationPreparations"]>[number]
+  locale: Locale
+  session?: PortalSession
+  onChanged?: () => void
+}) {
+  const es = locale === "es"
+  const [decision, setDecision] = useState<"APPROVE" | "COMMENT" | "CORRECT">(
+    "COMMENT",
+  )
+  const [target, setTarget] = useState<
+    "PATTERN" | "POSITION" | "EVIDENCE" | "QUESTION" | "MESSAGE" | "GENERAL"
+  >("GENERAL")
+  const [comment, setComment] = useState("")
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState(false)
+  const [saved, setSaved] = useState(false)
+  return (
+    <section
+      className="acq-route"
+      aria-label={
+        es ? "Preparación de conversación" : "Conversation preparation"
+      }
+    >
+      <p className="acq-eyebrow">
+        {es ? "Preparación de Pancracio" : "Pancracio preparation"} · v
+        {preparation.version}
+      </p>
+      <p className="acq-muted">
+        {es
+          ? "Borrador basado en evidencia. Tu comentario es opcional; Pancracio decide el siguiente paso dentro del mandato. No autoriza contacto."
+          : "Evidence-based draft. Your feedback is optional; Pancracio decides the next step within its mandate. This does not authorize contact."}
+      </p>
+      <p>
+        <strong>{es ? "Hipótesis" : "Hypothesis"}:</strong>{" "}
+        {preparation.body.hypothesis}
+      </p>
+      <p>
+        <strong>{es ? "Pregunta" : "Question"}:</strong>{" "}
+        {preparation.body.question}
+      </p>
+      <details>
+        <summary>
+          {es
+            ? "Borrador, posiciones y fuentes"
+            : "Draft, positions and sources"}
+        </summary>
+        <p>
+          <strong>{es ? "Asunto" : "Subject"}:</strong>{" "}
+          {preparation.body.subject}
+        </p>
+        <p>{preparation.body.message}</p>
+        <ol>
+          {preparation.body.positions.map((position, index) => (
+            <li key={index}>
+              {position.role}:{" "}
+              {position.actor ?? (es ? "sin identificar" : "unidentified")} —{" "}
+              {position.epistemicStatus}. {position.reason}
+              {index + 1 === preparation.body.chosenPosition
+                ? ` (${es ? "posición elegida" : "chosen position"})`
+                : ""}
+            </li>
+          ))}
+        </ol>
+        <ul>
+          {preparation.body.claims.map((claim, index) => (
+            <li key={index}>
+              {claim.text} ({claim.observationId})
+            </li>
+          ))}
+        </ul>
+      </details>
+      {preparation.feedback.length > 0 && (
+        <details>
+          <summary>
+            {es ? "Comentarios registrados" : "Recorded feedback"} (
+            {preparation.feedback.length})
+          </summary>
+          <ul>
+            {preparation.feedback.map((item) => (
+              <li key={item.id}>
+                {item.decision} · {item.target}: {item.comment}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      {session && onChanged && (
+        <details>
+          <summary>
+            {es ? "Dejar comentario opcional" : "Leave optional feedback"}
+          </summary>
+          <label>
+            {es ? "Opinión" : "Response"}
+            <select
+              value={decision}
+              onChange={(event) =>
+                setDecision(event.target.value as typeof decision)
+              }
+            >
+              <option value="COMMENT">{es ? "Comentar" : "Comment"}</option>
+              <option value="CORRECT">{es ? "Corregir" : "Correct"}</option>
+              <option value="APPROVE">
+                {es ? "Estoy de acuerdo" : "Agree"}
+              </option>
+            </select>
+          </label>
+          <label>
+            {es ? "Sobre" : "About"}
+            <select
+              value={target}
+              onChange={(event) =>
+                setTarget(event.target.value as typeof target)
+              }
+            >
+              {(
+                [
+                  "GENERAL",
+                  "PATTERN",
+                  "POSITION",
+                  "EVIDENCE",
+                  "QUESTION",
+                  "MESSAGE",
+                ] as const
+              ).map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {es ? "Comentario" : "Comment"}
+            <textarea
+              maxLength={2000}
+              value={comment}
+              onChange={(event) => setComment(event.target.value)}
+            />
+          </label>
+          <button
+            disabled={
+              pending || (decision !== "APPROVE" && comment.trim().length < 3)
+            }
+            onClick={async () => {
+              setPending(true)
+              setError(false)
+              setSaved(false)
+              try {
+                await api.conversationFeedback(
+                  crypto.randomUUID(),
+                  preparation.id,
+                  decision,
+                  target,
+                  comment.trim(),
+                  session.csrfToken,
+                )
+                setComment("")
+                setSaved(true)
+                onChanged()
+              } catch {
+                setError(true)
+              } finally {
+                setPending(false)
+              }
+            }}
+          >
+            {pending
+              ? es
+                ? "Guardando…"
+                : "Saving…"
+              : es
+                ? "Guardar comentario"
+                : "Save feedback"}
+          </button>
+          {error && (
+            <p role="alert">
+              {es
+                ? "No se pudo guardar el comentario."
+                : "Feedback could not be saved."}
+            </p>
+          )}
+          {saved && (
+            <p role="status">
+              {es ? "Comentario registrado." : "Feedback recorded."}
+            </p>
+          )}
+        </details>
+      )}
+    </section>
+  )
+}
+
 export function CandidateOpportunities({
   data,
   locale,
@@ -315,6 +522,9 @@ export function CandidateOpportunities({
             <Opportunity
               key={group[0].id}
               candidate={group[0]}
+              preparations={data.conversationPreparations
+                ?.filter((item) => item.candidate_id === group[0].id)
+                .sort((a, b) => b.version - a.version)}
               locale={locale}
               session={session}
               onChanged={onChanged}
@@ -335,6 +545,9 @@ export function CandidateOpportunities({
                 <Opportunity
                   key={candidate.id}
                   candidate={candidate}
+                  preparations={data.conversationPreparations
+                    ?.filter((item) => item.candidate_id === candidate.id)
+                    .sort((a, b) => b.version - a.version)}
                   locale={locale}
                   session={session}
                   onChanged={onChanged}

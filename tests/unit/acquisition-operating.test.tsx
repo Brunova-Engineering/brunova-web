@@ -5,11 +5,78 @@ import {
   CycleAttention,
   OpportunityPool,
 } from "@/components/acquisition/operating-overview"
-import { CandidateOpportunities } from "@/components/acquisition/candidate-opportunities"
+import {
+  CandidateOpportunities,
+  ConversationPreparation,
+} from "@/components/acquisition/candidate-opportunities"
 import { ManagementOverview } from "@/components/acquisition/management-overview"
 import { acquisitionApi as api } from "@/lib/acquisition-api"
 import type { DiscoveryTruth } from "@/lib/acquisition-management-truth"
 afterEach(() => vi.restoreAllMocks())
+it("keeps Jorge feedback optional and non-authorizing", async () => {
+  const command = vi.spyOn(api, "conversationFeedback").mockResolvedValue({
+    status: "accepted",
+    proposalId: "proposal-1",
+    candidateId: "candidate-1",
+    effectCreated: false,
+    wakeRequired: false,
+    blocking: false,
+  })
+  const changed = vi.fn()
+  render(
+    <ConversationPreparation
+      locale="es"
+      preparation={{
+        id: "proposal-1",
+        cycle_id: "cycle-1",
+        candidate_id: "candidate-1",
+        version: 1,
+        evidence_snapshot: [],
+        body_hash: "hash",
+        created_at: "2026-10-07T00:00:00Z",
+        authority_state: "PREPARATION_ONLY",
+        effect_authorized: false,
+        feedback: [],
+        body: {
+          signalKind: "OTHER",
+          hypothesis: "Hipótesis sintética basada en evidencia",
+          unknowns: ["Necesidad interna"],
+          question: "¿Quién coordina esta relación?",
+          subject: "Pregunta",
+          message: "Mensaje sintético de exploración.",
+          positions: [],
+          chosenPosition: 1,
+          claims: [],
+        },
+      }}
+      session={{
+        authenticated: true,
+        actor: { email: "jorge@brunova.mx", capabilities: ["MANAGE_CYCLE"] },
+        csrfToken: "csrf",
+        expiresAt: "2099-01-01T00:00:00Z",
+      }}
+      onChanged={changed}
+    />,
+  )
+  expect(screen.getByText(/Tu comentario es opcional/)).toBeVisible()
+  expect(screen.getByText(/No autoriza contacto/)).toBeVisible()
+  fireEvent.click(screen.getByText("Dejar comentario opcional"))
+  fireEvent.change(screen.getByLabelText("Comentario"), {
+    target: { value: "Aclarar la evidencia de la relación." },
+  })
+  fireEvent.click(screen.getByRole("button", { name: "Guardar comentario" }))
+  await waitFor(() =>
+    expect(command).toHaveBeenCalledWith(
+      expect.any(String),
+      "proposal-1",
+      "COMMENT",
+      "GENERAL",
+      "Aclarar la evidencia de la relación.",
+      "csrf",
+    ),
+  )
+  expect(changed).toHaveBeenCalledOnce()
+})
 it.each(["en", "es"] as const)(
   "%s preflight is read-only and missing evidence is not healthy",
   async (locale) => {

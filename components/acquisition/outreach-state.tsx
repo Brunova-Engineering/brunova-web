@@ -8,6 +8,7 @@ import {
   type DiscoveryTruth,
 } from "@/lib/acquisition-management-truth"
 import { opportunityMemo } from "@/lib/acquisition-opportunity-intelligence"
+import { ConversationPreparation } from "./candidate-opportunities"
 
 /** Current outreach truth. Historical exploratory wave proposals are not live approvals. */
 export function OutreachState({ locale }: { locale: Locale }) {
@@ -58,6 +59,35 @@ export function OutreachState({ locale }: { locale: Locale }) {
           : "Separates what could be proposed, active outreach, and history. Nothing in this view authorizes a send."}
       </p>
       <h3>{es ? "Listas / propuestas" : "Ready / proposed"}</h3>
+      {Boolean(data.conversationPreparations?.length) && (
+        <section>
+          <h3>{es ? "Preparaciones registradas" : "Recorded preparations"}</h3>
+          <p className="acq-muted">
+            {es
+              ? "Borradores de Pancracio; ninguno autoriza un envío."
+              : "Pancracio drafts; none authorizes a send."}
+          </p>
+          {data.conversationPreparations
+            ?.filter(
+              (item, index, all) =>
+                all.findIndex(
+                  (other) =>
+                    other.candidate_id === item.candidate_id &&
+                    other.version > item.version,
+                ) < 0,
+            )
+            .map((item) => (
+              <article key={item.id}>
+                <h4>
+                  {candidates.find(
+                    (candidate) => candidate.id === item.candidate_id,
+                  )?.name ?? item.candidate_id}
+                </h4>
+                <ConversationPreparation preparation={item} locale={locale} />
+              </article>
+            ))}
+        </section>
+      )}
       {!proposed.length && (
         <p className="acq-empty">
           {es
