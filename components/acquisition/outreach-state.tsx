@@ -91,6 +91,9 @@ export function OutreachState({ locale }: { locale: Locale }) {
                   route={data.commercialRoutes?.find(
                     (route) => route.candidate_id === item.candidate_id,
                   )}
+                  preview={data.buyerMessagePreviews?.find(
+                    (preview) => preview.candidate_id === item.candidate_id,
+                  )}
                   locale={locale}
                 />
               </article>

@@ -22,6 +22,7 @@ function Opportunity({
   preparations,
   messageBinding,
   route,
+  preview,
   session,
   onChanged,
   archiveEligible = false,
@@ -32,6 +33,7 @@ function Opportunity({
   preparations?: DiscoveryTruth["conversationPreparations"]
   messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
+  preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
   session?: PortalSession
   onChanged?: () => void
   archiveEligible?: boolean
@@ -69,6 +71,7 @@ function Opportunity({
           preparation={preparations[0]}
           messageBinding={messageBinding}
           route={route}
+          preview={preview}
           locale={locale}
           session={session}
           onChanged={onChanged}
@@ -256,6 +259,7 @@ export function ConversationPreparation({
   preparation,
   messageBinding,
   route,
+  preview,
   locale,
   session,
   onChanged,
@@ -263,6 +267,7 @@ export function ConversationPreparation({
   preparation: NonNullable<DiscoveryTruth["conversationPreparations"]>[number]
   messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
+  preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
   locale: Locale
   session?: PortalSession
   onChanged?: () => void
@@ -307,6 +312,28 @@ export function ConversationPreparation({
             : es
               ? "Requiere nueva validación antes de CRM; no autoriza contacto."
               : "Requires new validation before CRM; this does not authorize contact."}
+        </p>
+      )}
+      {preview?.proposal_id === preparation.id && (
+        <p className="acq-muted">
+          <strong>{es ? "Vista Buyer y mensaje" : "Buyer and message preview"}:</strong>{" "}
+          {preview.buyer_current &&
+          preview.buyer_messageability === "READY" &&
+          preview.buyer_state === "RESOLVED"
+            ? es
+              ? "Buyer vigente como evidencia."
+              : "Current Buyer evidence."
+            : es
+              ? "Buyer sin resolver o sin vigencia."
+              : "Buyer unresolved or not current."}{" "}
+          {preview.preview_gate === "CURRENT_MESSAGE_BINDING_REQUIRED"
+            ? es
+              ? "Falta vincular un mensaje vigente."
+              : "A current message binding is required."
+            : es
+              ? "La ruta conserva sus bloqueos actuales."
+              : "Current route blockers still apply."}{" "}
+          {es ? "No autoriza CRM ni contacto." : "This does not authorize CRM or contact."}
         </p>
       )}
       {route && (
@@ -609,6 +636,9 @@ export function CandidateOpportunities({
               route={data.commercialRoutes?.find(
                 (item) => item.candidate_id === group[0].id,
               )}
+              preview={data.buyerMessagePreviews?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               locale={locale}
               session={session}
               onChanged={onChanged}
@@ -636,6 +666,9 @@ export function CandidateOpportunities({
                     (item) => item.candidate_id === candidate.id,
                   )}
                   route={data.commercialRoutes?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  preview={data.buyerMessagePreviews?.find(
                     (item) => item.candidate_id === candidate.id,
                   )}
                   locale={locale}

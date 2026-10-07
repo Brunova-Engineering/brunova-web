@@ -53,6 +53,15 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
       "CANDIDATE_IDENTITY_REQUIRED",
       "CANDIDATE_IDENTITY_REQUIRED",
     ])
+    expect(data.buyerMessagePreviews?.map((item) => item.preview_gate)).toEqual([
+      "CANDIDATE_IDENTITY_REQUIRED",
+      "CANDIDATE_IDENTITY_REQUIRED",
+    ])
+    expect(
+      data.buyerMessagePreviews?.every(
+        (item) => !item.executable && !item.effect_authorized,
+      ),
+    ).toBe(true)
     expect(
       data.commercialRoutes?.every(
         (route) =>
@@ -75,6 +84,9 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
     expect(
       screen.getAllByText(/The CRM and email route is not executable/),
     ).toHaveLength(2)
+    expect(screen.getAllByText(/Buyer unresolved or not current/)).toHaveLength(
+      2,
+    )
     const proposalId = data.conversationPreparations!.at(0)!.id
     const result = await acquisitionApi.conversationFeedback(
       "synthetic-web-feedback",
@@ -200,6 +212,11 @@ it.skipIf(!process.env.NZT48_BUYER_BOUNDARY_INPUT)(
       (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
     )
     expect(route?.next_gate).toBe("CURRENT_BUYER_PACKAGE_REQUIRED")
+    const preview = data.buyerMessagePreviews?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )
+    expect(preview?.preview_gate).toBe("CURRENT_BUYER_PACKAGE_REQUIRED")
+    expect(preview?.executable).toBe(false)
     expect(route?.executable).toBe(false)
     expect(route?.effect_authorized).toBe(false)
     expect(route?.effects_disabled).toBe(true)

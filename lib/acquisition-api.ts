@@ -546,6 +546,40 @@ export const acquisitionApi = {
             }),
           )
           .optional(),
+        buyerMessagePreviews: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              proposal_id: z.string(),
+              proposal_version: z.number(),
+              proposal_hash: z.string(),
+              account_id: z.string().nullable(),
+              identity_state: z.string(),
+              admission_state: z.string().nullable(),
+              next_gate: z.string(),
+              blockers: z.array(z.string()),
+              draft_subject: z.string(),
+              draft_message: z.string(),
+              draft_question: z.string(),
+              evidence_snapshot: z.array(z.unknown()),
+              buyer_result_id: z.string().nullable(),
+              buyer_current: z.boolean(),
+              buyer_messageability: z.string(),
+              buyer_state: z.string().nullable(),
+              contact_state: z.string().nullable(),
+              message_id: z.string().nullable(),
+              message_version: z.number().nullable(),
+              proposal_current: z.boolean().nullable(),
+              message_current: z.boolean().nullable(),
+              mandate_current: z.boolean().nullable(),
+              preview_gate: z.string(),
+              authority_state: z.literal("READ_ONLY_UNVALIDATED_DRAFT"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({
