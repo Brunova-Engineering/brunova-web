@@ -182,10 +182,16 @@ it.skipIf(!process.env.NZT48_REAL_MODE_INPUT)(
     expect(route?.executable).toBe(false)
     expect(route?.effect_authorized).toBe(false)
     expect(route?.effects_disabled).toBe(true)
+    const contactEvidence = data.contactEvidencePreviews?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )
+    expect(contactEvidence?.next_gate).toBe("CANDIDATE_IDENTITY_REQUIRED")
+    expect(contactEvidence?.executable).toBe(false)
     render(<CandidateOpportunities data={data} locale="en" />)
     expect(
       screen.getByText(/observed regional implementation may transfer/),
     ).toBeVisible()
+    expect(screen.getAllByText(/Contact evidence/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/This does not authorize contact/)).toHaveLength(
       data.conversationPreparations?.length ?? 0,
     )
@@ -217,11 +223,17 @@ it.skipIf(!process.env.NZT48_BUYER_BOUNDARY_INPUT)(
     )
     expect(preview?.preview_gate).toBe("CURRENT_BUYER_PACKAGE_REQUIRED")
     expect(preview?.executable).toBe(false)
+    const contactEvidence = data.contactEvidencePreviews?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )
+    expect(contactEvidence?.next_gate).toBe("BUYER_ROLE_EVIDENCE_REQUIRED")
+    expect(contactEvidence?.supported_email_count).toBe(1)
     expect(route?.executable).toBe(false)
     expect(route?.effect_authorized).toBe(false)
     expect(route?.effects_disabled).toBe(true)
     render(<CandidateOpportunities data={data} locale="en" />)
     expect(screen.getByText(/obtain a current Buyer package/)).toBeVisible()
+    expect(screen.getByText(/an email does not prove the role/)).toBeVisible()
     expect(
       screen.getAllByText(/The CRM and email route is not executable/),
     ).toHaveLength(data.conversationPreparations?.length ?? 0)

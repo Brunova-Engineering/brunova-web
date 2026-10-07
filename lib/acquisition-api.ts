@@ -580,6 +580,32 @@ export const acquisitionApi = {
             }),
           )
           .optional(),
+        contactEvidencePreviews: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              identity_state: z.string(),
+              archived: z.boolean(),
+              admission_state: z.string().nullable(),
+              account_id: z.string().nullable(),
+              research_outcome: z.string().nullable(),
+              canonical_identity_match: z.boolean().nullable(),
+              person_count: z.number(),
+              current_person_count: z.number(),
+              supported_email_count: z.number(),
+              stale_email_count: z.number(),
+              conflicted_email_count: z.number(),
+              suppressed: z.boolean(),
+              crm_observed_state: z.string().nullable(),
+              effects_disabled: z.boolean(),
+              next_gate: z.string(),
+              authority_state: z.literal("EVIDENCE_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({

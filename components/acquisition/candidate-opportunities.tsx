@@ -23,6 +23,7 @@ function Opportunity({
   messageBinding,
   route,
   preview,
+  contactEvidence,
   session,
   onChanged,
   archiveEligible = false,
@@ -34,6 +35,7 @@ function Opportunity({
   messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
+  contactEvidence?: NonNullable<DiscoveryTruth["contactEvidencePreviews"]>[number]
   session?: PortalSession
   onChanged?: () => void
   archiveEligible?: boolean
@@ -76,6 +78,54 @@ function Opportunity({
           session={session}
           onChanged={onChanged}
         />
+      )}
+      {contactEvidence && (
+        <p className="acq-muted">
+          <strong>{es ? "Evidencia de contacto" : "Contact evidence"}:</strong>{" "}
+          {(
+            {
+              CANDIDATE_IDENTITY_REQUIRED: es
+                ? "resolver identidad de la organización"
+                : "resolve organization identity",
+              ACCOUNT_ADMISSION_REQUIRED: es
+                ? "admitir la cuenta con evidencia"
+                : "admit the Account with evidence",
+              CANDIDATE_ACCOUNT_IDENTITY_MISMATCH: es
+                ? "resolver diferencia de identidad"
+                : "resolve identity mismatch",
+              ACCOUNT_QUALIFICATION_REQUIRED: es
+                ? "evaluar la cuenta"
+                : "evaluate the Account",
+              PERSON_EVIDENCE_REQUIRED: es
+                ? "identificar una persona"
+                : "identify a person",
+              PERSON_EVIDENCE_STALE: es
+                ? "actualizar evidencia de la persona"
+                : "refresh person evidence",
+              CONTACT_EVIDENCE_CONFLICT: es
+                ? "resolver conflicto del correo"
+                : "resolve email evidence conflict",
+              EMAIL_EVIDENCE_STALE: es
+                ? "actualizar evidencia del correo"
+                : "refresh email evidence",
+              SUPPORTED_EMAIL_REQUIRED: es
+                ? "verificar un correo de trabajo"
+                : "verify a business email",
+              BUYER_ROLE_EVIDENCE_REQUIRED: es
+                ? "corroborar quién decide; el correo no prueba el rol"
+                : "corroborate who decides; an email does not prove the role",
+              SUPPRESSED: es ? "contacto suprimido" : "contact suppressed",
+              ARCHIVED_CANDIDATE: es
+                ? "candidata archivada"
+                : "archived Candidate",
+              EXTERNAL_EFFECTS_MODE_UNSAFE: es
+                ? "revisar configuración de efectos"
+                : "review effect settings",
+            } as Record<string, string>
+          )[contactEvidence.next_gate] ??
+            (es ? "revisión pendiente" : "review pending")}
+          . {es ? "No autoriza CRM ni contacto." : "This does not authorize CRM or contact."}
+        </p>
       )}
       <div className="acq-memo-grid">
         <section>
@@ -639,6 +689,9 @@ export function CandidateOpportunities({
               preview={data.buyerMessagePreviews?.find(
                 (item) => item.candidate_id === group[0].id,
               )}
+              contactEvidence={data.contactEvidencePreviews?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               locale={locale}
               session={session}
               onChanged={onChanged}
@@ -669,6 +722,9 @@ export function CandidateOpportunities({
                     (item) => item.candidate_id === candidate.id,
                   )}
                   preview={data.buyerMessagePreviews?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  contactEvidence={data.contactEvidencePreviews?.find(
                     (item) => item.candidate_id === candidate.id,
                   )}
                   locale={locale}
