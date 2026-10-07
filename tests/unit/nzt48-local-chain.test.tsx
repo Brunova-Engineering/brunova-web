@@ -180,11 +180,11 @@ it.skipIf(!process.env.NZT48_REAL_MODE_INPUT)(
   },
 )
 
-it.skipIf(!process.env.NZT48_CRM_BOUNDARY_INPUT)(
-  "keeps the real-mode CRM boundary read only after synthetic identity and contact evidence",
+it.skipIf(!process.env.NZT48_BUYER_BOUNDARY_INPUT)(
+  "keeps the real-mode Buyer boundary read only after synthetic identity and contact evidence",
   async () => {
     const payload = JSON.parse(
-      readFileSync(process.env.NZT48_CRM_BOUNDARY_INPUT!, "utf8"),
+      readFileSync(process.env.NZT48_BUYER_BOUNDARY_INPUT!, "utf8"),
     )
     vi.stubGlobal(
       "fetch",
@@ -199,12 +199,12 @@ it.skipIf(!process.env.NZT48_CRM_BOUNDARY_INPUT)(
     const route = data.commercialRoutes?.find(
       (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
     )
-    expect(route?.next_gate).toBe("GENERIC_CRM_BOUNDARY_REQUIRED")
+    expect(route?.next_gate).toBe("CURRENT_BUYER_PACKAGE_REQUIRED")
     expect(route?.executable).toBe(false)
     expect(route?.effect_authorized).toBe(false)
     expect(route?.effects_disabled).toBe(true)
     render(<CandidateOpportunities data={data} locale="en" />)
-    expect(screen.getByText(/validate the generic CRM boundary/)).toBeVisible()
+    expect(screen.getByText(/obtain a current Buyer package/)).toBeVisible()
     expect(
       screen.getAllByText(/The CRM and email route is not executable/),
     ).toHaveLength(data.conversationPreparations?.length ?? 0)

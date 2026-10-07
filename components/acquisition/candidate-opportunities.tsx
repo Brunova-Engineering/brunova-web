@@ -335,6 +335,9 @@ export function ConversationPreparation({
               ACCOUNT_ADMISSION_REQUIRED: es
                 ? "confirmar identidad y admisión de cuenta"
                 : "confirm identity and Account admission",
+              CANDIDATE_ACCOUNT_IDENTITY_MISMATCH: es
+                ? "resolver diferencia de identidad entre Candidate y cuenta"
+                : "resolve Candidate and Account identity mismatch",
               ACCOUNT_QUALIFICATION_REQUIRED: es
                 ? "completar evaluación de cuenta"
                 : "complete Account evaluation",
@@ -344,6 +347,9 @@ export function ConversationPreparation({
               SUPPORTED_EMAIL_REQUIRED: es
                 ? "verificar un contacto de email"
                 : "verify an email contact",
+              CURRENT_BUYER_PACKAGE_REQUIRED: es
+                ? "obtener un paquete Buyer vigente"
+                : "obtain a current Buyer package",
               SUPPRESSED: es ? "contacto suprimido" : "contact suppressed",
               GENERIC_CRM_BOUNDARY_REQUIRED: es
                 ? "validar el límite genérico de CRM"
