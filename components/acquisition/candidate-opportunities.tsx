@@ -20,6 +20,7 @@ function Opportunity({
   locale,
   record,
   preparations,
+  messageBinding,
   route,
   session,
   onChanged,
@@ -29,6 +30,7 @@ function Opportunity({
   locale: Locale
   record?: string
   preparations?: DiscoveryTruth["conversationPreparations"]
+  messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   session?: PortalSession
   onChanged?: () => void
@@ -65,6 +67,7 @@ function Opportunity({
       {preparations?.[0] && (
         <ConversationPreparation
           preparation={preparations[0]}
+          messageBinding={messageBinding}
           route={route}
           locale={locale}
           session={session}
@@ -251,12 +254,14 @@ function Opportunity({
 
 export function ConversationPreparation({
   preparation,
+  messageBinding,
   route,
   locale,
   session,
   onChanged,
 }: {
   preparation: NonNullable<DiscoveryTruth["conversationPreparations"]>[number]
+  messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   locale: Locale
   session?: PortalSession
@@ -289,6 +294,21 @@ export function ConversationPreparation({
           ? "Borrador basado en evidencia. Tu comentario es opcional; Pancracio decide el siguiente paso dentro del mandato. No autoriza contacto."
           : "Evidence-based draft. Your feedback is optional; Pancracio decides the next step within its mandate. This does not authorize contact."}
       </p>
+      {messageBinding?.proposal_id === preparation.id && (
+        <p className="acq-muted">
+          <strong>{es ? "Mensaje vinculado" : "Linked message"}:</strong> v
+          {messageBinding.message_version}.{" "}
+          {messageBinding.proposal_current &&
+          messageBinding.message_current &&
+          messageBinding.mandate_current
+            ? es
+              ? "Vigente sólo para ensayo; no autoriza CRM real ni contacto."
+              : "Current for rehearsal only; this does not authorize real CRM or contact."
+            : es
+              ? "Requiere nueva validación antes de CRM; no autoriza contacto."
+              : "Requires new validation before CRM; this does not authorize contact."}
+        </p>
+      )}
       {route && (
         <p className="acq-muted">
           <strong>{es ? "Siguiente frontera" : "Next gate"}:</strong>{" "}
@@ -577,6 +597,9 @@ export function CandidateOpportunities({
               preparations={data.conversationPreparations
                 ?.filter((item) => item.candidate_id === group[0].id)
                 .sort((a, b) => b.version - a.version)}
+              messageBinding={data.candidateMessageBindings?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               route={data.commercialRoutes?.find(
                 (item) => item.candidate_id === group[0].id,
               )}
@@ -603,6 +626,9 @@ export function CandidateOpportunities({
                   preparations={data.conversationPreparations
                     ?.filter((item) => item.candidate_id === candidate.id)
                     .sort((a, b) => b.version - a.version)}
+                  messageBinding={data.candidateMessageBindings?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
                   route={data.commercialRoutes?.find(
                     (item) => item.candidate_id === candidate.id,
                   )}

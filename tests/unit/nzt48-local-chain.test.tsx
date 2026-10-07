@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs"
 import { afterEach, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { acquisitionApi } from "@/lib/acquisition-api"
-import { CandidateOpportunities } from "@/components/acquisition/candidate-opportunities"
+import {
+  CandidateOpportunities,
+  ConversationPreparation,
+} from "@/components/acquisition/candidate-opportunities"
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -100,5 +103,41 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
         }),
       }),
     )
+  },
+)
+
+it.skipIf(!process.env.NZT48_BINDING_INPUT)(
+  "reads the actual Candidate Message binding and labels it rehearsal only",
+  async () => {
+    const payload = JSON.parse(
+      readFileSync(process.env.NZT48_BINDING_INPUT!, "utf8"),
+    )
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+    )
+    const data = await acquisitionApi.discovery()
+    const binding = data.candidateMessageBindings?.[0]
+    expect(binding).toBeDefined()
+    expect(binding?.executable).toBe(false)
+    expect(binding?.effect_authorized).toBe(false)
+    const proposal = data.conversationPreparations?.find(
+      (item) => item.id === binding?.proposal_id,
+    )
+    expect(binding?.message_text).toBe(proposal?.body.message)
+    render(
+      <ConversationPreparation
+        preparation={proposal!}
+        messageBinding={binding}
+        locale="en"
+      />,
+    )
+    expect(screen.getByText(/Linked message/)).toBeVisible()
+    expect(screen.getByText(/Current for rehearsal only/)).toBeVisible()
   },
 )

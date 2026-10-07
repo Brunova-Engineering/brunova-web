@@ -85,6 +85,9 @@ export function OutreachState({ locale }: { locale: Locale }) {
                 </h4>
                 <ConversationPreparation
                   preparation={item}
+                  messageBinding={data.candidateMessageBindings?.find(
+                    (binding) => binding.proposal_id === item.id,
+                  )}
                   route={data.commercialRoutes?.find(
                     (route) => route.candidate_id === item.candidate_id,
                   )}

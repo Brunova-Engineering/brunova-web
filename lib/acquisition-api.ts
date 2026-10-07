@@ -494,6 +494,28 @@ export const acquisitionApi = {
             }),
           )
           .optional(),
+        candidateMessageBindings: z
+          .array(
+            z.object({
+              candidate_id: z.string(),
+              cycle_id: z.string(),
+              account_id: z.string(),
+              proposal_id: z.string(),
+              proposal_hash: z.string(),
+              message_id: z.string(),
+              message_version: z.number(),
+              payload_hash: z.string(),
+              message_text: z.string(),
+              created_at: z.string(),
+              proposal_current: z.boolean(),
+              message_current: z.boolean(),
+              mandate_current: z.boolean(),
+              authority_state: z.literal("REHEARSAL_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
         commercialRoutes: z
           .array(
             z.object({
