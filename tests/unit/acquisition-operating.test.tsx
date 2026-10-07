@@ -49,6 +49,24 @@ it("keeps Jorge feedback optional and non-authorizing", async () => {
           claims: [],
         },
       }}
+      crmObservation={{
+        cycle_id: "cycle-1",
+        candidate_id: "candidate-1",
+        proposal_id: "proposal-1",
+        account_id: null,
+        bound_message_id: null,
+        crm_intent_id: "synthetic-crm-1",
+        crm_state: "SYNCED",
+        crm_message_matches: true,
+        company_mapped: true,
+        contact_mapped: true,
+        association_evidence_origin: "CONTROLLED_SIMULATION",
+        association_observed: true,
+        review_gate: "CANDIDATE_IDENTITY_REQUIRED",
+        authority_state: "OBSERVATION_ONLY",
+        executable: false,
+        effect_authorized: false,
+      }}
       session={{
         authenticated: true,
         actor: { email: "jorge@brunova.mx", capabilities: ["MANAGE_CYCLE"] },
@@ -60,6 +78,7 @@ it("keeps Jorge feedback optional and non-authorizing", async () => {
   )
   expect(screen.getByText(/Tu comentario es opcional/)).toBeVisible()
   expect(screen.getByText(/No autoriza contacto/)).toBeVisible()
+  expect(screen.getByText(/Company y contacto asociados sólo en simulación/)).toBeVisible()
   fireEvent.click(screen.getByText("Dejar comentario opcional"))
   fireEvent.change(screen.getByLabelText("Comentario"), {
     target: { value: "Aclarar la evidencia de la relación." },

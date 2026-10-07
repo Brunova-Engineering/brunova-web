@@ -606,6 +606,28 @@ export const acquisitionApi = {
             }),
           )
           .optional(),
+        candidateCrmObservations: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              proposal_id: z.string(),
+              account_id: z.string().nullable(),
+              bound_message_id: z.string().nullable(),
+              crm_intent_id: z.string().nullable(),
+              crm_state: z.string().nullable(),
+              crm_message_matches: z.boolean(),
+              company_mapped: z.boolean(),
+              contact_mapped: z.boolean(),
+              association_evidence_origin: z.string().nullable(),
+              association_observed: z.boolean(),
+              review_gate: z.string(),
+              authority_state: z.literal("OBSERVATION_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({

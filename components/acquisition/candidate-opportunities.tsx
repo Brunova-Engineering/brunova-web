@@ -24,6 +24,7 @@ function Opportunity({
   route,
   preview,
   contactEvidence,
+  crmObservation,
   session,
   onChanged,
   archiveEligible = false,
@@ -36,6 +37,7 @@ function Opportunity({
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
   contactEvidence?: NonNullable<DiscoveryTruth["contactEvidencePreviews"]>[number]
+  crmObservation?: NonNullable<DiscoveryTruth["candidateCrmObservations"]>[number]
   session?: PortalSession
   onChanged?: () => void
   archiveEligible?: boolean
@@ -74,6 +76,7 @@ function Opportunity({
           messageBinding={messageBinding}
           route={route}
           preview={preview}
+          crmObservation={crmObservation}
           locale={locale}
           session={session}
           onChanged={onChanged}
@@ -310,6 +313,7 @@ export function ConversationPreparation({
   messageBinding,
   route,
   preview,
+  crmObservation,
   locale,
   session,
   onChanged,
@@ -318,6 +322,7 @@ export function ConversationPreparation({
   messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
+  crmObservation?: NonNullable<DiscoveryTruth["candidateCrmObservations"]>[number]
   locale: Locale
   session?: PortalSession
   onChanged?: () => void
@@ -384,6 +389,27 @@ export function ConversationPreparation({
               ? "La ruta conserva sus bloqueos actuales."
               : "Current route blockers still apply."}{" "}
           {es ? "No autoriza CRM ni contacto." : "This does not authorize CRM or contact."}
+        </p>
+      )}
+      {crmObservation?.proposal_id === preparation.id && (
+        <p className="acq-muted">
+          <strong>{es ? "Observación CRM" : "CRM observation"}:</strong>{" "}
+          {crmObservation.crm_intent_id
+            ? crmObservation.association_observed
+              ? crmObservation.association_evidence_origin === "CONTROLLED_SIMULATION"
+                ? es
+                  ? "Company y contacto asociados sólo en simulación."
+                  : "Company and contact associated in simulation only."
+                : es
+                  ? "Asociación observada; requiere revisión de autoridad y vigencia."
+                  : "Association observed; authority and currency still need review."
+              : es
+                ? "Intención presente; falta confirmar Company, contacto y asociación."
+                : "Intent present; Company, contact, and association need confirmation."
+            : es
+              ? "Sin intención CRM para esta ruta."
+              : "No CRM intent for this route."}{" "}
+          {es ? "Sólo lectura; no autoriza envío." : "Read only; this does not authorize sending."}
         </p>
       )}
       {route && (
@@ -692,6 +718,9 @@ export function CandidateOpportunities({
               contactEvidence={data.contactEvidencePreviews?.find(
                 (item) => item.candidate_id === group[0].id,
               )}
+              crmObservation={data.candidateCrmObservations?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               locale={locale}
               session={session}
               onChanged={onChanged}
@@ -725,6 +754,9 @@ export function CandidateOpportunities({
                     (item) => item.candidate_id === candidate.id,
                   )}
                   contactEvidence={data.contactEvidencePreviews?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  crmObservation={data.candidateCrmObservations?.find(
                     (item) => item.candidate_id === candidate.id,
                   )}
                   locale={locale}

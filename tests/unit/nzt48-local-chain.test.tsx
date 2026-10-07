@@ -62,6 +62,10 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
         (item) => !item.executable && !item.effect_authorized,
       ),
     ).toBe(true)
+    expect(data.candidateCrmObservations).toHaveLength(2)
+    expect(data.candidateCrmObservations?.every((item) =>
+      item.crm_intent_id === null && !item.executable && !item.effect_authorized,
+    )).toBe(true)
     expect(
       data.commercialRoutes?.every(
         (route) =>
@@ -87,6 +91,7 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
     expect(screen.getAllByText(/Buyer unresolved or not current/)).toHaveLength(
       2,
     )
+    expect(screen.getAllByText(/No CRM intent for this route/)).toHaveLength(2)
     const proposalId = data.conversationPreparations!.at(0)!.id
     const result = await acquisitionApi.conversationFeedback(
       "synthetic-web-feedback",
@@ -187,11 +192,15 @@ it.skipIf(!process.env.NZT48_REAL_MODE_INPUT)(
     )
     expect(contactEvidence?.next_gate).toBe("CANDIDATE_IDENTITY_REQUIRED")
     expect(contactEvidence?.executable).toBe(false)
+    expect(data.candidateCrmObservations?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )?.review_gate).toBe("CANDIDATE_IDENTITY_REQUIRED")
     render(<CandidateOpportunities data={data} locale="en" />)
     expect(
       screen.getByText(/observed regional implementation may transfer/),
     ).toBeVisible()
     expect(screen.getAllByText(/Contact evidence/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/No CRM intent for this route/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/This does not authorize contact/)).toHaveLength(
       data.conversationPreparations?.length ?? 0,
     )
