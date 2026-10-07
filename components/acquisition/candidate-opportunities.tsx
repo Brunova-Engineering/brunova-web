@@ -20,6 +20,7 @@ function Opportunity({
   locale,
   record,
   preparations,
+  route,
   session,
   onChanged,
   archiveEligible = false,
@@ -28,6 +29,7 @@ function Opportunity({
   locale: Locale
   record?: string
   preparations?: DiscoveryTruth["conversationPreparations"]
+  route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   session?: PortalSession
   onChanged?: () => void
   archiveEligible?: boolean
@@ -63,6 +65,7 @@ function Opportunity({
       {preparations?.[0] && (
         <ConversationPreparation
           preparation={preparations[0]}
+          route={route}
           locale={locale}
           session={session}
           onChanged={onChanged}
@@ -248,11 +251,13 @@ function Opportunity({
 
 export function ConversationPreparation({
   preparation,
+  route,
   locale,
   session,
   onChanged,
 }: {
   preparation: NonNullable<DiscoveryTruth["conversationPreparations"]>[number]
+  route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   locale: Locale
   session?: PortalSession
   onChanged?: () => void
@@ -284,6 +289,53 @@ export function ConversationPreparation({
           ? "Borrador basado en evidencia. Tu comentario es opcional; Pancracio decide el siguiente paso dentro del mandato. No autoriza contacto."
           : "Evidence-based draft. Your feedback is optional; Pancracio decides the next step within its mandate. This does not authorize contact."}
       </p>
+      {route && (
+        <p className="acq-muted">
+          <strong>{es ? "Siguiente frontera" : "Next gate"}:</strong>{" "}
+          {(
+            {
+              EXTERNAL_EFFECTS_MODE_UNSAFE: es
+                ? "detener y revisar configuración de efectos"
+                : "stop and review effect settings",
+              ACTIVE_CYCLE_REQUIRED: es
+                ? "confirmar ciclo activo"
+                : "confirm the active cycle",
+              ARCHIVED_CANDIDATE: es
+                ? "revisar candidata archivada"
+                : "review archived Candidate",
+              UNCERTAIN_EFFECT_RECONCILIATION_REQUIRED: es
+                ? "conciliar un resultado incierto"
+                : "reconcile an uncertain outcome",
+              PRIOR_EFFECT_ATTEMPT_REVIEW_REQUIRED: es
+                ? "revisar intentos previos"
+                : "review prior attempts",
+              CANDIDATE_IDENTITY_REQUIRED: es
+                ? "resolver identidad de la organización"
+                : "resolve organization identity",
+              ACCOUNT_ADMISSION_REQUIRED: es
+                ? "confirmar identidad y admisión de cuenta"
+                : "confirm identity and Account admission",
+              ACCOUNT_QUALIFICATION_REQUIRED: es
+                ? "completar evaluación de cuenta"
+                : "complete Account evaluation",
+              PERSON_EVIDENCE_REQUIRED: es
+                ? "identificar una persona con evidencia"
+                : "identify a person with evidence",
+              SUPPORTED_EMAIL_REQUIRED: es
+                ? "verificar un contacto de email"
+                : "verify an email contact",
+              SUPPRESSED: es ? "contacto suprimido" : "contact suppressed",
+              GENERIC_CRM_BOUNDARY_REQUIRED: es
+                ? "validar el límite genérico de CRM"
+                : "validate the generic CRM boundary",
+            } as Record<string, string>
+          )[route.next_gate] ?? (es ? "revisión pendiente" : "review pending")}
+          .{" "}
+          {es
+            ? "La ruta a CRM y email no es ejecutable."
+            : "The CRM and email route is not executable."}
+        </p>
+      )}
       <p>
         <strong>{es ? "Hipótesis" : "Hypothesis"}:</strong>{" "}
         {preparation.body.hypothesis}
@@ -525,6 +577,9 @@ export function CandidateOpportunities({
               preparations={data.conversationPreparations
                 ?.filter((item) => item.candidate_id === group[0].id)
                 .sort((a, b) => b.version - a.version)}
+              route={data.commercialRoutes?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               locale={locale}
               session={session}
               onChanged={onChanged}
@@ -548,6 +603,9 @@ export function CandidateOpportunities({
                   preparations={data.conversationPreparations
                     ?.filter((item) => item.candidate_id === candidate.id)
                     .sort((a, b) => b.version - a.version)}
+                  route={data.commercialRoutes?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
                   locale={locale}
                   session={session}
                   onChanged={onChanged}

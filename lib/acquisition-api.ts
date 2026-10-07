@@ -494,6 +494,36 @@ export const acquisitionApi = {
             }),
           )
           .optional(),
+        commercialRoutes: z
+          .array(
+            z.object({
+              proposal_id: z.string(),
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              proposal_version: z.number(),
+              proposal_hash: z.string(),
+              identity_state: z.string(),
+              archived: z.boolean(),
+              cycle_active: z.boolean(),
+              admission_state: z.string().nullable(),
+              account_id: z.string().nullable(),
+              account_stage: z.string().nullable(),
+              research_outcome: z.string().nullable(),
+              person_evidence_present: z.boolean(),
+              supported_email_present: z.boolean(),
+              suppressed: z.boolean(),
+              crm_observed_state: z.string().nullable(),
+              prior_effect_attempts: z.number(),
+              unresolved_effect: z.boolean(),
+              effects_disabled: z.boolean(),
+              authority_state: z.literal("READINESS_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+              next_gate: z.string(),
+              blockers: z.array(z.string()),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({

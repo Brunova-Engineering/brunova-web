@@ -83,7 +83,13 @@ export function OutreachState({ locale }: { locale: Locale }) {
                     (candidate) => candidate.id === item.candidate_id,
                   )?.name ?? item.candidate_id}
                 </h4>
-                <ConversationPreparation preparation={item} locale={locale} />
+                <ConversationPreparation
+                  preparation={item}
+                  route={data.commercialRoutes?.find(
+                    (route) => route.candidate_id === item.candidate_id,
+                  )}
+                  locale={locale}
+                />
               </article>
             ))}
         </section>

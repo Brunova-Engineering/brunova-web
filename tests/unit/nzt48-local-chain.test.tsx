@@ -16,7 +16,7 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
       async (path: string) =>
         new Response(
           JSON.stringify(
-          path === "/api/acquisition/v1/discovery"
+            path === "/api/acquisition/v1/discovery"
               ? payload
               : {
                   status: "accepted",
@@ -46,6 +46,18 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
           !item.effect_authorized,
       ),
     ).toBe(true)
+    expect(data.commercialRoutes?.map((route) => route.next_gate)).toEqual([
+      "CANDIDATE_IDENTITY_REQUIRED",
+      "CANDIDATE_IDENTITY_REQUIRED",
+    ])
+    expect(
+      data.commercialRoutes?.every(
+        (route) =>
+          !route.executable &&
+          !route.effect_authorized &&
+          route.effects_disabled,
+      ),
+    ).toBe(true)
     render(<CandidateOpportunities data={data} locale="en" />)
     expect(
       screen.getByText(/supplier transition may change coordination work/),
@@ -57,6 +69,9 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
       2,
     )
     expect(screen.getByText(/Recorded feedback/)).toBeVisible()
+    expect(
+      screen.getAllByText(/The CRM and email route is not executable/),
+    ).toHaveLength(2)
     const proposalId = data.conversationPreparations!.at(0)!.id
     const result = await acquisitionApi.conversationFeedback(
       "synthetic-web-feedback",
