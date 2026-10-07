@@ -628,6 +628,24 @@ export const acquisitionApi = {
             }),
           )
           .optional(),
+        roleClaimInventories: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              account_id: z.string().nullable(),
+              contact_gate: z.string(),
+              raw_role_claim_people: z.number(),
+              current_first_party_role_claim_people: z.number(),
+              explicit_conflict_people: z.number(),
+              conflicting_role_people: z.number(),
+              review_gate: z.string(),
+              authority_state: z.literal("UNINTERPRETED_ROLE_CLAIMS"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({

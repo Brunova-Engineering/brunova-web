@@ -66,6 +66,12 @@ it.skipIf(!process.env.NZT48_PROJECTION_INPUT)(
     expect(data.candidateCrmObservations?.every((item) =>
       item.crm_intent_id === null && !item.executable && !item.effect_authorized,
     )).toBe(true)
+    expect(data.roleClaimInventories).toHaveLength(2)
+    expect(data.roleClaimInventories?.every((item) =>
+      item.review_gate === "CANDIDATE_IDENTITY_REQUIRED" &&
+      item.authority_state === "UNINTERPRETED_ROLE_CLAIMS" &&
+      !item.executable && !item.effect_authorized,
+    )).toBe(true)
     expect(
       data.commercialRoutes?.every(
         (route) =>

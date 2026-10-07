@@ -24,6 +24,7 @@ function Opportunity({
   route,
   preview,
   contactEvidence,
+  roleClaimInventory,
   crmObservation,
   session,
   onChanged,
@@ -37,6 +38,7 @@ function Opportunity({
   route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
   preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
   contactEvidence?: NonNullable<DiscoveryTruth["contactEvidencePreviews"]>[number]
+  roleClaimInventory?: NonNullable<DiscoveryTruth["roleClaimInventories"]>[number]
   crmObservation?: NonNullable<DiscoveryTruth["candidateCrmObservations"]>[number]
   session?: PortalSession
   onChanged?: () => void
@@ -130,6 +132,21 @@ function Opportunity({
           . {es ? "No autoriza CRM ni contacto." : "This does not authorize CRM or contact."}
         </p>
       )}
+      {roleClaimInventory &&
+        (roleClaimInventory.raw_role_claim_people > 0 ||
+          roleClaimInventory.contact_gate === "BUYER_ROLE_EVIDENCE_REQUIRED") && (
+          <p className="acq-muted">
+            <strong>{es ? "Indicios de rol" : "Role claims"}:</strong>{" "}
+            {roleClaimInventory.current_first_party_role_claim_people}{" "}
+            {es ? "persona(s) con indicios atribuibles actuales" : "person(s) with current attributable claims"};{" "}
+            {roleClaimInventory.explicit_conflict_people +
+              roleClaimInventory.conflicting_role_people}{" "}
+            {es ? "señal(es) de conflicto" : "conflict signal(s)"}.{" "}
+            {es
+              ? "Panky debe interpretar el rol y el mandato antes de decidir. Esto no autoriza CRM ni contacto."
+              : "Panky must interpret role and mandate before deciding. This does not authorize CRM or contact."}
+          </p>
+        )}
       <div className="acq-memo-grid">
         <section>
           <h4>{es ? "Por qué importa" : "Why it matters"}</h4>
@@ -722,6 +739,9 @@ export function CandidateOpportunities({
               contactEvidence={data.contactEvidencePreviews?.find(
                 (item) => item.candidate_id === group[0].id,
               )}
+              roleClaimInventory={data.roleClaimInventories?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               crmObservation={data.candidateCrmObservations?.find(
                 (item) => item.candidate_id === group[0].id,
               )}
@@ -758,6 +778,9 @@ export function CandidateOpportunities({
                     (item) => item.candidate_id === candidate.id,
                   )}
                   contactEvidence={data.contactEvidencePreviews?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  roleClaimInventory={data.roleClaimInventories?.find(
                     (item) => item.candidate_id === candidate.id,
                   )}
                   crmObservation={data.candidateCrmObservations?.find(
