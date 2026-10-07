@@ -395,7 +395,11 @@ export function ConversationPreparation({
         <p className="acq-muted">
           <strong>{es ? "Observación CRM" : "CRM observation"}:</strong>{" "}
           {crmObservation.crm_intent_id
-            ? crmObservation.association_observed
+            ? !crmObservation.crm_message_matches
+              ? es
+                ? "La observación CRM histórica no coincide con el mensaje vigente."
+                : "The historical CRM observation does not match the current message."
+              : crmObservation.association_observed
               ? crmObservation.association_evidence_origin === "CONTROLLED_SIMULATION"
                 ? es
                   ? "Company y contacto asociados sólo en simulación."
