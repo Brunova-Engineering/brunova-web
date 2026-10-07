@@ -141,3 +141,41 @@ it.skipIf(!process.env.NZT48_BINDING_INPUT)(
     expect(screen.getByText(/Current for rehearsal only/)).toBeVisible()
   },
 )
+
+it.skipIf(!process.env.NZT48_REAL_MODE_INPUT)(
+  "renders the actual active-cycle, real-data gate without contact authority",
+  async () => {
+    const payload = JSON.parse(
+      readFileSync(process.env.NZT48_REAL_MODE_INPUT!, "utf8"),
+    )
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(payload), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+    )
+    const data = await acquisitionApi.discovery()
+    const proposal = data.conversationPreparations?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )
+    const route = data.commercialRoutes?.find(
+      (entry) => entry.candidate_id === "nzt48-real-mode-unresolved",
+    )
+    expect(proposal?.authority_state).toBe("PREPARATION_ONLY")
+    expect(proposal?.effect_authorized).toBe(false)
+    expect(route?.next_gate).toBe("CANDIDATE_IDENTITY_REQUIRED")
+    expect(route?.executable).toBe(false)
+    expect(route?.effect_authorized).toBe(false)
+    expect(route?.effects_disabled).toBe(true)
+    render(<CandidateOpportunities data={data} locale="en" />)
+    expect(
+      screen.getByText(/observed regional implementation may transfer/),
+    ).toBeVisible()
+    expect(screen.getAllByText(/This does not authorize contact/)).toHaveLength(
+      data.conversationPreparations?.length ?? 0,
+    )
+  },
+)
