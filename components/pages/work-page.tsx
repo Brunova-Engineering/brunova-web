@@ -26,14 +26,14 @@ export function WorkPageView({ locale }: { locale: Locale }) {
         <Container className="work-intro__inner">
           <Heading level={1}>
             {es
-              ? "Sistemas que hemos diseñado y construido."
-              : "Operational systems we’ve engineered."}
+              ? "Experiencia de ingeniería seleccionada."
+              : "Selected engineering experience."}
           </Heading>
           <div className="route-intro__lede">
             <p>
               {es
-                ? "Una selección de sistemas creados por Brunova para resolver problemas operativos complejos."
-                : "A selection of systems Brunova has designed and built to solve complex operational problems."}
+                ? "Una selección de sistemas diseñados y construidos durante la experiencia profesional previa de nuestro fundador frente a problemas operativos complejos."
+                : "A selection of systems designed and built through our founder’s prior engineering work on complex operational problems."}
             </p>
           </div>
         </Container>

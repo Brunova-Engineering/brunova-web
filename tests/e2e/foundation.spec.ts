@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright"
 import { expect, test } from "@playwright/test"
 
 test("site shell and health endpoint are operational", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.setViewportSize({ width: 1440, height: 800 })
   await page.goto("/")
 
   await expect(
@@ -33,8 +33,131 @@ test("site shell and health endpoint are operational", async ({ page }) => {
   expect(accessibility.violations).toEqual([])
 })
 
+test("the approved Brunova mark is published as the browser icon", async ({
+  page,
+}) => {
+  await page.goto("/")
+
+  const icon = page.locator('link[rel="icon"][type="image/svg+xml"]')
+  await expect(icon).toHaveAttribute("type", "image/svg+xml")
+  await expect(icon).toHaveAttribute("href", "/brand/brunova-mark.svg")
+
+  const response = await page.request.get("/brand/brunova-mark.svg")
+  expect(response.status()).toBe(200)
+  expect(response.headers()["content-type"]).toContain("image/svg+xml")
+  const svg = await response.text()
+  expect(svg).toContain('viewBox="0 0 181 181"')
+  expect(svg).toContain("<path")
+  expect(svg).not.toMatch(/<(?:image|filter)\b/i)
+
+  const fallback = await page.request.get("/favicon.ico")
+  expect(fallback.status()).toBe(200)
+  expect(fallback.headers()["content-type"]).toContain("image/x-icon")
+})
+
+test("Brunova SVG logos stay raster-free and preserve brand geometry", async ({
+  page,
+}) => {
+  const assets = [
+    {
+      path: "/brand/brunova-mark.svg",
+      viewBox: "0 0 181 181",
+      paths: 1,
+      colors: ["#14110e", "#eeeae5"],
+    },
+    {
+      path: "/brand/brunova-wordmark-dark.svg",
+      viewBox: "0 0 898.869449 180.770293",
+      paths: 7,
+      colors: ["#14110e"],
+    },
+    {
+      path: "/brand/brunova-wordmark-light.svg",
+      viewBox: "0 0 898.869449 180.770293",
+      paths: 7,
+      colors: ["#eeeae5"],
+    },
+  ]
+
+  for (const asset of assets) {
+    const response = await page.request.get(asset.path)
+    expect(response.status()).toBe(200)
+    const svg = await response.text()
+
+    expect(svg).toContain(`viewBox="${asset.viewBox}"`)
+    expect(svg.match(/<path\b/g)).toHaveLength(asset.paths)
+    expect(svg).not.toMatch(/<(?:image|filter|foreignObject)\b/i)
+    expect(svg).not.toContain("data:image/")
+    for (const color of asset.colors) {
+      expect(svg.toLowerCase()).toContain(color)
+    }
+  }
+
+  await page.setViewportSize({ width: 1600, height: 900 })
+  await page.goto("/")
+  await page.setContent(`
+    <style>body { margin: 0 } img { display: block; width: 899px; height: auto }</style>
+    <img src="/brand/brunova-wordmark-dark.svg" alt="" />
+  `)
+  const logo = page.locator("img")
+  await logo.evaluate((image: HTMLImageElement) => image.decode())
+  const geometry = await logo.evaluate((image) => {
+    const bounds = image.getBoundingClientRect()
+    return { width: bounds.width, height: bounds.height }
+  })
+  expect(geometry.width).toBeCloseTo(899, 1)
+  expect(geometry.height).toBeCloseTo((180.770293 * 899) / 898.869449, 1)
+})
+
+test("high-resolution Brunova PNG exports retain their native dimensions", async ({
+  page,
+}) => {
+  const assets = [
+    { path: "/brand/brunova-mark-4096.png", width: 4096, height: 4096 },
+    {
+      path: "/brand/brunova-wordmark-dark-8192.png",
+      width: 8192,
+      height: 1647,
+    },
+    {
+      path: "/brand/brunova-wordmark-light-8192.png",
+      width: 8192,
+      height: 1647,
+    },
+  ]
+
+  for (const asset of assets) {
+    const response = await page.request.get(asset.path)
+    expect(response.status()).toBe(200)
+    expect(response.headers()["content-type"]).toContain("image/png")
+  }
+
+  await page.goto("/")
+  const dimensions = await page.evaluate(async (pngAssets) => {
+    return Promise.all(
+      pngAssets.map(
+        (asset) =>
+          new Promise<{ width: number; height: number }>((resolve, reject) => {
+            const image = new Image()
+            image.onload = () =>
+              resolve({
+                width: image.naturalWidth,
+                height: image.naturalHeight,
+              })
+            image.onerror = reject
+            image.src = asset.path
+          }),
+      ),
+    )
+  }, assets)
+
+  expect(dimensions).toEqual(
+    assets.map(({ width, height }) => ({ width, height })),
+  )
+})
+
 test("explicit theme preference persists", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.setViewportSize({ width: 1440, height: 800 })
   await page.goto("/")
   await page.getByRole("button", { name: "Appearance" }).click()
   const themeControl = page.getByRole("group", { name: "Appearance" })
@@ -99,10 +222,17 @@ for (const width of [1280, 1440]) {
       }
     })
 
-    expect(layout.height).toBeGreaterThanOrEqual(80)
-    expect(layout.height).toBeLessThanOrEqual(88)
+    if (width === 1280) {
+      // The approved intermediate layout uses the compact navigation rail.
+      expect(layout.height).toBeGreaterThanOrEqual(64)
+      expect(layout.height).toBeLessThanOrEqual(76)
+      await expect(page.getByRole("button", { name: "Menu" })).toBeVisible()
+    } else {
+      expect(layout.height).toBeGreaterThanOrEqual(80)
+      expect(layout.height).toBeLessThanOrEqual(88)
+      expect(layout.navigationCenterDelta).toBeLessThanOrEqual(1)
+    }
     expect(layout.centerDelta).toBeLessThanOrEqual(1)
-    expect(layout.navigationCenterDelta).toBeLessThanOrEqual(1)
     expect(layout.logoInsetBlock).toBeLessThanOrEqual(1)
     expect(layout.logoInsetInline).toBeLessThanOrEqual(1)
 
@@ -192,27 +322,15 @@ for (const width of [320, 375, 390, 414, 768, 960, 1024, 1280, 1440, 1920]) {
   })
 }
 
-test("first-touch UTM attribution persists for the session", async ({
-  page,
-}) => {
+test("first-touch attribution avoids browser storage", async ({ page }) => {
   await page.goto("/?utm_source=architecture-review&utm_medium=referral")
 
-  await expect
-    .poll(() =>
-      page.evaluate(() =>
-        window.sessionStorage.getItem("brunova:first-touch-attribution:v1"),
-      ),
-    )
-    .toContain('"utm_source":"architecture-review"')
-
-  const firstTouch = await page.evaluate(() =>
-    window.sessionStorage.getItem("brunova:first-touch-attribution:v1"),
-  )
-  expect(firstTouch).toContain('"utm_source":"architecture-review"')
-
-  await page.goto("/?utm_source=replacement")
-  const preservedTouch = await page.evaluate(() =>
-    window.sessionStorage.getItem("brunova:first-touch-attribution:v1"),
-  )
-  expect(preservedTouch).toBe(firstTouch)
+  expect(
+    await page.evaluate(() =>
+      [
+        ...Object.keys(window.localStorage),
+        ...Object.keys(window.sessionStorage),
+      ].filter((key) => key.startsWith("brunova:first-touch-attribution")),
+    ),
+  ).toEqual([])
 })

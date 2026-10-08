@@ -60,7 +60,7 @@ const defaultDependencies: ContactHandlerDependencies = {
     sendContactToN8n({
       configuration: {
         webhookUrl: configuration.webhookUrl,
-        webhookSecret: configuration.webhookSecret,
+        webhookAuthorization: configuration.webhookAuthorization,
       },
       envelope,
     }),

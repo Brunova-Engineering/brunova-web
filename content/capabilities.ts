@@ -7,7 +7,7 @@ export const capabilities = [
     name: "Systems Architecture & Internal Platforms",
     navigationLabel: "Architecture",
     shortDescription:
-      "We design system boundaries, services, operating models and internal platforms around critical business operations.",
+      "For critical operations that have grown without clear ownership or a system designed around them.",
     problemClass:
       "Critical operations have grown without a shared boundary or clear ownership.",
     approach:
@@ -30,7 +30,7 @@ export const capabilities = [
     name: "Data & Integration Engineering",
     navigationLabel: "Data & integration",
     shortDescription:
-      "We connect APIs, databases, SaaS platforms, warehouses and operational data flows with explicit semantics and ownership.",
+      "For reporting and daily work that depend on data spread across systems without one reliable source.",
     problemClass:
       "Distributed data lacks consistent meaning, movement and ownership.",
     approach:
@@ -56,7 +56,7 @@ export const capabilities = [
     name: "Financial & Operational Automation",
     navigationLabel: "Financial automation",
     shortDescription:
-      "We build controlled automation for critical financial and operational workflows, including accounting integrations, reconciliation, reporting, AR/AP and inventory-related operations.",
+      "For financial and operational work still held together by manual reconciliation, handoffs and disconnected automation.",
     problemClass:
       "Critical financial work depends on manual handoffs and disconnected automations.",
     approach:
@@ -82,7 +82,7 @@ export const capabilities = [
     name: "Workflow / Process Engineering",
     navigationLabel: "Process engineering",
     shortDescription:
-      "We redesign the process before automating it: states, owners, approvals, exceptions, human review and escalation.",
+      "For processes that lose control when work changes hands, exceptions appear or judgment is required.",
     problemClass:
       "A process loses control when ownership changes, exceptions appear or judgment is required.",
     approach:
@@ -105,7 +105,7 @@ export const capabilities = [
     name: "Modernization of Fragile Automations",
     navigationLabel: "Automation modernization",
     shortDescription:
-      "We take automations that already work but are brittle, opaque or person-dependent and move them toward stronger architecture and operations.",
+      "For automations that still work but are difficult to understand, recover or change safely.",
     problemClass:
       "Useful automations are brittle, opaque or dependent on one person.",
     approach:

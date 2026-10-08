@@ -15,7 +15,11 @@ const requestIds = [
 const configuration: ContactRuntimeConfiguration = {
   siteUrl: new URL("http://localhost:3000"),
   webhookUrl: new URL("https://automation.example.test/contact"),
-  webhookSecret: "server-only-secret",
+  webhookAuthorization: {
+    type: "basic",
+    username: "server-only-user",
+    password: "server-only-password",
+  },
   rateLimitSalt: "phase-seven-rate-limit-salt",
 }
 const browserPayload = {
@@ -80,7 +84,7 @@ describe("contact logical identity integration", () => {
         sendContactToN8n({
           configuration: {
             webhookUrl: configuration.webhookUrl,
-            webhookSecret: configuration.webhookSecret,
+            webhookAuthorization: configuration.webhookAuthorization,
           },
           envelope,
           fetchImplementation,
@@ -111,14 +115,13 @@ describe("contact logical identity integration", () => {
 
     for (const { headers, envelope } of upstreamRequests) {
       expect(headers.get("authorization")).toBe(
-        `Bearer ${configuration.webhookSecret}`,
+        `Basic ${Buffer.from("server-only-user:server-only-password").toString("base64")}`,
       )
       expect(JSON.stringify(envelope)).not.toContain("192.0.2.44")
       expect(envelope).not.toHaveProperty("website")
       expect(envelope).not.toHaveProperty("formStartedAt")
-      expect(JSON.stringify(envelope)).not.toContain(
-        configuration.webhookSecret,
-      )
+      expect(JSON.stringify(envelope)).not.toContain("server-only-user")
+      expect(JSON.stringify(envelope)).not.toContain("server-only-password")
     }
   })
 
@@ -155,7 +158,7 @@ describe("contact logical identity integration", () => {
       await sendContactToN8n({
         configuration: {
           webhookUrl: configuration.webhookUrl,
-          webhookSecret: configuration.webhookSecret,
+          webhookAuthorization: configuration.webhookAuthorization,
         },
         envelope: {
           request_id: requestIds[0] ?? "",

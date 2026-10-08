@@ -29,12 +29,52 @@ test("contact route renders the production conversion contract", async ({
   ).toBeVisible()
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     "content",
-    /noindex/,
+    /index, follow/,
   )
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /\/contact$/,
   )
+  await expect(page.getByRole("region", { name: "Privacy" })).toContainText(
+    "Calle Poniente 1 #16, Centro, 94730 Río Blanco, Veracruz, Mexico.",
+  )
+  await expect(
+    page.getByRole("link", { name: "Full Privacy Notice" }),
+  ).toHaveAttribute("href", "/privacy")
+})
+
+test("Spanish contact route presents the equivalent visible privacy notice", async ({
+  page,
+}) => {
+  await page.goto("/es/contact")
+
+  const privacy = page.getByRole("region", { name: "Privacidad" })
+  await expect(privacy).toContainText(
+    "Calle Poniente 1 #16, Centro, C.P. 94730, Río Blanco, Veracruz, México.",
+  )
+  await expect(privacy).toContainText(
+    "No existen finalidades secundarias de marketing.",
+  )
+  await expect(
+    page.getByRole("link", { name: "Aviso de Privacidad completo" }),
+  ).toHaveAttribute("href", "/es/privacy")
+})
+
+test("desktop expectations align with the operation section", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto("/contact")
+
+  const expectationsTop = await page
+    .locator(".contact-expectations strong")
+    .first()
+    .evaluate((element) => element.getBoundingClientRect().top)
+  const operationTop = await page
+    .getByText("The operation", { exact: true })
+    .evaluate((element) => element.getBoundingClientRect().top)
+
+  expect(Math.abs(expectationsTop - operationTop)).toBeLessThanOrEqual(4)
 })
 
 test("contact form supports ordered keyboard completion", async ({ page }) => {
@@ -55,6 +95,18 @@ test("contact form supports ordered keyboard completion", async ({ page }) => {
   await page.getByLabel("Problem category").selectOption("fragmented_systems")
   await page.keyboard.press("Tab")
   await expect(page.getByLabel("Problem description")).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(
+    page.getByRole("button", { name: "Send the context" }),
+  ).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(
+    page.getByRole("link", { name: "brunova@brunova.mx" }),
+  ).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(
+    page.getByRole("link", { name: "Full Privacy Notice" }),
+  ).toBeFocused()
 })
 
 test("client validation retains stable error associations", async ({
@@ -80,18 +132,6 @@ test("successful submission includes first-touch UTM and browser idempotency", a
   let requestBody: Record<string, unknown> | undefined
   let idempotencyKey = ""
 
-  await page.addInitScript(() => {
-    window.sessionStorage.setItem(
-      "brunova:first-touch-attribution:v1",
-      JSON.stringify({
-        utm_source: "architecture-review",
-        utm_medium: "referral",
-        utm_campaign: "br-017",
-        capturedAt: "2026-08-16T18:00:00.000Z",
-        landingPath: "/contact",
-      }),
-    )
-  })
   await page.route("**/api/contact", async (route) => {
     requestBody = route.request().postDataJSON() as Record<string, unknown>
     idempotencyKey = route.request().headers()["idempotency-key"] ?? ""
@@ -102,7 +142,11 @@ test("successful submission includes first-touch UTM and browser idempotency", a
     })
   })
 
-  await page.goto("/contact")
+  await page.goto(
+    "/process?utm_source=architecture-review&utm_medium=referral&utm_campaign=br-017",
+    { referer: "https://chatgpt.com/" },
+  )
+  await page.locator('a[href="/contact"]:visible').first().click()
   await fillContactForm(page)
   await page.getByRole("button", { name: "Send the context" }).click()
 
@@ -120,6 +164,7 @@ test("successful submission includes first-touch UTM and browser idempotency", a
     term: null,
     content: null,
   })
+  expect(requestBody).not.toHaveProperty("firstTouch")
 })
 
 test("recoverable retry preserves content and key until a material edit", async ({

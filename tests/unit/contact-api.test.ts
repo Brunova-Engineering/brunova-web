@@ -40,7 +40,11 @@ const validRequest = {
 const configuration: ContactRuntimeConfiguration = {
   siteUrl: new URL("http://localhost:3000"),
   webhookUrl: new URL("https://automation.example.test/contact"),
-  webhookSecret: "secret-value",
+  webhookAuthorization: {
+    type: "basic",
+    username: "test-user",
+    password: "test-password",
+  },
   rateLimitSalt: "contact-test-salt-value",
 }
 

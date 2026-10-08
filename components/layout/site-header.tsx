@@ -52,6 +52,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
 
         <MobileNavigation
           copy={copy}
+          locale={locale}
           portalItem={navigation.portal}
           primaryAction={site.primaryAction}
           primaryItems={navigation.primary}

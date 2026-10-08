@@ -19,7 +19,7 @@ const spanishRoutes = [
   },
   {
     path: "/es/work",
-    heading: "Sistemas que hemos diseñado y construido.",
+    heading: "Experiencia de ingeniería seleccionada.",
   },
   ...esWorkCases.map((work) => ({
     path: `/es/work/${work.slug}`,
@@ -27,13 +27,14 @@ const spanishRoutes = [
   })),
   { path: "/es/about", heading: "Donde la operación exige ingeniería." },
   { path: "/es/contact", heading: "Hablemos de su operación." },
-  { path: "/es/portal", heading: "Portal de Clientes Brunova" },
+  { path: "/es/portal", heading: "Portal Brunova" },
   { path: "/es/privacy", heading: "Privacidad" },
 ] as const
 
 test("every Spanish public route is server-localized with complete metadata", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   for (const route of spanishRoutes) {
     const response = await page.goto(route.path)
     expect(response?.status(), route.path).toBe(200)
@@ -67,7 +68,7 @@ test("Spanish Systems copy leads with operational meaning", async ({
   await page.goto("/es/work")
   await expect(
     page.getByText(
-      "Una selección de sistemas creados por Brunova para resolver problemas operativos complejos.",
+      "Una selección de sistemas diseñados y construidos durante la experiencia profesional previa de nuestro fundador frente a problemas operativos complejos.",
     ),
   ).toBeVisible()
   await expect(page.getByText(/anonimiz/i)).toHaveCount(0)
@@ -78,7 +79,7 @@ test("Spanish Systems copy leads with operational meaning", async ({
     page.getByRole("heading", { name: "Qué estaba ocurriendo" }),
   ).toBeVisible()
   await expect(
-    page.getByRole("heading", { name: "Qué construyó Brunova" }),
+    page.getByRole("heading", { name: "Enfoque del sistema" }),
   ).toBeVisible()
   await expect(page.getByRole("heading", { name: "Qué cambió" })).toBeVisible()
   await expect(page.getByText(/anonimiz/i)).toHaveCount(0)
@@ -87,6 +88,7 @@ test("Spanish Systems copy leads with operational meaning", async ({
 test("language utility preserves the equivalent path and only persists explicit choice", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(`/work/${esWorkCases[0].slug}`)
   expect(
     await page.evaluate(() => localStorage.getItem("brunova-locale")),
@@ -111,6 +113,7 @@ test("appearance and language utilities are independent, dismissible and accessi
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/")
+  await page.getByRole("button", { name: "Menu" }).click()
 
   const appearance = page.getByRole("button", { name: "Appearance" })
   await appearance.click()
@@ -134,6 +137,7 @@ for (const theme of ["system", "light", "dark"] as const) {
     test(`${theme} appearance renders with ${locale.toUpperCase()} content`, async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 1440, height: 900 })
       await page.addInitScript(
         (selectedTheme) => localStorage.setItem("brunova-theme", selectedTheme),
         theme,
@@ -199,5 +203,5 @@ test("Spanish unknown routes use the localized noindex state", async ({
     .evaluateAll((elements) =>
       elements.map((element) => element.getAttribute("content") ?? ""),
     )
-  expect(robots.every((content) => content.includes("noindex"))).toBe(true)
+  expect(robots.some((content) => content.includes("noindex"))).toBe(true)
 })

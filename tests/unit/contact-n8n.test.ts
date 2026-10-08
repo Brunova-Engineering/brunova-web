@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { sendContactToN8n } from "@/lib/contact/n8n"
+import { N8N_TIMEOUT_MS, sendContactToN8n } from "@/lib/contact/n8n"
 import type { ContactEnvelope } from "@/lib/contact/types"
 
 const envelope: ContactEnvelope = {
@@ -28,10 +28,18 @@ const envelope: ContactEnvelope = {
 
 const configuration = {
   webhookUrl: new URL("https://automation.example.test/contact"),
-  webhookSecret: "server-secret",
+  webhookAuthorization: {
+    type: "basic" as const,
+    username: "server-user",
+    password: "server-password",
+  },
 }
 
 describe("n8n contact adapter", () => {
+  it("retains the bounded eight-second upstream timeout", () => {
+    expect(N8N_TIMEOUT_MS).toBe(8_000)
+  })
+
   it("sends authentication and correlation only through headers", async () => {
     let capturedInit: RequestInit | undefined
     const fetchImplementation = vi.fn(
@@ -50,20 +58,50 @@ describe("n8n contact adapter", () => {
     ).toBe(true)
 
     const headers = new Headers(capturedInit?.headers)
-    expect(headers.get("authorization")).toBe("Bearer server-secret")
+    expect(headers.get("authorization")).toBe(
+      `Basic ${Buffer.from("server-user:server-password").toString("base64")}`,
+    )
     expect(headers.get("idempotency-key")).toBe(envelope.idempotency_key)
     expect(headers.get("x-brunova-request-id")).toBe(envelope.request_id)
     expect(capturedInit?.redirect).toBe("manual")
-    expect(capturedInit?.body).not.toContain("server-secret")
+    expect(capturedInit?.body).not.toContain("server-user")
+    expect(capturedInit?.body).not.toContain("server-password")
   })
 
-  it("rejects non-2xx responses without reading their body", async () => {
+  it("retains explicit legacy Bearer compatibility", async () => {
+    let capturedInit: RequestInit | undefined
+    const fetchImplementation = vi.fn(
+      async (_input: URL | RequestInfo, init?: RequestInit) => {
+        capturedInit = init
+        return new Response(null, { status: 204 })
+      },
+    ) as typeof fetch
+
+    expect(
+      await sendContactToN8n({
+        configuration: {
+          webhookUrl: configuration.webhookUrl,
+          webhookAuthorization: {
+            type: "bearer",
+            secret: "legacy-server-secret",
+          },
+        },
+        envelope,
+        fetchImplementation,
+      }),
+    ).toBe(true)
+    expect(new Headers(capturedInit?.headers).get("authorization")).toBe(
+      "Bearer legacy-server-secret",
+    )
+  })
+
+  it("treats rejected upstream credentials as a recoverable failure", async () => {
     expect(
       await sendContactToN8n({
         configuration,
         envelope,
         fetchImplementation: vi.fn(async () =>
-          Promise.resolve(new Response("private failure", { status: 500 })),
+          Promise.resolve(new Response("private failure", { status: 401 })),
         ),
       }),
     ).toBe(false)

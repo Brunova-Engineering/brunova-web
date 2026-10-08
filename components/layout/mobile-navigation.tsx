@@ -5,12 +5,15 @@ import { usePathname } from "next/navigation"
 import { useEffect, useId, useRef, useState } from "react"
 
 import type { NavigationItem } from "@/content/types"
+import { SiteUtilities } from "@/components/preferences/site-utilities"
 import { trackEvent } from "@/lib/analytics"
+import type { Locale } from "@/lib/i18n"
 
 export function MobileNavigation({
   primaryItems,
   primaryAction,
   portalItem,
+  locale,
   copy = {
     menu: "Menu",
     navigation: "Navigation",
@@ -21,6 +24,7 @@ export function MobileNavigation({
   primaryItems: readonly NavigationItem[]
   primaryAction: NavigationItem
   portalItem: NavigationItem
+  locale: Locale
   copy?: {
     menu: string
     navigation: string
@@ -140,6 +144,9 @@ export function MobileNavigation({
             >
               {primaryAction.label}
             </Link>
+          </div>
+          <div className="mobile-navigation__preferences">
+            <SiteUtilities locale={locale} placement="navigation" />
           </div>
         </div>
       </dialog>

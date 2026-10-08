@@ -17,14 +17,14 @@ export function ContactPageView({ locale }: { locale: Locale }) {
             "Señale qué cuesta ejecutar hoy y dónde aparece la fricción.",
         },
         {
-          title: "Comparta el contexto disponible.",
+          title: "Revisamos si existe un buen ajuste.",
           description:
-            "Los sistemas actuales, las tareas manuales recurrentes y las restricciones conocidas son un buen punto de partida.",
+            "Brunova revisa la situación operativa y determina si parece corresponder con el tipo de problemas que resolvemos.",
         },
         {
-          title: "Nosotros definimos el siguiente paso.",
+          title: "Si existe ajuste, nos enfocamos en el problema.",
           description:
-            "Revisamos el caso y respondemos con una recomendación concreta.",
+            "La primera conversación busca entender la situación y definir un siguiente paso útil. No necesita elegir una oferta ni una etapa antes de escribirnos.",
         },
       ]
     : [
@@ -34,14 +34,14 @@ export function ContactPageView({ locale }: { locale: Locale }) {
             "Name what is becoming difficult to run and where the friction appears.",
         },
         {
-          title: "Share what you know.",
+          title: "We review whether it fits.",
           description:
-            "Existing systems, recurring manual work and known constraints are useful context.",
+            "Brunova reviews the operating situation and whether it appears to match the problems we solve.",
         },
         {
-          title: "Leave the framing to us.",
+          title: "If it fits, we focus on the problem.",
           description:
-            "We’ll review the note and respond with the most useful next step.",
+            "The first conversation is for understanding the situation and determining a useful next step. You do not need to choose an offer or stage before contacting us.",
         },
       ]
   return (

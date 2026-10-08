@@ -7,6 +7,7 @@ services:
       args:
         SITE_URL: ${SITE_URL:-http://localhost:3000}
         SEO_INDEXING_ENABLED: ${SEO_INDEXING_ENABLED:-false}
+        VCS_REF: ${VCS_REF:-unknown}
     env_file:
       - path: .env
         required: true
@@ -14,6 +15,8 @@ services:
       HOSTNAME: 0.0.0.0
       NODE_ENV: production
       PORT: 3000
+    labels:
+      org.opencontainers.image.revision: ${VCS_REF:-unknown}
     ports:
       - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-3000}:3000"
     init: true

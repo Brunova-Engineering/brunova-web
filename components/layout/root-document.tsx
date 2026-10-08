@@ -6,7 +6,6 @@ import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { BackToTop } from "@/components/preferences/back-to-top"
 import { SiteUtilities } from "@/components/preferences/site-utilities"
-import { OrganizationJsonLd } from "@/components/seo/organization-json-ld"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import type { Locale } from "@/lib/i18n"
 
@@ -29,18 +28,13 @@ export function RootDocument({
 }: PropsWithChildren<{ locale: Locale }>) {
   return (
     <html lang={locale} suppressHydrationWarning>
-      {/* The shared root document owns this head so JSON-LD remains outside error UI. */}
-      {/* eslint-disable-next-line @next/next/no-head-element */}
-      <head>
-        <OrganizationJsonLd locale={locale} />
-      </head>
       <body className={`${displayFont.variable} ${bodyFont.variable}`}>
         <ThemeProvider>
           <AttributionCapture />
           <SiteHeader locale={locale} />
           <div className="site-shell__content">{children}</div>
           <SiteFooter locale={locale} />
-          <SiteUtilities locale={locale} />
+          <SiteUtilities locale={locale} placement="shell" />
           <BackToTop locale={locale} />
         </ThemeProvider>
       </body>

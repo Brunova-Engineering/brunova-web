@@ -22,18 +22,18 @@ export const homepage = {
   },
   operationalIntelligence: {
     title:
-      "Operational intelligence is what happens when process, data and systems stop living separately.",
+      "Operational intelligence creates visibility and control across process, data and systems.",
     description:
-      "We treat the operation as a connected model: how work moves, what data means, where decisions happen, what software owns and where automation or AI can safely assist.",
+      "We connect how work moves, what data means and where decisions happen, so teams can see the operation clearly and act with greater control. Software, automation and AI support that operating model where they can do so safely.",
   },
   architecture: {
     question: "We don’t start with “What should we automate?”",
     answer: "We start with “How should this operation work?”",
   },
-  workTitle: "Selected systems we’ve engineered",
+  workTitle: "Selected engineering experience",
   process: {
     title: "How Brunova works",
-    entryTitle: "Enter where the system needs work.",
+    entryTitle: "Brunova starts where the system needs work.",
     entryDescription:
       "Discovery is available when the problem is unclear—not a mandatory first step.",
   },
@@ -43,7 +43,8 @@ export const homepage = {
 export const homepageSymptoms = [
   {
     name: "Disconnected systems",
-    consequence: "Critical context stays trapped between tools.",
+    consequence:
+      "Critical context stays trapped between tools, making reporting and decisions harder to trust.",
   },
   {
     name: "Spreadsheet-dependent operations",
@@ -51,7 +52,8 @@ export const homepageSymptoms = [
   },
   {
     name: "Fragile automations",
-    consequence: "Small upstream changes produce silent downstream failures.",
+    consequence:
+      "Small upstream changes produce silent downstream failures that consume management attention.",
   },
   {
     name: "Unreliable reporting",
@@ -59,7 +61,8 @@ export const homepageSymptoms = [
   },
   {
     name: "Manual handoffs",
-    consequence: "State and accountability disappear between people.",
+    consequence:
+      "State and accountability disappear between people, making delivery and exceptions harder to control.",
   },
   {
     name: "Key-person dependency",

@@ -88,7 +88,7 @@ export function ProcessPageView({ locale }: { locale: Locale }) {
           <Heading level={1}>
             {es
               ? "Partimos del estado actual del sistema."
-              : "Enter where the system is."}
+              : "Start with what you already know."}
           </Heading>
           <div className="route-intro__lede">
             <p>
@@ -106,12 +106,12 @@ export function ProcessPageView({ locale }: { locale: Locale }) {
             <Heading id="lateral-entry-title" level={2}>
               {es
                 ? "No siempre hay que empezar desde cero."
-                : "Lateral entry is explicit."}
+                : "You don’t always have to start from the beginning."}
             </Heading>
             <p>
               {es
                 ? "Iniciamos en la etapa que corresponde con lo que su equipo ya sabe."
-                : "Begin at the stage that matches what is already known."}
+                : "Brunova begins at the stage that matches what is already known."}
             </p>
           </div>
           <div className="entry-map__matrix">
@@ -189,7 +189,18 @@ export function ProcessPageView({ locale }: { locale: Locale }) {
                 <span>{stage.index}</span>
                 <span>
                   <Heading level={2}>{stage.name}</Heading>
-                  <small>{stage.timeline}</small>
+                  <span className="process-stage__terms">
+                    <small>{stage.timeline}</small>
+                    <small className="process-stage__price">
+                      {stage.price}
+                    </small>
+                    {"commitment" in stage && stage.commitment ? (
+                      <small>{stage.commitment}</small>
+                    ) : null}
+                  </span>
+                  <span className="process-stage__preview">
+                    {stage.preview}
+                  </span>
                 </span>
                 <span aria-hidden="true" className="disclosure-mark" />
               </button>
@@ -241,6 +252,11 @@ export function ProcessPageView({ locale }: { locale: Locale }) {
             </article>
           )
         })}
+        <p className="process-pricing-note">
+          {es
+            ? "Puntos de partida para alcances definidos. El precio final refleja el contexto operativo, la complejidad del sistema y el alcance acordado."
+            : "Starting points for defined scopes. Final pricing reflects the operating context, system complexity and agreed scope."}
+        </p>
       </Container>
 
       <section aria-labelledby="process-next" className="route-cta">
@@ -249,12 +265,12 @@ export function ProcessPageView({ locale }: { locale: Locale }) {
             <Heading id="process-next" level={2}>
               {es
                 ? "¿No está claro por dónde empezar?"
-                : "Not sure which stage matches?"}
+                : "Not sure where to begin?"}
             </Heading>
             <p>
               {es
-                ? "Cuéntenos cómo funciona hoy la operación y qué información ya tiene."
-                : "Bring the operation and what you already know."}
+                ? "Cuéntenos cómo funciona hoy la operación y qué información ya tiene. Nosotros determinamos un punto de entrada útil."
+                : "Tell us how the operation works today and what you already know. We’ll determine a useful entry point."}
             </p>
           </div>
           <AnalyticsLink

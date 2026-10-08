@@ -34,6 +34,9 @@ export type ProcessStage = {
   name: string
   description: string
   timeline: string
+  price: string
+  preview: string
+  commitment?: string
   problemSolved: string
   entryKnowledge: string
   establishes: readonly string[]

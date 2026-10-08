@@ -23,11 +23,15 @@ COPY . .
 RUN pnpm build
 
 FROM ${NODE_IMAGE} AS runtime
+ARG VCS_REF=unknown
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 WORKDIR /app
+
+LABEL org.opencontainers.image.revision=${VCS_REF} \
+  org.opencontainers.image.source="https://github.com/jorgeaveraf/brunova-web"
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 --ingroup nodejs nextjs
@@ -35,6 +39,7 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=build --chown=nextjs:nodejs /app/public ./public
 COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs scripts/container-smoke.mjs scripts/validate-production-env.mjs ./scripts/
 
 USER nextjs
 EXPOSE 3000

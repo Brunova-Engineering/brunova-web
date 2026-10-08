@@ -116,6 +116,22 @@ export function HomePageView({ locale }: { locale: Locale }) {
             <p className="problem-shift__transition">
               {homepage.problem.transition}
             </p>
+            <AnalyticsLink
+              className="problem-shift__case-link"
+              eventName="case_study_opened"
+              eventProperties={{
+                case_slug: "fragile-automation-modernization",
+              }}
+              href={localizedPath(
+                locale,
+                "/work/fragile-automation-modernization",
+              )}
+              variant="text"
+            >
+              {es
+                ? "Ver modernización de automatizaciones"
+                : "See fragile automation modernization"}
+            </AnalyticsLink>
           </div>
         </Container>
       </Section>

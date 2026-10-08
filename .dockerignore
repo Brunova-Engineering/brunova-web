@@ -6,8 +6,13 @@ coverage
 playwright-report
 test-results
 .lighthouseci
+.qa-artifacts
+artifacts
 .env
 .env.*
 !.env.example
 *.log
 .DS_Store
+docs/BRUNOVA_HANDOFF_PRIVATE.md
+docs/BRUNOVA_WEBSITE_V1_BUILD_SPECIFICATION.md
+public/sketches

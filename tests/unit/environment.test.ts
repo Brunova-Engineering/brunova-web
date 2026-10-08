@@ -90,4 +90,35 @@ describe("server environment", () => {
       }),
     ).toThrow("Production N8N_CONTACT_WEBHOOK_URL must use HTTPS")
   })
+
+  it.each([
+    ["username", "N8N_CONTACT_BASIC_AUTH_PASSWORD"],
+    ["password", "N8N_CONTACT_BASIC_AUTH_USER"],
+  ])("fails closed when the Basic Auth %s is missing", async (_label, key) => {
+    vi.stubEnv("N8N_CONTACT_WEBHOOK_URL", "https://automation.example/contact")
+    vi.stubEnv("CONTACT_RATE_LIMIT_SALT", "safe-contact-rate-limit-salt")
+    vi.stubEnv(key, key.endsWith("USER") ? "test-user" : "test-password")
+
+    const { getContactRuntimeConfiguration } = await import("@/lib/env")
+    expect(getContactRuntimeConfiguration()).toEqual({ ready: false })
+  })
+
+  it("exposes complete Basic Auth only through the server runtime contract", async () => {
+    vi.stubEnv("N8N_CONTACT_WEBHOOK_URL", "https://automation.example/contact")
+    vi.stubEnv("N8N_CONTACT_BASIC_AUTH_USER", "test-user")
+    vi.stubEnv("N8N_CONTACT_BASIC_AUTH_PASSWORD", "test-password")
+    vi.stubEnv("CONTACT_RATE_LIMIT_SALT", "safe-contact-rate-limit-salt")
+
+    const { getContactRuntimeConfiguration } = await import("@/lib/env")
+    expect(getContactRuntimeConfiguration()).toMatchObject({
+      ready: true,
+      configuration: {
+        webhookAuthorization: {
+          type: "basic",
+          username: "test-user",
+          password: "test-password",
+        },
+      },
+    })
+  })
 })

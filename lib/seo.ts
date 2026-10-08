@@ -126,7 +126,7 @@ export function createRobots({
       ? {
           userAgent: "*",
           allow: "/",
-          disallow: ["/api/", "/portal", "/es/portal"],
+          disallow: "/api/",
         }
       : {
           userAgent: "*",
@@ -137,16 +137,71 @@ export function createRobots({
   }
 }
 
-export function createOrganizationStructuredData(
-  siteUrl: URL,
-  locale: Locale = "en",
-) {
-  const siteConfig = localizedSiteConfig[locale]
+export function createSiteStructuredData(siteUrl: URL) {
+  const siteConfig = localizedSiteConfig.en
+  const websiteId = new URL("/#website", siteUrl).href
+  const organizationId = new URL("/#organization", siteUrl).href
+  const founderId = new URL("/#jorge-vera", siteUrl).href
+
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: siteConfig.name,
-    url: siteUrl.origin,
-    description: siteConfig.description,
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        url: siteUrl.origin,
+        name: siteConfig.name,
+        inLanguage: ["en", "es"],
+        publisher: { "@id": organizationId },
+        about: { "@id": organizationId },
+      },
+      {
+        "@type": "Organization",
+        "@id": organizationId,
+        name: siteConfig.name,
+        url: siteUrl.origin,
+        logo: new URL("/brand/brunova-mark.svg", siteUrl).href,
+        description: siteConfig.description,
+        founder: { "@id": founderId },
+      },
+      {
+        "@type": "Person",
+        "@id": founderId,
+        name: "Jorge Vera",
+        jobTitle: "Founder and Principal Systems Architect",
+        worksFor: { "@id": organizationId },
+      },
+    ],
+  } as const
+}
+
+export function createBreadcrumbStructuredData({
+  siteUrl,
+  locale,
+  currentName,
+  currentPath,
+}: {
+  siteUrl: URL
+  locale: Locale
+  currentName: string
+  currentPath: string
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: locale === "es" ? "Sistemas" : "Systems",
+        item: new URL(localizedPath(locale, "/work"), siteUrl).href,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: currentName,
+        item: new URL(localizedPath(locale, currentPath), siteUrl).href,
+      },
+    ],
   } as const
 }

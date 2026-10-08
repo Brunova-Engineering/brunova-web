@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest"
 
 import { workCases } from "@/content/work"
 import {
-  createOrganizationStructuredData,
+  createBreadcrumbStructuredData,
   createRobots,
   createSitemap,
+  createSiteStructuredData,
   getSitemapPaths,
   routeIndexingPolicy,
 } from "@/lib/seo"
@@ -49,7 +50,7 @@ describe("technical SEO contracts", () => {
       rules: {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/portal", "/es/portal"],
+        disallow: "/api/",
       },
       sitemap: "https://brunova.example/sitemap.xml",
       host: "https://brunova.example",
@@ -76,19 +77,55 @@ describe("technical SEO contracts", () => {
     ).toMatchObject({ index: false, follow: true, sitemap: false })
   })
 
-  it("emits only verified Organization fields", () => {
-    const structuredData = createOrganizationStructuredData(productionUrl)
+  it("emits a minimal linked WebSite, Organization and founder graph", () => {
+    const structuredData = createSiteStructuredData(productionUrl)
+    const [website, organization, founder] = structuredData["@graph"]
 
-    expect(structuredData).toEqual({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "Brunova",
-      url: "https://brunova.example",
-      description:
-        "Brunova is a systems engineering consultancy that designs and builds reliable systems connecting data, automation, software and AI for complex business operations.",
+    expect(website).toMatchObject({
+      "@type": "WebSite",
+      "@id": "https://brunova.example/#website",
+      publisher: { "@id": "https://brunova.example/#organization" },
+      inLanguage: ["en", "es"],
     })
-    expect(structuredData).not.toHaveProperty("address")
-    expect(structuredData).not.toHaveProperty("telephone")
-    expect(structuredData).not.toHaveProperty("sameAs")
+    expect(organization).toMatchObject({
+      "@type": "Organization",
+      "@id": "https://brunova.example/#organization",
+      name: "Brunova",
+      founder: { "@id": "https://brunova.example/#jorge-vera" },
+    })
+    expect(founder).toEqual({
+      "@type": "Person",
+      "@id": "https://brunova.example/#jorge-vera",
+      name: "Jorge Vera",
+      jobTitle: "Founder and Principal Systems Architect",
+      worksFor: { "@id": "https://brunova.example/#organization" },
+    })
+    expect(JSON.stringify(structuredData)).not.toContain("sameAs")
+    expect(JSON.stringify(structuredData)).not.toContain("address")
+  })
+
+  it("mirrors the visible Systems dossier breadcrumb hierarchy", () => {
+    expect(
+      createBreadcrumbStructuredData({
+        siteUrl: productionUrl,
+        locale: "es",
+        currentName: "Automatización operativa",
+        currentPath: "/work/fragile-automation-modernization",
+      }),
+    ).toMatchObject({
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          position: 1,
+          name: "Sistemas",
+          item: "https://brunova.example/es/work",
+        },
+        {
+          position: 2,
+          name: "Automatización operativa",
+          item: "https://brunova.example/es/work/fragile-automation-modernization",
+        },
+      ],
+    })
   })
 })

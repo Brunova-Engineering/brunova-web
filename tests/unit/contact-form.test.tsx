@@ -32,6 +32,45 @@ afterEach(() => {
 })
 
 describe("contact form", () => {
+  it("keeps the complete English simplified privacy notice visible", () => {
+    render(<ContactForm />)
+
+    const privacy = screen.getByRole("region", { name: "Privacy" })
+    expect(privacy).toHaveTextContent(
+      "Jorge Alfredo Vera Fuentes, operating as Brunova.",
+    )
+    expect(privacy).toHaveTextContent(
+      "Calle Poniente 1 #16, Centro, 94730 Río Blanco, Veracruz, Mexico.",
+    )
+    expect(privacy).toHaveTextContent(
+      "Name, work email, company, role, problem category and problem description.",
+    )
+    expect(
+      screen.getByRole("link", { name: "Full Privacy Notice" }),
+    ).toHaveAttribute("href", "/privacy")
+    expect(
+      screen.getByRole("link", { name: "brunova@brunova.mx" }),
+    ).toHaveAttribute("href", "mailto:brunova@brunova.mx")
+  })
+
+  it("keeps the complete Spanish simplified privacy notice visible", () => {
+    render(<ContactForm locale="es" />)
+
+    const privacy = screen.getByRole("region", { name: "Privacidad" })
+    expect(privacy).toHaveTextContent(
+      "Jorge Alfredo Vera Fuentes, quien opera como Brunova.",
+    )
+    expect(privacy).toHaveTextContent(
+      "Calle Poniente 1 #16, Centro, C.P. 94730, Río Blanco, Veracruz, México.",
+    )
+    expect(privacy).toHaveTextContent(
+      "Nombre, correo electrónico de trabajo, empresa, cargo, categoría del problema y descripción del problema.",
+    )
+    expect(
+      screen.getByRole("link", { name: "Aviso de Privacidad completo" }),
+    ).toHaveAttribute("href", "/es/privacy")
+  })
+
   it("focuses the first field and exposes associated validation errors", () => {
     render(<ContactForm />)
     fireEvent.click(screen.getByRole("button", { name: "Send the context" }))

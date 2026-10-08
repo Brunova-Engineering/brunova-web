@@ -11,7 +11,12 @@ import {
 import { primaryNavigation } from "@/content/navigation"
 import { processStages } from "@/content/process"
 import { privacyContent } from "@/content/privacy"
-import { esWorkCases, esWorkDetails } from "@/content/es"
+import {
+  esPrivacyContent,
+  esProcessStages,
+  esWorkCases,
+  esWorkDetails,
+} from "@/content/es"
 import { workCases } from "@/content/work"
 import { workDetails } from "@/content/work-details"
 
@@ -69,7 +74,30 @@ describe("typed public content", () => {
       "connects process, data, systems and automation",
     )
     expect(privacyContent.reviewStatus).toBe(
-      "legal-human-review-required-before-production",
+      "approved-controller-information-2026-08-25",
+    )
+
+    const englishPrivacy = JSON.stringify(privacyContent)
+    const spanishPrivacy = JSON.stringify(esPrivacyContent)
+
+    for (const notice of [englishPrivacy, spanishPrivacy]) {
+      expect(notice).toContain("Jorge Alfredo Vera Fuentes")
+      expect(notice).toContain("brunova@brunova.mx")
+      expect(notice).toContain("24")
+      expect(notice).toContain("20")
+      expect(notice).toContain("15")
+    }
+    expect(englishPrivacy).toContain(
+      "Calle Poniente 1 #16, Centro, 94730 Río Blanco, Veracruz, Mexico",
+    )
+    expect(englishPrivacy).toContain("operating as Brunova")
+    expect(englishPrivacy).not.toContain("trading as Brunova")
+    expect(englishPrivacy).toContain("not a statutory Mexican retention period")
+    expect(spanishPrivacy).toContain(
+      "Calle Poniente 1 #16, Centro, C.P. 94730, Río Blanco, Veracruz, México",
+    )
+    expect(spanishPrivacy).toContain(
+      "no es un plazo de conservación establecido por la legislación mexicana",
     )
   })
 
@@ -157,7 +185,7 @@ describe("typed public content", () => {
     expect(JSON.stringify(esWorkDetails)).toContain("idempotencia")
   })
 
-  it("keeps commercial pricing out of the public records", () => {
+  it("publishes approved offer starting prices without exposing client identifiers", () => {
     const publicContent = JSON.stringify({
       capabilities,
       processStages,
@@ -171,9 +199,25 @@ describe("typed public content", () => {
       privacyContent,
     })
 
-    expect(publicContent).not.toContain("$999")
-    expect(publicContent).not.toContain("$1,999")
-    expect(publicContent.toLowerCase()).not.toContain("minimum price")
+    expect(processStages.map((stage) => stage.price)).toEqual([
+      "USD 999",
+      "From USD 1,999",
+      "From USD 2,999",
+      "From USD 1,999/month",
+    ])
+    expect(esProcessStages.map((stage) => stage.price)).toEqual([
+      "USD 999",
+      "Desde USD 1,999",
+      "Desde USD 2,999",
+      "Desde USD 1,999/mes",
+    ])
+    expect(processStages.at(-1)).toMatchObject({
+      commitment: "3-month minimum",
+    })
+    expect(esProcessStages.at(-1)).toMatchObject({
+      commitment: "Mínimo 3 meses",
+    })
+    expect(publicContent).not.toContain("$")
     expect(publicContent).not.toContain("HQ")
     expect(publicContent).not.toContain("OTW")
   })

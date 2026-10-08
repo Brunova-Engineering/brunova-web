@@ -16,6 +16,8 @@ const serverEnvironmentSchema = z.object({
   SEO_INDEXING_ENABLED: booleanEnvironmentValue,
   N8N_CONTACT_WEBHOOK_URL: externalHttpUrl.optional(),
   N8N_CONTACT_WEBHOOK_SECRET: z.string().min(1).optional(),
+  N8N_CONTACT_BASIC_AUTH_USER: z.string().min(1).optional(),
+  N8N_CONTACT_BASIC_AUTH_PASSWORD: z.string().min(1).optional(),
   CONTACT_RATE_LIMIT_SALT: z.string().min(16).optional(),
   PORTAL_URL: externalHttpUrl.optional(),
 })
@@ -83,6 +85,10 @@ export function parseServerEnvironment(
     N8N_CONTACT_WEBHOOK_URL: environment.N8N_CONTACT_WEBHOOK_URL || undefined,
     N8N_CONTACT_WEBHOOK_SECRET:
       environment.N8N_CONTACT_WEBHOOK_SECRET || undefined,
+    N8N_CONTACT_BASIC_AUTH_USER:
+      environment.N8N_CONTACT_BASIC_AUTH_USER || undefined,
+    N8N_CONTACT_BASIC_AUTH_PASSWORD:
+      environment.N8N_CONTACT_BASIC_AUTH_PASSWORD || undefined,
     CONTACT_RATE_LIMIT_SALT: environment.CONTACT_RATE_LIMIT_SALT || undefined,
     PORTAL_URL: environment.PORTAL_URL || undefined,
   })
@@ -125,7 +131,9 @@ export function isSeoIndexingEnabled(): boolean {
 export type ContactRuntimeConfiguration = {
   siteUrl: URL
   webhookUrl: URL
-  webhookSecret: string
+  webhookAuthorization:
+    | { type: "basic"; username: string; password: string }
+    | { type: "bearer"; secret: string }
   rateLimitSalt: string
 }
 
@@ -136,10 +144,29 @@ export function getContactRuntimeConfiguration():
   const webhookUrl = environment.N8N_CONTACT_WEBHOOK_URL
     ? new URL(environment.N8N_CONTACT_WEBHOOK_URL)
     : undefined
+  const hasBasicUsername = Boolean(environment.N8N_CONTACT_BASIC_AUTH_USER)
+  const hasBasicPassword = Boolean(environment.N8N_CONTACT_BASIC_AUTH_PASSWORD)
+  const hasCompleteBasicAuth = hasBasicUsername && hasBasicPassword
+  const hasBearerAuth = Boolean(environment.N8N_CONTACT_WEBHOOK_SECRET)
+
+  const webhookAuthorization = hasCompleteBasicAuth
+    ? {
+        type: "basic" as const,
+        username: environment.N8N_CONTACT_BASIC_AUTH_USER as string,
+        password: environment.N8N_CONTACT_BASIC_AUTH_PASSWORD as string,
+      }
+    : hasBearerAuth
+      ? {
+          type: "bearer" as const,
+          secret: environment.N8N_CONTACT_WEBHOOK_SECRET as string,
+        }
+      : undefined
 
   if (
     !webhookUrl ||
-    !environment.N8N_CONTACT_WEBHOOK_SECRET ||
+    !webhookAuthorization ||
+    hasBasicUsername !== hasBasicPassword ||
+    (hasCompleteBasicAuth && hasBearerAuth) ||
     !environment.CONTACT_RATE_LIMIT_SALT ||
     (webhookUrl.protocol !== "https:" && !isLoopbackUrl(webhookUrl))
   ) {
@@ -151,7 +178,7 @@ export function getContactRuntimeConfiguration():
     configuration: {
       siteUrl: new URL(environment.SITE_URL),
       webhookUrl,
-      webhookSecret: environment.N8N_CONTACT_WEBHOOK_SECRET,
+      webhookAuthorization,
       rateLimitSalt: environment.CONTACT_RATE_LIMIT_SALT,
     },
   }

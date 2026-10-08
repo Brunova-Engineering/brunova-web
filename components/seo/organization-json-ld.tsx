@@ -1,9 +1,8 @@
 import { getSiteUrl } from "@/lib/env"
-import { createOrganizationStructuredData } from "@/lib/seo"
-import type { Locale } from "@/lib/i18n"
+import { createSiteStructuredData } from "@/lib/seo"
 
-export function OrganizationJsonLd({ locale }: { locale: Locale }) {
-  const structuredData = createOrganizationStructuredData(getSiteUrl(), locale)
+export function SiteJsonLd() {
+  const structuredData = createSiteStructuredData(getSiteUrl())
 
   return (
     <script

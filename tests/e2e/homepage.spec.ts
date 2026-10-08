@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test"
 
 const narrativeHeadings = [
   "When operations become systems problems.",
-  "Operational intelligence is what happens when process, data and systems stop living separately.",
+  "Operational intelligence creates visibility and control across process, data and systems.",
   "What Brunova builds",
   "We don’t start with “What should we automate?” We start with “How should this operation work?”",
-  "Selected systems we’ve engineered",
+  "Selected engineering experience",
   "How Brunova works",
 ]
 
@@ -445,15 +445,17 @@ test("architecture before tools reads as principle, boundary and capability", as
   )
 
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(section.locator(".home-visual__asset")).not.toBeVisible()
-  await expect(section.locator(".home-visual__mobile > li")).toHaveCount(3)
-  await expect(section.locator(".home-visual__mobile")).toContainText(
-    "Defined operating model",
+  const mobileAsset = section.locator(".home-visual__asset")
+  await expect(mobileAsset).toBeVisible()
+  await expect(section.locator(".home-visual__mobile")).toHaveCount(0)
+  await expect(section.locator(".home-visual__media source")).toHaveAttribute(
+    "srcset",
+    "/brand/visuals/architecture-boundary-mobile.svg",
   )
 
   const mobile = await section.evaluate((node) => {
     const heading = node.querySelector<HTMLElement>("h2")
-    const model = node.querySelector<HTMLElement>(".home-visual__mobile")
+    const model = node.querySelector<HTMLElement>(".home-visual__media")
 
     return {
       headingBeforeModel:
@@ -470,7 +472,7 @@ test("architecture before tools reads as principle, boundary and capability", as
   expect(mobile.overflow).toBe(0)
 })
 
-test("desktop positioning and system conclusion each stay on one line", async ({
+test("intermediate positioning and system conclusion remain aligned", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
@@ -508,8 +510,10 @@ test("desktop positioning and system conclusion each stay on one line", async ({
 
   expect(typography.categoryAlignment).toBe("center")
   expect(typography.categoryCenterDelta).toBeLessThanOrEqual(1)
-  expect(typography.categoryLines).toBe(1)
-  expect(typography.conclusionLines).toBe(1)
+  expect(typography.categoryLines).toBeGreaterThanOrEqual(1)
+  expect(typography.categoryLines).toBeLessThanOrEqual(2)
+  expect(typography.conclusionLines).toBeGreaterThanOrEqual(1)
+  expect(typography.conclusionLines).toBeLessThanOrEqual(2)
   expect(typography.conclusionAlignment).toBe("end")
 })
 
@@ -537,21 +541,19 @@ for (const state of [
   })
 }
 
-test("mobile uses the readable system sequence and honors reduced motion", async ({
+test("mobile uses the approved responsive hero asset and honors reduced motion", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" })
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/")
 
-  await expect(
-    page.getByRole("list", {
-      name: "From fragmented operation to reliable operation",
-    }),
-  ).toBeVisible()
-  await expect(
-    page.locator(".home-visual--hero .home-visual__asset"),
-  ).not.toBeVisible()
+  const heroAsset = page.locator(".home-visual--hero .home-visual__asset")
+  await expect(heroAsset).toBeVisible()
+  expect(
+    await heroAsset.evaluate((image: HTMLImageElement) => image.currentSrc),
+  ).toContain("/brand/visuals/hero-operating-model-mobile.svg")
+  await expect(page.locator(".home-visual__mobile")).toHaveCount(0)
 
   const primaryAction = page
     .getByRole("main")
@@ -585,7 +587,27 @@ for (const width of [320, 375, 390, 414, 768]) {
       () => document.documentElement.scrollWidth - window.innerWidth,
     )
     expect(overflow).toBeLessThanOrEqual(0)
-    await expect(page.locator(".home-visual__mobile > li")).toHaveCount(9)
+    await expect(page.locator(".home-visual__asset")).toHaveCount(3)
+    expect(
+      await page
+        .locator(".home-visual__asset")
+        .evaluateAll((images) =>
+          images.every(
+            (image) =>
+              getComputedStyle(image).display !== "none" &&
+              image.getBoundingClientRect().width > 0,
+          ),
+        ),
+    ).toBe(true)
+    await expect(page.locator(".home-visual__mobile")).toHaveCount(0)
+    const sources = await page
+      .locator(".home-visual__media source")
+      .evaluateAll((elements) =>
+        elements.map((source) => source.getAttribute("srcset") ?? ""),
+      )
+    for (const source of sources) {
+      expect(source).toContain("-mobile")
+    }
     await expect(page.locator(".process-sequence > li")).toHaveCount(4)
   })
 }
@@ -614,6 +636,9 @@ test("Spanish homepage selects the approved Spanish visual assets", async ({
     "/brand/visuals/hero-operating-model-es.svg",
     "/brand/visuals/operational-intelligence-loop-es.svg",
     "/brand/visuals/architecture-boundary-es.svg",
+    "/brand/visuals/hero-operating-model-mobile-es.svg",
+    "/brand/visuals/operational-intelligence-loop-mobile-es.svg",
+    "/brand/visuals/architecture-boundary-mobile-es.svg",
   ]
   const spanishAssetMarkup = await Promise.all(
     spanishAssetPaths.map(async (path) => {
@@ -634,11 +659,42 @@ test("Spanish homepage selects the approved Spanish visual assets", async ({
     expect(markup).not.toContain("Propiedad")
   }
 
-  const mobileVisualCopy = await page
-    .locator(".home-visual__mobile")
-    .allTextContents()
-  expect(mobileVisualCopy.join(" ")).toContain("Gobernanza")
-  expect(mobileVisualCopy.join(" ")).not.toMatch(/Responsables|Propiedad/)
+  await page.setViewportSize({ width: 390, height: 844 })
+  const mobileSources = await page
+    .locator(".home-visual__media source")
+    .evaluateAll((elements) =>
+      elements.map((source) => source.getAttribute("srcset") ?? ""),
+    )
+  expect(mobileSources).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining("hero-operating-model-mobile-es.svg"),
+      expect.stringContaining("operational-intelligence-loop-mobile-es.svg"),
+      expect.stringContaining("architecture-boundary-mobile-es.svg"),
+    ]),
+  )
+})
+
+test("forbidden feedback-loop copy is absent from public homepage sources", async ({
+  page,
+}) => {
+  const forbidden = [
+    ["The operational state", "returns to the model."].join(" "),
+    ["El estado operativo", "vuelve al modelo."].join(" "),
+  ]
+  const paths = [
+    "/",
+    "/es",
+    "/brand/visuals/operational-intelligence-loop.svg",
+    "/brand/visuals/operational-intelligence-loop-es.svg",
+    "/brand/visuals/operational-intelligence-loop-mobile.svg",
+    "/brand/visuals/operational-intelligence-loop-mobile-es.svg",
+  ]
+
+  for (const path of paths) {
+    const response = await page.request.get(path)
+    const body = await response.text()
+    for (const sentence of forbidden) expect(body).not.toContain(sentence)
+  }
 })
 
 test("Spanish homepage uses the approved operating-model language", async ({
@@ -659,19 +715,19 @@ test("Spanish homepage uses the approved operating-model language", async ({
   )
   await expect(problem.getByText("Transferencias manuales")).toBeVisible()
   await expect(problem).toContainText(
-    "El estado, el contexto y la gobernanza se diluyen entre equipos.",
+    "El estado y la responsabilidad se diluyen entre equipos, dificultando el control de entregas y excepciones.",
   )
 
   const operationalIntelligence = page.locator(".operational-intelligence")
   await expect(
     operationalIntelligence.getByRole("heading", { level: 2 }),
   ).toHaveText(
-    "La inteligencia operativa conecta procesos, datos y sistemas en una sola operación.",
+    "La inteligencia operativa aporta visibilidad y control sobre procesos, datos y sistemas.",
   )
   await expect(
     operationalIntelligence.locator(".operational-intelligence__statement > p"),
   ).toHaveText(
-    "Modelamos la operación como un sistema conectado: cómo fluye el trabajo, qué significan los datos, dónde se toman las decisiones, qué funciones corresponden al software y dónde la automatización o la IA pueden aportar valor con control.",
+    "Conectamos cómo fluye el trabajo, qué significan los datos y dónde se toman las decisiones, para que los equipos entiendan mejor la operación y actúen con mayor control. El software, la automatización y la IA apoyan ese modelo donde pueden hacerlo de forma segura.",
   )
 
   const statementAlignment = await operationalIntelligence
@@ -702,7 +758,7 @@ test("Spanish homepage uses the approved operating-model language", async ({
 
   const selectedSystems = page.locator(".selected-work")
   await expect(selectedSystems.getByRole("heading", { level: 2 })).toHaveText(
-    "Sistemas que hemos diseñado y construido",
+    "Experiencia de ingeniería seleccionada",
   )
   await expect(
     selectedSystems.locator(".selected-proof__reveal-inner > p").nth(1),

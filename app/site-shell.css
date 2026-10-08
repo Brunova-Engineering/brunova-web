@@ -291,6 +291,11 @@
   border-block-start: var(--rule-hair) solid var(--color-border);
 }
 
+.mobile-navigation__preferences {
+  padding-block-start: var(--space-lg);
+  border-block-start: var(--rule-hair) solid var(--color-border);
+}
+
 .mobile-navigation__utilities .action-link {
   width: 100%;
 }
@@ -321,6 +326,25 @@
   display: grid;
   justify-items: start;
   gap: var(--space-xs);
+}
+
+.site-utilities--navigation {
+  position: static;
+  z-index: auto;
+  width: 100%;
+}
+
+.site-utilities--navigation .site-utilities__triggers {
+  width: 100%;
+  justify-content: space-between;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.site-utilities--navigation .site-utilities__panels,
+.site-utilities--navigation .site-utilities__panel {
+  width: 100%;
 }
 
 .site-utilities__triggers {
@@ -692,11 +716,19 @@ body:has(.mobile-navigation__dialog[open]) .back-to-top {
   .site-footer__inner {
     gap: var(--space-xl);
     padding-block-start: var(--space-xl);
-    padding-block-end: calc(var(--control-height) + var(--space-md));
+    padding-block-end: calc(
+      var(--control-height) + var(--space-3xl) + env(safe-area-inset-bottom)
+    );
   }
 
   .site-footer__continuation {
     gap: var(--space-sm);
+  }
+}
+
+@media (max-width: 83.999rem) {
+  .site-utilities--shell {
+    display: none;
   }
 }
 
@@ -732,7 +764,11 @@ body:has(.mobile-navigation__dialog[open]) .back-to-top {
   }
 }
 
-@media (min-width: 72rem) {
+@media (min-width: 84rem) {
+  .site-utilities--navigation {
+    display: none;
+  }
+
   .brunova-logo--header {
     width: var(--header-logo-width);
   }

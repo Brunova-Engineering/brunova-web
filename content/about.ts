@@ -9,12 +9,12 @@ export const companyModel = [
   {
     title: "Founder-led architecture",
     description:
-      "System direction stays close to the operating problem and the people accountable for the result.",
+      "Jorge Vera, Founder and Principal Systems Architect, leads system direction and remains involved in critical architectural decisions.",
   },
   {
-    title: "Team-based engineering",
+    title: "Engineering by required discipline",
     description:
-      "Each system brings together the engineering disciplines it actually requires.",
+      "Delivery is organized around the disciplines each system requires, with architecture and material technical commitments remaining under senior review.",
   },
   {
     title: "Close to operations",
@@ -26,5 +26,5 @@ export const companyModel = [
 export const operationalLens = {
   title: "Operational intelligence",
   description:
-    "Operational intelligence connects process, data, systems and automation across the model.",
+    "Operational intelligence connects process, data, systems and automation so teams gain clearer visibility, stronger control and better decision support.",
 } as const

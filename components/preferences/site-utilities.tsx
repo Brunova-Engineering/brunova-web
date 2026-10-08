@@ -11,7 +11,13 @@ const themeValues = ["system", "light", "dark"] as const
 type ThemeValue = (typeof themeValues)[number]
 type OpenPanel = "appearance" | "language" | null
 
-export function SiteUtilities({ locale }: { locale: Locale }) {
+export function SiteUtilities({
+  locale,
+  placement = "shell",
+}: {
+  locale: Locale
+  placement?: "shell" | "navigation"
+}) {
   const copy = shellCopy[locale]
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
@@ -41,6 +47,8 @@ export function SiteUtilities({ locale }: { locale: Locale }) {
 
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key !== "Escape") return
+      event.preventDefault()
+      event.stopPropagation()
       const previousPanel = openPanel
       setOpenPanel(null)
       if (previousPanel === "appearance") appearanceButtonRef.current?.focus()
@@ -68,7 +76,7 @@ export function SiteUtilities({ locale }: { locale: Locale }) {
       aria-label={
         locale === "es" ? "Preferencias del sitio" : "Site preferences"
       }
-      className="site-utilities"
+      className={`site-utilities site-utilities--${placement}`}
       ref={clusterRef}
     >
       <div className="site-utilities__panels">

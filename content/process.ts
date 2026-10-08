@@ -8,6 +8,9 @@ export const processStages = [
     description:
       "We turn an unclear operational situation into a defined system problem.",
     timeline: "1–2 weeks",
+    price: "USD 999",
+    preview:
+      "For an unclear operating situation; produces a defined system problem and recommended next step.",
     problemSolved:
       "The system problem, boundary and source of failure are unclear.",
     entryKnowledge:
@@ -26,6 +29,9 @@ export const processStages = [
     description:
       "We turn a known problem into a build-ready operating and technical design.",
     timeline: "2–4 weeks",
+    price: "From USD 1,999",
+    preview:
+      "For a known problem; produces a build-ready operating and technical design.",
     problemSolved:
       "The problem is understood, but the system is not yet defined well enough to build.",
     entryKnowledge:
@@ -43,6 +49,9 @@ export const processStages = [
     name: "Implementation Sprint",
     description: "We build and operationalize a defined system capability.",
     timeline: "4–8 weeks per defined scope",
+    price: "From USD 2,999",
+    preview:
+      "For an approved architecture; produces an operable production capability.",
     problemSolved:
       "A defined capability must become an operable production system.",
     entryKnowledge:
@@ -62,6 +71,10 @@ export const processStages = [
     description:
       "We improve the reliability, architecture and capability of important production systems.",
     timeline: "Ongoing monthly engagement",
+    price: "From USD 1,999/month",
+    preview:
+      "For an existing critical system; produces prioritized reliability and architecture improvements.",
+    commitment: "3-month minimum",
     problemSolved:
       "A production system must evolve as operating conditions and risks change.",
     entryKnowledge:

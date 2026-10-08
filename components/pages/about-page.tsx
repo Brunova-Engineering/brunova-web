@@ -24,7 +24,7 @@ export function AboutPageView({ locale }: { locale: Locale }) {
           <Heading level={1}>
             {es
               ? "Donde la operación exige ingeniería."
-              : "Built at the operating boundary."}
+              : "Where operations require engineering."}
           </Heading>
           <div className="about-thesis__narrative">
             <p>

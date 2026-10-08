@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import { ProcessPageView } from "@/components/pages/process-page"
 import { createPageMetadata } from "@/lib/metadata"
 export const metadata: Metadata = createPageMetadata({
-  title: "How Brunova works",
+  title: "Systems Discovery, Architecture & Implementation",
   description:
-    "Four system states with explicit lateral entry: Discovery, Architecture Blueprint, Implementation Sprint and Managed Evolution.",
+    "Start with what is already known. Brunova enters at the stage that matches the system’s current state and determines a useful next step.",
   path: "/process",
 })
 export default function Page() {

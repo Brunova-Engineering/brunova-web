@@ -29,15 +29,15 @@ export const esHomepage = {
   },
   operationalIntelligence: {
     title:
-      "La inteligencia operativa conecta procesos, datos y sistemas en una sola operación.",
+      "La inteligencia operativa aporta visibilidad y control sobre procesos, datos y sistemas.",
     description:
-      "Modelamos la operación como un sistema conectado: cómo fluye el trabajo, qué significan los datos, dónde se toman las decisiones, qué funciones corresponden al software y dónde la automatización o la IA pueden aportar valor con control.",
+      "Conectamos cómo fluye el trabajo, qué significan los datos y dónde se toman las decisiones, para que los equipos entiendan mejor la operación y actúen con mayor control. El software, la automatización y la IA apoyan ese modelo donde pueden hacerlo de forma segura.",
   },
   architecture: {
     question: "No empezamos por «¿qué automatizamos?»",
     answer: "Primero definimos «¿cómo debe funcionar la operación?»",
   },
-  workTitle: "Sistemas que hemos diseñado y construido",
+  workTitle: "Experiencia de ingeniería seleccionada",
   process: {
     title: "Cómo trabaja Brunova",
     entryTitle: "Empezamos donde el sistema lo necesita.",
@@ -50,7 +50,8 @@ export const esHomepage = {
 export const esHomepageSymptoms = [
   {
     name: "Sistemas desconectados",
-    consequence: "La información crítica queda atrapada entre herramientas.",
+    consequence:
+      "La información crítica queda atrapada entre herramientas, reduciendo la confianza en reportes y decisiones.",
   },
   {
     name: "Operaciones dependientes de hojas de cálculo",
@@ -60,7 +61,7 @@ export const esHomepageSymptoms = [
   {
     name: "Automatizaciones frágiles",
     consequence:
-      "Un cambio en el origen provoca fallas silenciosas en etapas posteriores.",
+      "Un cambio en el origen provoca fallas silenciosas que consumen la atención de la dirección.",
   },
   {
     name: "Reportes poco confiables",
@@ -69,7 +70,7 @@ export const esHomepageSymptoms = [
   {
     name: "Transferencias manuales",
     consequence:
-      "El estado, el contexto y la gobernanza se diluyen entre equipos.",
+      "El estado y la responsabilidad se diluyen entre equipos, dificultando el control de entregas y excepciones.",
   },
   {
     name: "Dependencia de personas clave",
@@ -142,7 +143,7 @@ export const esCapabilities = [
     name: "Arquitectura de sistemas y plataformas internas",
     navigationLabel: "Arquitectura",
     shortDescription:
-      "Diseñamos límites, servicios, modelos operativos y plataformas internas para sostener operaciones críticas.",
+      "Para operaciones críticas que crecieron sin responsables claros ni un sistema diseñado para sostenerlas.",
     problemClass:
       "Las operaciones críticas crecieron sin límites compartidos ni una gobernanza clara.",
     approach:
@@ -165,7 +166,7 @@ export const esCapabilities = [
     name: "Ingeniería de datos e integraciones",
     navigationLabel: "Datos e integraciones",
     shortDescription:
-      "Conectamos APIs, bases de datos, plataformas SaaS y almacenes con definiciones y gobernanza claras para cada flujo de datos.",
+      "Para reportes y trabajo diario que dependen de datos dispersos entre sistemas sin una fuente confiable.",
     problemClass:
       "Los datos distribuidos carecen de significado, recorrido y gobernanza consistentes.",
     approach:
@@ -191,7 +192,7 @@ export const esCapabilities = [
     name: "Automatización financiera y operativa",
     navigationLabel: "Automatización financiera",
     shortDescription:
-      "Construimos automatizaciones controladas para procesos financieros y operativos críticos: integraciones contables, conciliación, reportes, cuentas por cobrar y por pagar e inventario.",
+      "Para trabajo financiero y operativo que aún depende de conciliaciones manuales, relevos y automatizaciones desconectadas.",
     problemClass:
       "El trabajo financiero crítico depende de relevos manuales y automatizaciones desconectadas.",
     approach:
@@ -217,7 +218,7 @@ export const esCapabilities = [
     name: "Ingeniería de flujos y procesos",
     navigationLabel: "Ingeniería de procesos",
     shortDescription:
-      "Rediseñamos el proceso antes de automatizarlo: estados, responsables, aprobaciones, excepciones, revisión humana y escalamiento.",
+      "Para procesos que pierden control cuando cambian de manos, aparecen excepciones o se requiere criterio.",
     problemClass:
       "Un proceso pierde control cuando cambia de manos, aparecen excepciones o se requiere criterio.",
     approach:
@@ -240,7 +241,7 @@ export const esCapabilities = [
     name: "Modernización de automatizaciones frágiles",
     navigationLabel: "Modernización",
     shortDescription:
-      "Modernizamos automatizaciones valiosas que se han vuelto frágiles, opacas o dependientes de una persona, sin reemplazar lo que todavía funciona.",
+      "Para automatizaciones que aún funcionan, pero son difíciles de entender, recuperar o modificar con seguridad.",
     problemClass:
       "Automatizaciones útiles se han vuelto frágiles, opacas o dependientes de una persona.",
     approach:
@@ -263,6 +264,9 @@ export const esProcessStages = [
     description:
       "Convertimos una situación operativa poco clara en un problema de sistema definido.",
     timeline: "1–2 semanas",
+    price: "USD 999",
+    preview:
+      "Para una situación operativa poco clara; produce un problema de sistema definido y un siguiente paso recomendado.",
     problemSolved:
       "El problema de sistema, sus límites y el origen de la falla no están claros.",
     entryKnowledge:
@@ -282,6 +286,9 @@ export const esProcessStages = [
     description:
       "Convertimos un problema definido en un diseño operativo y técnico listo para implementar.",
     timeline: "2–4 semanas",
+    price: "Desde USD 1,999",
+    preview:
+      "Para un problema conocido; produce un diseño operativo y técnico listo para implementar.",
     problemSolved:
       "El problema está claro, pero el sistema aún no está suficientemente definido para construirlo.",
     entryKnowledge:
@@ -301,6 +308,9 @@ export const esProcessStages = [
     description:
       "Construimos y ponemos en operación una capacidad definida del sistema.",
     timeline: "4–8 semanas por alcance definido",
+    price: "Desde USD 2,999",
+    preview:
+      "Para una arquitectura aprobada; produce una capacidad operable en producción.",
     problemSolved:
       "El diseño debe convertirse en un sistema operable en producción.",
     entryKnowledge:
@@ -320,6 +330,10 @@ export const esProcessStages = [
     description:
       "Mejoramos la confiabilidad, arquitectura y capacidad de sistemas críticos en producción.",
     timeline: "Colaboración mensual continua",
+    price: "Desde USD 1,999/mes",
+    preview:
+      "Para un sistema crítico existente; produce mejoras priorizadas de confiabilidad y arquitectura.",
+    commitment: "Mínimo 3 meses",
     problemSolved:
       "Un sistema en producción debe evolucionar cuando cambian la operación y los riesgos.",
     entryKnowledge:
@@ -447,12 +461,12 @@ export const esCompanyModel = [
   {
     title: "Arquitectura liderada por el fundador",
     description:
-      "Las decisiones de arquitectura se mantienen cerca del problema operativo y de quienes responden por el resultado.",
+      "Jorge Vera, fundador y arquitecto principal de sistemas, dirige el sistema y participa en las decisiones de arquitectura críticas.",
   },
   {
-    title: "Equipos según las necesidades del sistema",
+    title: "Ingeniería según las necesidades del sistema",
     description:
-      "Cada sistema reúne las disciplinas de ingeniería que realmente necesita.",
+      "La ejecución se organiza alrededor de las disciplinas que requiere cada sistema, mientras la arquitectura y los compromisos técnicos relevantes permanecen bajo revisión senior.",
   },
   {
     title: "Vinculados a la operación",
@@ -464,45 +478,84 @@ export const esCompanyModel = [
 export const esOperationalLens = {
   title: "Inteligencia operativa",
   description:
-    "La inteligencia operativa conecta procesos, datos, sistemas y automatización en todo el modelo.",
+    "La inteligencia operativa conecta procesos, datos, sistemas y automatización para dar a los equipos mayor visibilidad, control y soporte para decidir.",
 } as const
 
 export const esPrivacyContent = {
-  reviewStatus: "legal-human-review-required-before-production",
-  updatedLabel: "Aviso de privacidad",
+  reviewStatus: "approved-controller-information-2026-08-25",
+  updatedLabel:
+    "Aviso de Privacidad · Vigente desde el 24 de agosto de 2026 · Última actualización: 25 de agosto de 2026",
   introduction:
-    "Este aviso describe cómo el sitio web de Brunova maneja la información de contacto, la atribución de primer contacto y la configuración actual de analítica.",
+    "Este Aviso de Privacidad integral explica cómo Jorge Alfredo Vera Fuentes, quien opera bajo el nombre comercial Brunova, trata los datos personales recabados mediante el sitio web de Brunova.",
   sections: [
     {
-      id: "contact-information",
-      title: "Información de contacto",
+      id: "controller",
+      title: "Responsable del tratamiento",
       paragraphs: [
-        "El formulario de contacto recopila su nombre, correo electrónico de trabajo, empresa, cargo, categoría del problema y la descripción que proporcione sobre un problema operativo.",
-        "Brunova usa esta información para revisar el contexto, determinar un siguiente paso adecuado y dar seguimiento a la conversación.",
+        "Jorge Alfredo Vera Fuentes, persona física establecida en México que opera bajo el nombre comercial Brunova, es responsable del tratamiento de los datos personales a través de este sitio web.",
+        "Domicilio de privacidad: Calle Poniente 1 #16, Centro, C.P. 94730, Río Blanco, Veracruz, México. Contacto de privacidad: brunova@brunova.mx.",
       ],
     },
     {
-      id: "attribution",
-      title: "Atribución de primer contacto",
+      id: "data-collected",
+      title: "Datos personales recabados",
       paragraphs: [
-        "Si una URL de llegada contiene parámetros UTM, el sitio almacena los primeros valores de fuente, medio, campaña, término y contenido en sessionStorage del navegador, junto con la ruta de llegada, la hora de captura y el referente disponible.",
-        "Ese registro de primer contacto permanece durante la sesión actual del navegador. Los valores UTM de fuente, medio, campaña, término y contenido se incluyen con el envío del formulario cuando están disponibles.",
+        "El formulario de contacto recaba su nombre, correo electrónico de trabajo, empresa, cargo, categoría del problema y la descripción que proporcione sobre un problema operativo. También incluye la ruta y el idioma del envío, un identificador de solicitud, un identificador de idempotencia y la hora del envío.",
+        "Durante una visita ininterrumpida a la página, el sitio conserva en la memoria temporal de la página un registro limitado de primer contacto: ruta e idioma de llegada, hora de captura, nombre de host referente cuando está disponible, clasificación limitada de la fuente y valores UTM de fuente, medio, campaña, término y contenido incluidos en la URL de llegada. No conserva la URL referente completa ni su cadena de consulta. El registro no se escribe en cookies, localStorage ni sessionStorage y se pierde al recargar o cerrar la página. Conforme al contrato de contacto actualmente desplegado, con el formulario se incluyen únicamente los valores UTM disponibles, no los demás campos de primer contacto.",
+        "El sitio usa una dirección de red sin procesar únicamente de forma transitoria para derivar una clave seudónima en memoria destinada al control de abuso. La dirección sin procesar, el campo señuelo y la información de tiempo del formulario no se conservan en el flujo operativo de Brunova, y el sitio no crea una huella del navegador.",
+        "Brunova no solicita intencionalmente datos personales sensibles. No incluya en la descripción libre información de salud, biométrica, genética, religiosa, política, de orientación sexual ni otros datos personales sensibles.",
+      ],
+    },
+    {
+      id: "purposes",
+      title: "Finalidades del tratamiento",
+      paragraphs: [
+        "Brunova usa la información enviada únicamente para revisar una consulta y su contexto de negocio; determinar si Brunova es una opción adecuada y qué siguiente paso puede ser útil; responder la consulta; mantener el seguimiento operativo y comercial necesario; conservar la correspondencia empresarial necesaria; y mantener registros razonables relacionados con la relación comercial o posible relación.",
+        "La información técnica de la solicitud se trata únicamente en la medida necesaria para operar y proteger el sitio, validar los envíos, prevenir abuso, mantener la integridad de las solicitudes y diagnosticar fallas de entrega sin registrar el contenido del formulario.",
+        "No existen finalidades secundarias. Brunova no usa actualmente la información enviada para boletines, campañas publicitarias, publicidad conductual, elaboración de perfiles ni correos promocionales ajenos a la consulta. Una nueva finalidad fuera de este Aviso requerirá una revisión de privacidad previa y, cuando corresponda, un nuevo consentimiento.",
       ],
     },
     {
       id: "processing",
-      title: "Límite de procesamiento del contacto",
+      title: "Tratamiento y proveedores de servicios",
       paragraphs: [
-        "El navegador envía el formulario al servidor de Brunova. El servidor valida y limita el envío antes de reenviar únicamente los campos de contacto aceptados y los valores UTM de primer contacto al flujo operativo privado de Brunova en el servidor.",
-        "Ese flujo apoya la revisión interna y el seguimiento operativo. El sitio no envía al flujo el campo señuelo, la información de tiempo del formulario, la dirección de red sin procesar ni una huella del navegador.",
+        "El navegador envía el formulario al servidor de Brunova. El servidor valida y limita el envío antes de reenviar únicamente los campos de contacto aceptados y los valores UTM disponibles al flujo operativo privado de Brunova para revisión interna y seguimiento.",
+        "Los proveedores de tecnología y servicios pueden tratar datos personales por cuenta de Brunova cuando sea necesario para prestar servicios de alojamiento del sitio, comunicaciones, automatización de flujos y sistemas de negocio. Según su infraestructura, el tratamiento o almacenamiento puede ocurrir en México o en otros países. Brunova no afirma que el tratamiento ocurra exclusivamente en México.",
+        "Brunova no pretende actualmente comunicar datos personales a terceros independientes para fines propios de éstos. Si una transferencia futura requiere aviso o consentimiento conforme a la legislación aplicable, Brunova lo proporcionará antes de que ocurra.",
       ],
     },
     {
-      id: "analytics",
-      title: "Analítica y publicidad",
+      id: "retention",
+      title: "Conservación y disposición",
       paragraphs: [
-        "El sitio actual utiliza un adaptador de analítica sin operación. No hay proveedor de analítica ni cookie de analítica activos.",
-        "El sitio actual no incluye rastreadores publicitarios. Como no hay analítica basada en cookies activa, no se muestra un aviso de cookies.",
+        "Para una consulta que no se convierta en una relación con un cliente, la política operativa de Brunova es conservar la información por un máximo de 24 meses después de la última interacción comercial significativa, salvo que sea necesario un plazo mayor por una obligación legal aplicable o por un requisito legítimo de controversia o conservación de registros. El plazo de 24 meses es una política de Brunova; no es un plazo de conservación establecido por la legislación mexicana.",
+        "Para una consulta que se convierta en una relación con un cliente, los datos personales se conservan durante la relación comercial o contractual y posteriormente sólo durante los plazos requeridos por obligaciones legales, contractuales, fiscales, contables, de resolución de controversias u otras obligaciones legítimas de conservación.",
+        "Cuando concluyan la finalidad y el periodo aplicable de conservación o bloqueo, Brunova eliminará, desechará de forma segura, anonimizará o disociará la información, según corresponda. Puede aplicar un periodo de bloqueo exigido por la ley antes de la eliminación.",
+      ],
+    },
+    {
+      id: "rights",
+      title: "Derechos ARCO, limitación y revocación",
+      paragraphs: [
+        "Puede solicitar el acceso, rectificación o cancelación de sus datos personales, u oponerse a su tratamiento —derechos ARCO— mediante un correo a brunova@brunova.mx. Puede usar la misma dirección para limitar el uso o divulgación o para revocar el consentimiento. La revocación no tendrá efectos retroactivos y puede estar sujeta a obligaciones legales de conservación.",
+        "La solicitud deberá incluir su nombre; un domicilio u otro medio para recibir notificaciones; la documentación razonablemente necesaria para verificar su identidad o, cuando corresponda, la identidad y representación de su representante; una descripción clara de los datos personales involucrados; el derecho ARCO o la acción solicitada; y cualquier información razonablemente útil para localizar los datos. Una solicitud de rectificación también deberá identificar la corrección solicitada e incluir la documentación de respaldo que corresponda.",
+        "Brunova acusará recibo por correo electrónico. La determinación se comunicará dentro del plazo legal máximo de 20 días hábiles contados desde la recepción. Si la solicitud resulta procedente, se hará efectiva dentro de los 15 días hábiles siguientes. Cualquiera de los plazos podrá ampliarse una sola vez por un periodo igual cuando las circunstancias lo justifiquen. La respuesta se enviará por correo electrónico o por el medio de comunicación proporcionado por la persona solicitante. El ejercicio de los derechos ARCO es gratuito, salvo los costos de reproducción, copias o envío permitidos por la ley.",
+      ],
+    },
+    {
+      id: "preferences",
+      title: "Preferencias, analítica y publicidad",
+      paragraphs: [
+        "El almacenamiento local del navegador se usa únicamente después de que usted elige una preferencia de apariencia o idioma, para proporcionar esa configuración solicitada. El sitio no establece cookies actualmente.",
+        "El sitio actual utiliza un adaptador de analítica sin operación y no incluye proveedor de analítica, rastreador publicitario ni publicidad conductual. No hay almacenamiento no esencial de analítica o publicidad activo, por lo que no se muestra un aviso de consentimiento.",
+      ],
+    },
+    {
+      id: "changes",
+      title: "Cambios al Aviso",
+      paragraphs: [
+        "Las versiones vigentes de este Aviso se publican en /privacy y /es/privacy. Los cambios se comunicarán mediante la publicación del Aviso actualizado en esas direcciones con una fecha revisada. Si la legislación aplicable exige una forma adicional de aviso o consentimiento para un cambio material específico, Brunova la proporcionará en ese momento.",
+        "Este Aviso se publicó por primera vez con el sitio de producción el 24 de agosto de 2026. Esta revisión aprobada se actualizó por última vez el 25 de agosto de 2026.",
       ],
     },
   ],
@@ -516,7 +569,7 @@ export const esWorkDetails = [
     operationalProblem:
       "Las conexiones, las actualizaciones contables y los reportes se administraban sin un sistema compartido entre entidades.",
     systemApproach:
-      "Brunova construyó un sistema reutilizable que permite a cada entidad consultar y actualizar información contable y generar reportes recurrentes mediante un mismo punto controlado.",
+      "Un sistema reutilizable permite a cada entidad consultar y actualizar información contable y generar reportes recurrentes mediante un mismo punto controlado.",
     systemBoundary: {
       summary:
         "Un mismo punto controla cómo se conectan las entidades con las operaciones contables y los reportes.",
@@ -568,7 +621,7 @@ export const esWorkDetails = [
     operationalProblem:
       "Cada tarea de reporte reunía la información por separado, lo que dificultaba un acceso consistente para los equipos del negocio.",
     systemApproach:
-      "Brunova construyó un sistema compartido que recopila y prepara la información antes de entregarla en las hojas de cálculo que ya usan los equipos.",
+      "Un sistema compartido recopila y prepara la información antes de entregarla en las hojas de cálculo que ya usan los equipos.",
     systemBoundary: {
       summary:
         "La información contable y operativa se prepara una sola vez en una base compartida antes de llegar a los reportes del negocio.",
@@ -617,7 +670,7 @@ export const esWorkDetails = [
     operationalProblem:
       "La clasificación y extracción automatizadas no garantizaban por sí solas que la información estuviera lista para el siguiente proceso operativo.",
     systemApproach:
-      "Brunova construyó un proceso asistido por IA que exige validación y revisión humana antes de permitir que la información avance.",
+      "Un proceso asistido por IA exige validación y revisión humana antes de permitir que la información avance.",
     systemBoundary: {
       summary:
         "La IA prepara información estructurada; la validación y la revisión humana determinan si puede avanzar.",

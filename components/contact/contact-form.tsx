@@ -9,7 +9,7 @@ import {
 } from "react"
 
 import { trackEvent } from "@/lib/analytics"
-import { contactAttributionFromStorage } from "@/lib/attribution"
+import { contactAttribution } from "@/lib/attribution"
 import { problemCategories } from "@/lib/contact/categories"
 import { browserContactFieldErrors } from "@/lib/contact/client-validation"
 import {
@@ -112,6 +112,10 @@ function createContactRequest(
 ) {
   const values = formValues(form)
   const value = (name: string) => String(values[name] ?? "")
+  const attribution = contactAttribution({
+    landingPath: locale === "es" ? "/es/contact" : "/contact",
+    locale,
+  })
 
   return {
     name: value("name"),
@@ -123,7 +127,7 @@ function createContactRequest(
     pagePath:
       locale === "es" ? ("/es/contact" as const) : ("/contact" as const),
     locale,
-    utm: contactAttributionFromStorage(window.sessionStorage),
+    utm: attribution.utm,
     website: value("website"),
     formStartedAt,
   }
@@ -577,8 +581,8 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
               error={errors.problemDescription}
               helper={
                 es
-                  ? "¿Qué parte de la operación cuesta ejecutar, dónde aparece la fricción y qué información tiene?"
-                  : "What is difficult to operate, where does the friction show up, and what do you already know?"
+                  ? "¿Qué parte de la operación cuesta ejecutar, dónde aparece la fricción y qué información tiene? No incluya datos personales sensibles."
+                  : "What is difficult to operate, where does the friction show up, and what do you already know? Do not include sensitive personal data."
               }
               name="problemDescription"
             />
@@ -611,11 +615,66 @@ export function ContactForm({ locale = "en" }: { locale?: Locale }) {
               ? "Enviar consulta"
               : "Send the context"}
         </button>
-        <p>
-          {es
-            ? "Brunova usa esta información únicamente para evaluar su consulta y responderle."
-            : "Brunova uses this information only to evaluate and respond to the operational context you share."}
-        </p>
+        <section
+          aria-labelledby="contact-privacy-title"
+          className="contact-privacy"
+        >
+          <div className="contact-privacy__heading">
+            <h3 id="contact-privacy-title">{es ? "Privacidad" : "Privacy"}</h3>
+            <p>
+              {es
+                ? "Brunova utiliza la información que proporciona para revisar su consulta y contexto de negocio, evaluar si existe un encaje adecuado y cuál podría ser el siguiente paso, responder, mantener el seguimiento operativo y comercial necesario y conservar la correspondencia y los registros razonables de la relación actual o potencial. No existen finalidades secundarias de marketing."
+                : "Brunova uses the information you provide to review your inquiry and business context, assess fit and a useful next step, respond, maintain necessary operational and commercial follow-up, and preserve necessary correspondence and reasonable records of the current or potential relationship. There are no secondary marketing purposes."}
+            </p>
+          </div>
+
+          <dl className="contact-privacy__facts">
+            <div>
+              <dt>{es ? "Responsable" : "Responsible party"}</dt>
+              <dd>
+                {es
+                  ? "Jorge Alfredo Vera Fuentes, quien opera como Brunova."
+                  : "Jorge Alfredo Vera Fuentes, operating as Brunova."}
+              </dd>
+            </div>
+            <div>
+              <dt>{es ? "Domicilio de privacidad" : "Privacy domicile"}</dt>
+              <dd>
+                <address>
+                  {es
+                    ? "Calle Poniente 1 #16, Centro, C.P. 94730, Río Blanco, Veracruz, México."
+                    : "Calle Poniente 1 #16, Centro, 94730 Río Blanco, Veracruz, Mexico."}
+                </address>
+              </dd>
+            </div>
+            <div>
+              <dt>{es ? "Datos" : "Data"}</dt>
+              <dd>
+                {es
+                  ? "Nombre, correo electrónico de trabajo, empresa, cargo, categoría del problema y descripción del problema."
+                  : "Name, work email, company, role, problem category and problem description."}
+              </dd>
+            </div>
+            <div>
+              <dt>
+                {es
+                  ? "Limitar el uso o divulgación"
+                  : "Limit use or disclosure"}
+              </dt>
+              <dd>
+                <a href="mailto:brunova@brunova.mx">brunova@brunova.mx</a>
+              </dd>
+            </div>
+          </dl>
+
+          <a
+            className="contact-privacy__notice-link"
+            href={es ? "/es/privacy" : "/privacy"}
+          >
+            {es ? "Aviso de Privacidad completo" : "Full Privacy Notice"}
+            <span aria-hidden="true"> →</span>
+          </a>
+        </section>
       </div>
     </form>
   )

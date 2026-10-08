@@ -3,9 +3,9 @@ import { AboutPageView } from "@/components/pages/about-page"
 import { createPageMetadata } from "@/lib/metadata"
 
 export const metadata: Metadata = createPageMetadata({
-  title: "About Brunova",
+  title: "Systems Engineering Leadership & Operating Model",
   description:
-    "Why Brunova exists, how it works and why systems engineering must stay close to real operations.",
+    "How Brunova’s founder-led systems engineering model keeps architecture close to real operations and critical technical decisions.",
   path: "/about",
   locale: "en",
 })

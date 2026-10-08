@@ -3,9 +3,9 @@ import { AboutPageView } from "@/components/pages/about-page"
 import { createPageMetadata } from "@/lib/metadata"
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Sobre Brunova",
+  title: "Liderazgo y modelo de ingeniería de sistemas",
   description:
-    "Por qué existe Brunova, cómo trabaja y por qué la ingeniería de sistemas debe mantenerse conectada con la operación real.",
+    "Cómo el modelo de ingeniería de sistemas liderado por el fundador de Brunova mantiene la arquitectura cerca de la operación y de las decisiones técnicas críticas.",
   path: "/about",
   locale: "es",
 })

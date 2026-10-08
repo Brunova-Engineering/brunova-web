@@ -8,9 +8,9 @@ export function AttributionCapture() {
   useEffect(() => {
     captureFirstTouchAttribution({
       search: window.location.search,
-      landingPath: `${window.location.pathname}${window.location.hash}`,
+      landingPath: window.location.pathname,
       referrer: document.referrer,
-      storage: window.sessionStorage,
+      currentHost: window.location.hostname,
     })
   }, [])
 

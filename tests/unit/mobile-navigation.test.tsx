@@ -33,6 +33,7 @@ describe("MobileNavigation", () => {
   it("opens with focus inside and restores focus after Escape", async () => {
     render(
       <MobileNavigation
+        locale="en"
         portalItem={{
           label: "Portal",
           href: "/portal",
@@ -65,6 +66,7 @@ describe("MobileNavigation", () => {
   it("provides an explicit close control", async () => {
     render(
       <MobileNavigation
+        locale="en"
         portalItem={{ label: "Portal", href: "/portal" }}
         primaryAction={{
           label: "Start a conversation",

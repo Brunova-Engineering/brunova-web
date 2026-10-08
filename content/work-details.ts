@@ -8,7 +8,7 @@ export const workDetails = [
     operationalProblem:
       "Connections, financial updates and reporting were managed without one shared system across entities.",
     systemApproach:
-      "Brunova built a reusable system that lets each entity access and update accounting information and produce recurring reports through one controlled point.",
+      "A reusable system lets each entity access and update accounting information and produce recurring reports through one controlled point.",
     systemBoundary: {
       summary:
         "One shared point controls how entities connect to accounting operations and reporting.",
@@ -60,7 +60,7 @@ export const workDetails = [
     operationalProblem:
       "Each reporting task assembled information separately, making consistent access difficult for business teams.",
     systemApproach:
-      "Brunova built one shared reporting system that collects and prepares source information before delivering it to the spreadsheets teams already use.",
+      "One shared reporting system collects and prepares source information before delivering it to the spreadsheets teams already use.",
     systemBoundary: {
       summary:
         "Accounting and operational information is prepared once in a shared data foundation before it reaches business reports.",
@@ -112,7 +112,7 @@ export const workDetails = [
     operationalProblem:
       "Automated classification and extraction did not by themselves ensure that information was ready for the next operational process.",
     systemApproach:
-      "Brunova built an AI-assisted document process in which validation and human review are required before information can move forward.",
+      "An AI-assisted document process requires validation and human review before information can move forward.",
     systemBoundary: {
       summary:
         "AI prepares structured information; validation and human review determine whether it proceeds.",

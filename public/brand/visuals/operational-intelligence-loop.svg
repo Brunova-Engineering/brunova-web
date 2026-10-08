@@ -43,7 +43,5 @@
       <text x="48" y="18" fill="#AAB1AF" font-size="12">Automation · Software · AI</text>
     </g>
 
-    <text x="-224" y="-10" fill="#AAB1AF" font-size="12" text-anchor="end"><tspan x="-224">Operational state returns</tspan><tspan x="-224" dy="17">to the model</tspan></text>
-    <path d="M-208 18h44" fill="none" stroke="#78807D" stroke-width="1" marker-end="url(#arrow)"/>
   </g>
 </svg>

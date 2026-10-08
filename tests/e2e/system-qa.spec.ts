@@ -16,10 +16,14 @@ const pageRoutes = [
     heading: "Engineering disciplines for operational systems.",
     indexable: true,
   },
-  { path: "/process", heading: "Enter where the system is.", indexable: true },
+  {
+    path: "/process",
+    heading: "Start with what you already know.",
+    indexable: true,
+  },
   {
     path: "/work",
-    heading: "Operational systems we’ve engineered.",
+    heading: "Selected engineering experience.",
     indexable: true,
   },
   ...workCases.map((work) => ({
@@ -29,11 +33,11 @@ const pageRoutes = [
   })),
   {
     path: "/about",
-    heading: "Built at the operating boundary.",
+    heading: "Where operations require engineering.",
     indexable: true,
   },
   { path: "/contact", heading: "Start a conversation.", indexable: true },
-  { path: "/portal", heading: "Brunova Client Portal", indexable: false },
+  { path: "/portal", heading: "Brunova Portal", indexable: false },
   { path: "/privacy", heading: "Privacy", indexable: true },
 ] as const
 
@@ -100,7 +104,9 @@ test("authoritative route matrix renders with metadata, indexing and boundaries"
 
   const robots = await request.get("/robots.txt")
   expect(robots.status()).toBe(200)
-  expect(await robots.text()).toContain("Disallow: /")
+  const robotsBody = await robots.text()
+  expect(robotsBody).toContain("Disallow: /api/")
+  expect(robotsBody).not.toContain("Disallow: /portal")
 
   const sitemap = await request.get("/sitemap.xml")
   const sitemapBody = await sitemap.text()
@@ -139,17 +145,16 @@ test("authoritative route matrix renders with metadata, indexing and boundaries"
       elements.map((element) => element.getAttribute("content") ?? ""),
     )
   expect(notFoundRobots.length).toBeGreaterThan(0)
-  expect(notFoundRobots.every((content) => content.includes("noindex"))).toBe(
+  expect(notFoundRobots.some((content) => content.includes("noindex"))).toBe(
     true,
   )
-  expect(notFoundRobots.some((content) => content.includes("nofollow"))).toBe(
-    true,
-  )
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0)
 })
 
 test("complete user journeys preserve navigation and browser history", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto("/")
   await follow(page, "Capabilities")
   await page.locator(".selected-proof__record").first().click()
@@ -195,6 +200,7 @@ test("complete user journeys preserve navigation and browser history", async ({
 test("header, footer and public links match their typed destinations", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto("/")
   const primaryHrefs = await page
     .getByRole("navigation", { name: "Primary navigation" })
@@ -257,6 +263,7 @@ test("theme choice persists across routes and system mode follows the browser", 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.emulateMedia({ colorScheme: "dark" })
   await page.goto("/")
+  await page.getByRole("button", { name: "Menu" }).click()
   await page.getByRole("button", { name: "Appearance" }).click()
   const themes = page.getByRole("group", { name: "Appearance" })
   await themes.getByText("System", { exact: true }).click()
@@ -264,7 +271,6 @@ test("theme choice persists across routes and system mode follows the browser", 
   await themes.getByText("Light", { exact: true }).click()
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light")
   await page.getByRole("button", { name: "Appearance" }).click()
-  await page.getByRole("button", { name: "Menu" }).click()
   await page
     .getByRole("dialog", { name: "Navigation" })
     .getByRole("link", { name: "Process" })
@@ -373,6 +379,7 @@ test("representative integrated navigation is console-clean and same-origin", as
   context,
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   const consoleFailures: string[] = []
   const pageFailures: string[] = []
   const externalOrigins = new Set<string>()

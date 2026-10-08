@@ -86,17 +86,20 @@ test("structured data is conservative and truthful", async ({ page }) => {
   const scripts = page.locator('script[type="application/ld+json"]')
   await expect(scripts).toHaveCount(1)
 
-  const structuredData = JSON.parse(
-    (await scripts.textContent()) ?? "{}",
-  ) as Record<string, unknown>
-  expect(Object.keys(structuredData).sort()).toEqual(
-    ["@context", "@type", "description", "name", "url"].sort(),
-  )
+  const structuredData = JSON.parse((await scripts.textContent()) ?? "{}") as {
+    "@context": string
+    "@graph": Array<Record<string, unknown>>
+  }
   expect(structuredData).toMatchObject({
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Brunova",
   })
+  expect(structuredData["@graph"]).toHaveLength(3)
+  expect(structuredData["@graph"].map((node) => node["@type"])).toEqual([
+    "WebSite",
+    "Organization",
+    "Person",
+  ])
+  expect(JSON.stringify(structuredData)).not.toContain("sameAs")
 })
 
 test("robots, sitemap and private boundaries follow the route policy", async ({
@@ -105,14 +108,18 @@ test("robots, sitemap and private boundaries follow the route policy", async ({
 }) => {
   const robots = await request.get("/robots.txt")
   expect(robots.status()).toBe(200)
-  await expect.poll(() => robots.text()).toContain("Disallow: /")
+  const robotsBody = await robots.text()
+  expect(robotsBody).toContain("Disallow: /api/")
+  expect(robotsBody).not.toContain("Disallow: /portal")
+  expect(robotsBody).not.toContain("Disallow: /es/portal")
 
   const sitemap = await request.get("/sitemap.xml")
   const sitemapBody = await sitemap.text()
   expect(sitemap.status()).toBe(200)
-  const origin = new URL(sitemap.url()).origin
   for (const path of publicRoutes) {
-    expect(sitemapBody, path).toContain(new URL(path, origin).href)
+    expect(sitemapBody, path).toContain(
+      new URL(path, "https://brunova.mx").href,
+    )
   }
   expect(sitemapBody).not.toContain("/portal")
   expect(sitemapBody).not.toContain("/api/")
