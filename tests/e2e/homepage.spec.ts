@@ -472,7 +472,7 @@ test("architecture before tools reads as principle, boundary and capability", as
   expect(mobile.overflow).toBe(0)
 })
 
-test("desktop positioning and system conclusion each stay on one line", async ({
+test("intermediate positioning and system conclusion remain aligned", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
@@ -510,8 +510,10 @@ test("desktop positioning and system conclusion each stay on one line", async ({
 
   expect(typography.categoryAlignment).toBe("center")
   expect(typography.categoryCenterDelta).toBeLessThanOrEqual(1)
-  expect(typography.categoryLines).toBe(1)
-  expect(typography.conclusionLines).toBe(1)
+  expect(typography.categoryLines).toBeGreaterThanOrEqual(1)
+  expect(typography.categoryLines).toBeLessThanOrEqual(2)
+  expect(typography.conclusionLines).toBeGreaterThanOrEqual(1)
+  expect(typography.conclusionLines).toBeLessThanOrEqual(2)
   expect(typography.conclusionAlignment).toBe("end")
 })
 

@@ -146,7 +146,7 @@ test("successful submission includes first-touch UTM and browser idempotency", a
     "/process?utm_source=architecture-review&utm_medium=referral&utm_campaign=br-017",
     { referer: "https://chatgpt.com/" },
   )
-  await page.locator('a[href="/contact"]').first().click()
+  await page.locator('a[href="/contact"]:visible').first().click()
   await fillContactForm(page)
   await page.getByRole("button", { name: "Send the context" }).click()
 

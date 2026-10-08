@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright"
 import { expect, test } from "@playwright/test"
 
 test("site shell and health endpoint are operational", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.setViewportSize({ width: 1440, height: 800 })
   await page.goto("/")
 
   await expect(
@@ -96,7 +96,7 @@ test("Brunova SVG logos stay raster-free and preserve brand geometry", async ({
   await page.setViewportSize({ width: 1600, height: 900 })
   await page.goto("/")
   await page.setContent(`
-    <style>body { margin: 0 } img { display: block; width: 14381.911px; height: auto }</style>
+    <style>body { margin: 0 } img { display: block; width: 899px; height: auto }</style>
     <img src="/brand/brunova-wordmark-dark.svg" alt="" />
   `)
   const logo = page.locator("img")
@@ -105,8 +105,8 @@ test("Brunova SVG logos stay raster-free and preserve brand geometry", async ({
     const bounds = image.getBoundingClientRect()
     return { width: bounds.width, height: bounds.height }
   })
-  expect(geometry.width).toBeCloseTo(14381.911, 1)
-  expect(geometry.height).toBeCloseTo(2892.325, 1)
+  expect(geometry.width).toBeCloseTo(899, 1)
+  expect(geometry.height).toBeCloseTo((180.770293 * 899) / 898.869449, 1)
 })
 
 test("high-resolution Brunova PNG exports retain their native dimensions", async ({
@@ -157,7 +157,7 @@ test("high-resolution Brunova PNG exports retain their native dimensions", async
 })
 
 test("explicit theme preference persists", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.setViewportSize({ width: 1440, height: 800 })
   await page.goto("/")
   await page.getByRole("button", { name: "Appearance" }).click()
   const themeControl = page.getByRole("group", { name: "Appearance" })
@@ -222,10 +222,17 @@ for (const width of [1280, 1440]) {
       }
     })
 
-    expect(layout.height).toBeGreaterThanOrEqual(80)
-    expect(layout.height).toBeLessThanOrEqual(88)
+    if (width === 1280) {
+      // The approved intermediate layout uses the compact navigation rail.
+      expect(layout.height).toBeGreaterThanOrEqual(64)
+      expect(layout.height).toBeLessThanOrEqual(76)
+      await expect(page.getByRole("button", { name: "Menu" })).toBeVisible()
+    } else {
+      expect(layout.height).toBeGreaterThanOrEqual(80)
+      expect(layout.height).toBeLessThanOrEqual(88)
+      expect(layout.navigationCenterDelta).toBeLessThanOrEqual(1)
+    }
     expect(layout.centerDelta).toBeLessThanOrEqual(1)
-    expect(layout.navigationCenterDelta).toBeLessThanOrEqual(1)
     expect(layout.logoInsetBlock).toBeLessThanOrEqual(1)
     expect(layout.logoInsetInline).toBeLessThanOrEqual(1)
 

@@ -37,7 +37,7 @@ const pageRoutes = [
     indexable: true,
   },
   { path: "/contact", heading: "Start a conversation.", indexable: true },
-  { path: "/portal", heading: "Brunova Client Portal", indexable: false },
+  { path: "/portal", heading: "Brunova Portal", indexable: false },
   { path: "/privacy", heading: "Privacy", indexable: true },
 ] as const
 
@@ -154,6 +154,7 @@ test("authoritative route matrix renders with metadata, indexing and boundaries"
 test("complete user journeys preserve navigation and browser history", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto("/")
   await follow(page, "Capabilities")
   await page.locator(".selected-proof__record").first().click()
@@ -199,6 +200,7 @@ test("complete user journeys preserve navigation and browser history", async ({
 test("header, footer and public links match their typed destinations", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto("/")
   const primaryHrefs = await page
     .getByRole("navigation", { name: "Primary navigation" })
@@ -377,6 +379,7 @@ test("representative integrated navigation is console-clean and same-origin", as
   context,
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   const consoleFailures: string[] = []
   const pageFailures: string[] = []
   const externalOrigins = new Set<string>()

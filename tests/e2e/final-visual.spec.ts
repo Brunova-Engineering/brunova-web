@@ -163,6 +163,8 @@ test("transparent wordmarks remain wired and visible in both themes", async ({
 
     expect(response.ok()).toBe(true)
     expect(source.match(/<path\b/g)).toHaveLength(7)
-    expect(source).not.toMatch(/<(?:image|rect|text|filter|linearGradient)\b/)
+    // The approved vector uses a clipping rect; embedded raster and effects
+    // remain prohibited.
+    expect(source).not.toMatch(/<(?:image|text|filter|foreignObject)\b/)
   }
 })

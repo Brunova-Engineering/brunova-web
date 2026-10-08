@@ -27,13 +27,14 @@ const spanishRoutes = [
   })),
   { path: "/es/about", heading: "Donde la operación exige ingeniería." },
   { path: "/es/contact", heading: "Hablemos de su operación." },
-  { path: "/es/portal", heading: "Portal de Clientes Brunova" },
+  { path: "/es/portal", heading: "Portal Brunova" },
   { path: "/es/privacy", heading: "Privacidad" },
 ] as const
 
 test("every Spanish public route is server-localized with complete metadata", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   for (const route of spanishRoutes) {
     const response = await page.goto(route.path)
     expect(response?.status(), route.path).toBe(200)
@@ -87,6 +88,7 @@ test("Spanish Systems copy leads with operational meaning", async ({
 test("language utility preserves the equivalent path and only persists explicit choice", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(`/work/${esWorkCases[0].slug}`)
   expect(
     await page.evaluate(() => localStorage.getItem("brunova-locale")),
@@ -135,6 +137,7 @@ for (const theme of ["system", "light", "dark"] as const) {
     test(`${theme} appearance renders with ${locale.toUpperCase()} content`, async ({
       page,
     }) => {
+      await page.setViewportSize({ width: 1440, height: 900 })
       await page.addInitScript(
         (selectedTheme) => localStorage.setItem("brunova-theme", selectedTheme),
         theme,
