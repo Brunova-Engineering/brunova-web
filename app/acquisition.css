@@ -1,3 +1,10 @@
+body:has(.acq[data-authenticated="true"]) .site-header,
+body:has(.acq[data-authenticated="true"]) .site-footer,
+body:has(.acq[data-authenticated="true"]) .site-utilities--shell,
+body:has(.acq[data-authenticated="true"]) .back-to-top {
+  display: none;
+}
+
 .acq {
   max-width: 1360px;
   margin: auto;

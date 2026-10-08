@@ -9,7 +9,7 @@ const indexRoutes = [
   { path: "/process", heading: "Start with what you already know." },
   { path: "/work", heading: "Selected engineering experience." },
   { path: "/about", heading: "Where operations require engineering." },
-  { path: "/portal", heading: "Brunova Client Portal" },
+  { path: "/portal", heading: "Brunova Portal" },
   { path: "/privacy", heading: "Privacy" },
 ] as const
 
@@ -98,7 +98,7 @@ test("core routes expose their approved content contracts", async ({
 
   await page.goto("/portal")
   await expect(
-    page.getByText("Portal access is available to active clients."),
+    page.getByText("A secure workspace for the systems and operations available to you."),
   ).toBeVisible()
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     "content",

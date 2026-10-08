@@ -312,7 +312,7 @@ export function AcquisitionPortal({
     }
   }
   return (
-    <main id="main-content" className="acq" lang={locale}>
+    <main id="main-content" className="acq" data-authenticated="true" lang={locale}>
       <header className="acq-heading">
         <div>
           <p className="acq-kicker">{t("Portal / Adquisición")}</p>
