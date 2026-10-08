@@ -1,0 +1,1292 @@
+==================================================
+BRUNOVA HOMEPAGE — TEXTUAL CONTENT INVENTORY
+==================================================
+
+Routes:
+EN: /
+ES: /es
+
+==================================================
+BLOCK 01 — GLOBAL HEADER AND SITE UTILITIES
+==================================================
+
+Locale: EN
+
+Skip link:
+Skip to content
+
+Logo:
+Brunova
+
+Logo accessible label:
+Brunova home
+
+Desktop navigation:
+- Capabilities
+- Process
+- Work
+- About
+
+Desktop navigation accessible label:
+Primary navigation
+
+Header utilities:
+- Portal
+- Start a conversation
+
+Mobile navigation trigger:
+Menu
+
+Mobile navigation heading:
+Navigation
+
+Mobile navigation close action:
+Close
+
+Mobile navigation accessible label:
+Mobile navigation
+
+Mobile navigation items:
+- 01 Capabilities
+- 02 Process
+- 03 Work
+- 04 About
+
+Mobile navigation utilities:
+- Portal
+- Start a conversation
+
+Site preferences accessible label:
+Site preferences
+
+Appearance trigger and panel label:
+Appearance
+
+Appearance options:
+- System
+- Light
+- Dark
+
+Language trigger and panel label:
+Language
+
+Language trigger text:
+EN
+
+Language options:
+- EN — English
+- ES — Español
+
+Selected-option visual marker:
+•
+
+Locale: ES
+
+Skip link:
+Saltar al contenido
+
+Logo:
+Brunova
+
+Logo accessible label:
+Brunova home
+
+Desktop navigation:
+- Capacidades
+- Proceso
+- Sistemas
+- Brunova
+
+Desktop navigation accessible label:
+Navegación principal
+
+Header utilities:
+- Portal
+- Hablemos
+
+Mobile navigation trigger:
+Menú
+
+Mobile navigation heading:
+Navegación
+
+Mobile navigation close action:
+Cerrar
+
+Mobile navigation accessible label:
+Navegación móvil
+
+Mobile navigation items:
+- 01 Capacidades
+- 02 Proceso
+- 03 Sistemas
+- 04 Brunova
+
+Mobile navigation utilities:
+- Portal
+- Hablemos
+
+Site preferences accessible label:
+Preferencias del sitio
+
+Appearance trigger and panel label:
+Apariencia
+
+Appearance options:
+- Sistema
+- Claro
+- Oscuro
+
+Language trigger and panel label:
+Idioma
+
+Language trigger text:
+ES
+
+Language options:
+- EN — English
+- ES — Español
+
+Selected-option visual marker:
+•
+
+==================================================
+BLOCK 02 — HERO
+==================================================
+
+Route: /
+Locale: EN
+
+Headline:
+Systems for operations that have outgrown their tools.
+
+Supporting text:
+Brunova designs and builds reliable systems that turn fragmented processes, disconnected data and fragile automations into scalable business operations.
+
+Primary CTA:
+Start a conversation
+
+Secondary CTA:
+Explore our work
+
+Visual asset:
+hero-operating-model.svg
+
+Image alternative text:
+From fragmented operations to a reliable operational system
+
+SVG accessible title:
+From fragmented operation to reliable operation
+
+SVG accessible description:
+Work, data, and systems converge through a defined architectural boundary where state, decisions, and ownership form a governed operating model, producing controlled, operable, and scalable outcomes.
+
+Text contained inside asset:
+- FRAGMENTED OPERATION
+- DEFINED BOUNDARY
+- RELIABLE OPERATION
+- Work
+- Data
+- Systems
+- Operating model
+- State
+- Decisions
+- Ownership
+- Controlled
+- Operable
+- Scalable
+
+Mobile visual accessible label:
+From fragmented operation to reliable operation
+
+Mobile visual text:
+- Fragmented operation
+- Work · Data · Systems
+- Defined boundary
+- State · Decisions · Ownership
+- Reliable operation
+- Controlled · Operable · Scalable
+
+Route: /es
+Locale: ES
+
+Headline:
+Sistemas para operaciones que han crecido más allá de sus herramientas.
+
+Supporting text:
+Brunova diseña y construye sistemas operacionales confiables que integran procesos, datos y automatizaciones hoy fragmentados, para que operaciones complejas puedan crecer con control.
+
+Primary CTA:
+Hablemos
+
+Secondary CTA:
+Explorar sistemas
+
+Visual asset:
+hero-operating-model-es.svg
+
+Image alternative text:
+De una operación fragmentada a una operación confiable
+
+SVG accessible title:
+De una operación fragmentada a una operación confiable
+
+SVG accessible description:
+Trabajo, datos y sistemas se integran dentro de un límite claro. Estado, decisiones y responsables forman un modelo operativo gobernado que produce resultados controlados, operables y escalables.
+
+Text contained inside asset:
+- OPERACIÓN FRAGMENTADA
+- LÍMITE DEFINIDO
+- OPERACIÓN CONFIABLE
+- Trabajo
+- Datos
+- Sistemas
+- Modelo operativo
+- Estado
+- Decisiones
+- Gobernanza
+- Controlada
+- Operable
+- Escalable
+
+Mobile visual accessible label:
+De una operación fragmentada a una operación confiable
+
+Mobile visual text:
+- Operación fragmentada
+- Trabajo · Datos · Sistemas
+- Límite definido
+- Estado · Decisiones · Gobernanza
+- Operación confiable
+- Controlada · Operable · Escalable
+
+==================================================
+BLOCK 03 — POSITIONING AND PROBLEM RECOGNITION
+==================================================
+
+Route: /
+Locale: EN
+
+Positioning accessible label:
+Positioning
+
+Positioning statement:
+Systems engineering for operations too complex to manage through tools alone.
+
+Section title:
+When operations become systems problems.
+
+Section description:
+Growth often exposes a problem that individual tools cannot solve: the operation itself no longer behaves like a system.
+
+Diagnostic group accessible label:
+From fragmentation to operational control
+
+Failure mode 01:
+Disconnected systems
+
+Failure mode 01 consequence:
+Critical context stays trapped between tools.
+
+Failure mode 02:
+Fragile automations
+
+Failure mode 02 consequence:
+Small upstream changes produce silent downstream failures.
+
+Failure mode 03:
+Manual handoffs
+
+Failure mode 03 consequence:
+State and accountability disappear between people.
+
+Conclusion statement:
+The solution is not another tool. It is a better system.
+
+Route: /es
+Locale: ES
+
+Positioning accessible label:
+Posicionamiento
+
+Positioning statement:
+Ingeniería de sistemas para operaciones cuya complejidad ya no se resuelve sumando herramientas.
+
+Section title:
+Cuando el crecimiento convierte la operación en un problema de sistemas.
+
+Section description:
+El crecimiento revela problemas que ninguna herramienta aislada puede resolver: la operación necesita un sistema detrás.
+
+Diagnostic group accessible label:
+De fragmentación a control operativo
+
+Failure mode 01:
+Sistemas desconectados
+
+Failure mode 01 consequence:
+La información crítica queda atrapada entre herramientas.
+
+Failure mode 02:
+Automatizaciones frágiles
+
+Failure mode 02 consequence:
+Un cambio en el origen provoca fallas silenciosas en etapas posteriores.
+
+Failure mode 03:
+Transferencias manuales
+
+Failure mode 03 consequence:
+El estado, el contexto y la gobernanza se diluyen entre equipos.
+
+Conclusion statement:
+La respuesta no es sumar otra herramienta, sino diseñar mejor el sistema.
+
+==================================================
+BLOCK 04 — OPERATIONAL INTELLIGENCE
+==================================================
+
+Route: /
+Locale: EN
+
+Headline:
+Operational intelligence is what happens when process, data and systems stop living separately.
+
+Supporting paragraph:
+We treat the operation as a connected model: how work moves, what data means, where decisions happen, what software owns and where automation or AI can safely assist.
+
+Visual asset:
+operational-intelligence-loop.svg
+
+Image alternative text:
+Operational intelligence control loop: observe, decide and act
+
+SVG accessible title:
+Operational intelligence control loop
+
+SVG accessible description:
+Observe operational signals, decide with boundaries and ownership, and act through governed automation, software, and AI.
+
+Text contained inside asset:
+- Operational intelligence
+- Observe
+- Operations · Data · Systems
+- Decide
+- Meaning · Boundaries · Ownership
+- Act
+- Automation · Software · AI
+- Operational state returns to the model
+
+Caption:
+Operational state returns to the model. Automation, software and AI remain governed capabilities—not the center of the system.
+
+Mobile visual accessible label:
+Operational intelligence control loop
+
+Mobile visual text:
+- Observe
+- Operations · Data · Systems
+- Decide
+- Meaning · Boundaries · Ownership
+- Act
+- Automation · Software · AI
+
+Route: /es
+Locale: ES
+
+Headline:
+La inteligencia operativa conecta procesos, datos y sistemas en una sola operación.
+
+Supporting paragraph:
+Modelamos la operación como un sistema conectado: cómo fluye el trabajo, qué significan los datos, dónde se toman las decisiones, qué funciones corresponden al software y dónde la automatización o la IA pueden aportar valor con control.
+
+Visual asset:
+operational-intelligence-loop-es.svg
+
+Image alternative text:
+Ciclo de inteligencia operativa: observar, decidir y actuar
+
+SVG accessible title:
+Ciclo de control de inteligencia operativa
+
+SVG accessible description:
+Observar señales operativas, decidir con límites y gobernanza, y actuar mediante automatización, software e IA gobernados.
+
+Text contained inside asset:
+- Inteligencia operativa
+- Observar
+- Operaciones · Datos · Sistemas
+- Decidir
+- Significado · Límites · Gobernanza
+- Actuar
+- Automatización · Software · IA
+- El estado operativo vuelve al modelo
+
+Caption:
+El estado operativo vuelve al modelo. La automatización, el software y la IA actúan como capacidades gobernadas, no como el centro del sistema.
+
+Mobile visual accessible label:
+Ciclo de control de inteligencia operativa
+
+Mobile visual text:
+- Observar
+- Operaciones · Datos · Sistemas
+- Decidir
+- Significado · Límites · Gobernanza
+- Actuar
+- Automatización · Software · IA
+
+==================================================
+BLOCK 05 — CAPABILITIES
+==================================================
+
+Route: /
+Locale: EN
+
+Section title:
+What Brunova builds
+
+Section description:
+Five engineering disciplines Brunova integrates into one operational system.
+
+System model label:
+One operational system
+
+System model accessible label:
+One operational system
+
+Capability names:
+1. Systems Architecture & Internal Platforms
+2. Data & Integration Engineering
+3. Financial & Operational Automation
+4. Workflow / Process Engineering
+5. Modernization of Fragile Automations
+
+CTA:
+Explore capabilities
+
+Route: /es
+Locale: ES
+
+Section title:
+Lo que construye Brunova
+
+Section description:
+Cinco disciplinas de ingeniería que Brunova integra en un sistema operacional.
+
+System model label:
+Un sistema operacional
+
+System model accessible label:
+Un sistema operacional
+
+Capability names:
+1. Arquitectura de sistemas y plataformas internas
+2. Ingeniería de datos e integraciones
+3. Automatización financiera y operativa
+4. Ingeniería de flujos y procesos
+5. Modernización de automatizaciones frágiles
+
+CTA:
+Explorar capacidades
+
+==================================================
+BLOCK 06 — ARCHITECTURE BEFORE TOOLS
+==================================================
+
+Route: /
+Locale: EN
+
+Philosophy question:
+We don’t start with “What should we automate?”
+
+Philosophy answer:
+We start with “How should this operation work?”
+
+Visual asset:
+architecture-boundary.svg
+
+Image alternative text:
+Architecture before tools: fragmented operational context becomes a defined operating model that enables operational capability
+
+SVG accessible title:
+Architecture before tools
+
+SVG accessible description:
+Fragmented operational context is resolved into a defined operating model. Process, data and decisions work under ownership to enable operational capability through automation, software and AI.
+
+Text contained inside asset:
+- OPERATIONAL CONTEXT
+- Fragmented inputs · Unclear state
+- DEFINED OPERATING MODEL
+- Process
+- Data
+- Decisions
+- Ownership
+- Operational capability
+- ENABLED BY THE OPERATING MODEL
+- Automation
+- Software
+- AI
+
+Mobile visual accessible label:
+Architecture before tools
+
+Mobile visual text:
+- Operational context
+- Fragmented inputs · Unclear state
+- Defined operating model
+- Process · Data · Decisions · Ownership
+- Operational capability
+- Automation · Software · AI
+
+Route: /es
+Locale: ES
+
+Philosophy question:
+No empezamos por «¿qué automatizamos?»
+
+Philosophy answer:
+Primero definimos «¿cómo debe funcionar la operación?»
+
+Visual asset:
+architecture-boundary-es.svg
+
+Image alternative text:
+Arquitectura antes que herramientas: el contexto operativo fragmentado se convierte en un modelo operativo definido que habilita capacidad operativa
+
+SVG accessible title:
+Arquitectura antes que herramientas
+
+SVG accessible description:
+El contexto operativo fragmentado se convierte en un modelo operativo definido. Proceso, datos y decisiones funcionan bajo gobernanza para habilitar capacidad operativa mediante automatización, software e IA.
+
+Text contained inside asset:
+- CONTEXTO OPERATIVO
+- Entradas fragmentadas · Estado poco claro
+- MODELO OPERATIVO DEFINIDO
+- Proceso
+- Datos
+- Decisiones
+- Gobernanza
+- Capacidad operativa
+- HABILITADA POR EL MODELO OPERATIVO
+- Automatización
+- Software
+- IA
+
+Mobile visual accessible label:
+Arquitectura antes que herramientas
+
+Mobile visual text:
+- Contexto operativo
+- Entradas fragmentadas · Estado poco claro
+- Modelo operativo definido
+- Proceso · Datos · Decisiones · Gobernanza
+- Capacidad operativa
+- Automatización · Software · IA
+
+==================================================
+BLOCK 07 — SELECTED SYSTEMS
+==================================================
+
+Route: /
+Locale: EN
+
+Section title:
+Selected systems we’ve engineered
+
+Introductory text:
+Different operational problems. The same systems engineering discipline.
+
+System 01 number:
+01
+
+System 01 context label:
+Multi-tenant Financial Integration Platform
+
+System 01 title:
+A shared financial integration layer across multiple operating entities
+
+System 01 expanded text:
+A reusable accounting integration platform centralizing OAuth lifecycle, financial reads and writes, reference resolution, recurring reporting and downstream operational access.
+
+System 01 row action:
+View system
+
+System 02 number:
+02
+
+System 02 context label:
+Operational Finance Data Infrastructure
+
+System 02 title:
+Turning recurring financial reporting into shared operational infrastructure
+
+System 02 expanded text:
+Automated extraction and reporting pipelines connecting accounting and operational systems to a data warehouse and business-facing spreadsheets, giving non-technical teams consistent access to financial information.
+
+System 02 row action:
+View system
+
+System 03 number:
+03
+
+System 03 context label:
+Document Intelligence Workflow
+
+System 03 title:
+AI-assisted document processing with control built in
+
+System 03 expanded text:
+A document-processing system combining classification, structured extraction, validation, human review and downstream workflow integration for operationally sensitive documents.
+
+System 03 row action:
+View system
+
+Section CTA:
+Explore engineered systems
+
+Route: /es
+Locale: ES
+
+Section title:
+Sistemas que hemos diseñado y construido
+
+Introductory text:
+Problemas operativos distintos, resueltos con la misma disciplina de ingeniería de sistemas.
+
+System 01 number:
+01
+
+System 01 context label:
+Plataforma de integración financiera para múltiples entidades
+
+System 01 title:
+Integración financiera compartida para múltiples entidades operativas
+
+System 01 expanded text:
+Una plataforma reutilizable que centraliza el ciclo de OAuth, las operaciones contables, la resolución de referencias y los reportes recurrentes para múltiples entidades.
+
+System 01 row action:
+Ver sistema
+
+System 02 number:
+02
+
+System 02 context label:
+Infraestructura de datos para finanzas operativas
+
+System 02 title:
+Reportes financieros recurrentes convertidos en infraestructura compartida
+
+System 02 expanded text:
+Flujos automatizados de extracción y reporte conectan sistemas contables y operativos con un almacén de datos y las hojas de cálculo que usan los equipos, para dar acceso consistente a la información financiera.
+
+System 02 row action:
+Ver sistema
+
+System 03 number:
+03
+
+System 03 context label:
+Flujo de inteligencia documental
+
+System 03 title:
+Procesamiento documental con IA y controles explícitos
+
+System 03 expanded text:
+Un sistema que combina clasificación, extracción estructurada, validación y revisión humana para procesar documentos sensibles sin perder control operativo.
+
+System 03 row action:
+Ver sistema
+
+Section CTA:
+Explorar sistemas diseñados y construidos
+
+==================================================
+BLOCK 08 — HOW BRUNOVA WORKS
+==================================================
+
+Route: /
+Locale: EN
+
+Section title:
+How Brunova works
+
+Section description:
+An operating approach designed around the state of the system—not a fixed funnel.
+
+Entry label:
+Enter where the system needs work.
+
+Process sequence accessible label:
+How Brunova works
+
+Stage 01 input:
+Unclear problem
+
+Stage 01 action:
+Discover
+
+Stage 01 connector:
+→
+
+Stage 01 output:
+Evidence and boundary
+
+Stage 02 input:
+Known boundary
+
+Stage 02 action:
+Design
+
+Stage 02 connector:
+→
+
+Stage 02 output:
+Build-ready design
+
+Stage 03 input:
+Ready design
+
+Stage 03 action:
+Build
+
+Stage 03 connector:
+→
+
+Stage 03 output:
+Production capability
+
+Stage 04 input:
+Live system
+
+Stage 04 action:
+Evolve
+
+Stage 04 connector:
+→
+
+Stage 04 output:
+Continuing improvement
+
+Principles heading:
+Principles we operate by
+
+Principles:
+1. Architecture before tools
+2. Systems, not workflows
+3. Close to operations
+
+Route: /es
+Locale: ES
+
+Section title:
+Cómo trabaja Brunova
+
+Section description:
+Un enfoque que parte del estado real del sistema, no de una secuencia rígida.
+
+Entry label:
+Empezamos donde el sistema lo necesita.
+
+Process sequence accessible label:
+Cómo trabaja Brunova
+
+Stage 01 input:
+Situación por diagnosticar
+
+Stage 01 action:
+Diagnosticar
+
+Stage 01 connector:
+→
+
+Stage 01 output:
+Evidencia y límites
+
+Stage 02 input:
+Problema definido
+
+Stage 02 action:
+Diseñar
+
+Stage 02 connector:
+→
+
+Stage 02 output:
+Diseño listo para implementar
+
+Stage 03 input:
+Diseño aprobado
+
+Stage 03 action:
+Construir
+
+Stage 03 connector:
+→
+
+Stage 03 output:
+Capacidad en producción
+
+Stage 04 input:
+Sistema activo
+
+Stage 04 action:
+Evolucionar
+
+Stage 04 connector:
+→
+
+Stage 04 output:
+Mejora continua
+
+Principles heading:
+Principios que guían nuestro trabajo
+
+Principles:
+1. Arquitectura antes que herramientas
+2. Sistemas, no automatizaciones aisladas.
+3. Con la operación en el centro
+
+==================================================
+BLOCK 09 — FINAL CTA
+==================================================
+
+Route: /
+Locale: EN
+
+No final CTA section is currently rendered on the homepage.
+
+Route: /es
+Locale: ES
+
+No se renderiza actualmente una sección de CTA final en la homepage.
+
+==================================================
+BLOCK 10 — FOOTER
+==================================================
+
+Locale: EN
+
+Logo:
+Brunova
+
+Logo accessible label:
+Brunova home
+
+Descriptor:
+Systems Engineering · Operational Intelligence
+
+Footer navigation accessible label:
+Footer navigation
+
+Footer navigation:
+- Capabilities
+- Process
+- Work
+- About
+- Contact
+- Portal
+- Privacy
+
+Copyright:
+© 2026 Brunova
+
+Locale: ES
+
+Logo:
+Brunova
+
+Logo accessible label:
+Brunova home
+
+Descriptor:
+Ingeniería de Sistemas · Inteligencia Operativa
+
+Footer navigation accessible label:
+Navegación del pie de página
+
+Footer navigation:
+- Capacidades
+- Proceso
+- Sistemas
+- Brunova
+- Contacto
+- Portal
+- Privacidad
+
+Copyright:
+© 2026 Brunova
+
+==================================================
+ADDITIONAL METADATA
+==================================================
+
+1. ALL UNIQUE BRUNOVA TERMINOLOGY USED ON THE HOMEPAGE
+
+English:
+- Systems engineering
+- Operational intelligence
+- Operating model
+- Defined operating model
+- Operational system
+- Operating system
+- Operational capability
+- Production capability
+- Fragmented operation
+- Reliable operation
+- Fragmented processes
+- Disconnected data
+- Disconnected systems
+- Fragile automations
+- Manual handoffs
+- Operational state
+- Operational control
+- Operational context
+- Operating entities
+- Business operations
+- Process
+- Work
+- Data
+- Systems
+- State
+- Decisions
+- Ownership
+- Meaning
+- Boundaries
+- Defined boundary
+- Architectural boundary
+- Evidence and boundary
+- Known boundary
+- Automation
+- Software
+- AI
+- Governed capabilities
+- Controlled
+- Operable
+- Scalable
+- Observe
+- Decide
+- Act
+- Systems Architecture & Internal Platforms
+- Data & Integration Engineering
+- Financial & Operational Automation
+- Workflow / Process Engineering
+- Modernization of Fragile Automations
+- Multi-tenant Financial Integration Platform
+- Operational Finance Data Infrastructure
+- Document Intelligence Workflow
+- Financial integration layer
+- Accounting integration platform
+- OAuth lifecycle
+- Financial reads and writes
+- Reference resolution
+- Recurring reporting
+- Operational access
+- Reporting pipelines
+- Data warehouse
+- Document processing
+- Classification
+- Structured extraction
+- Validation
+- Human review
+- Workflow integration
+- Discover
+- Design
+- Build
+- Evolve
+- Build-ready design
+- Continuing improvement
+- Architecture before tools
+- Systems, not workflows
+- Close to operations
+
+Spanish:
+- Ingeniería de sistemas
+- Inteligencia operativa
+- Modelo operativo
+- Modelo operativo definido
+- Sistema operacional
+- Sistema conectado
+- Capacidad operativa
+- Capacidad en producción
+- Operación fragmentada
+- Operación confiable
+- Operaciones complejas
+- Procesos fragmentados
+- Sistemas desconectados
+- Automatizaciones frágiles
+- Transferencias manuales
+- Estado operativo
+- Control operativo
+- Contexto operativo
+- Entidades operativas
+- Proceso
+- Trabajo
+- Datos
+- Sistemas
+- Estado
+- Decisiones
+- Gobernanza
+- Significado
+- Límites
+- Límite definido
+- Evidencia y límites
+- Automatización
+- Software
+- IA
+- Capacidades gobernadas
+- Controlada
+- Operable
+- Escalable
+- Observar
+- Decidir
+- Actuar
+- Arquitectura de sistemas y plataformas internas
+- Ingeniería de datos e integraciones
+- Automatización financiera y operativa
+- Ingeniería de flujos y procesos
+- Modernización de automatizaciones frágiles
+- Plataforma de integración financiera para múltiples entidades
+- Infraestructura de datos para finanzas operativas
+- Flujo de inteligencia documental
+- Integración financiera compartida
+- Ciclo de OAuth
+- Operaciones contables
+- Resolución de referencias
+- Reportes recurrentes
+- Pipelines automatizados
+- Almacén de datos
+- Procesamiento documental
+- Clasificación
+- Extracción estructurada
+- Validación
+- Revisión humana
+- Diagnosticar
+- Diseñar
+- Construir
+- Evolucionar
+- Diseño listo para implementar
+- Mejora continua
+- Arquitectura antes que herramientas
+- Sistemas, no automatizaciones aisladas.
+- Con la operación en el centro
+
+2. REPEATED CONCEPTS
+
+English:
+- System / systems: Blocks 02, 03, 04, 05, 06, 07, 08 and 10.
+- Operation / operations / operational: Blocks 02, 03, 04, 05, 06, 07, 08 and 10.
+- Tools: Blocks 02, 03, 05, 06 and 08.
+- Data: Blocks 02, 04, 05, 06 and 07.
+- Automation / automations: Blocks 02, 03, 04, 05 and 06.
+- AI: Blocks 04, 06 and 07.
+- Process / processes / workflow: Blocks 02, 04, 05, 06, 07 and 08.
+- Decisions: Blocks 02, 04 and 06.
+- Ownership / accountability: Blocks 02, 03, 04 and 06.
+- Boundary / boundaries: Blocks 02, 04, 06 and 08.
+- Control / controlled / governed: Blocks 02, 03, 04, 06 and 07.
+- Reliable: Block 02.
+- Capability / capabilities: Blocks 04, 05, 06 and 08.
+- Engineering: Blocks 03, 05, 07 and 10.
+- Architecture: Blocks 05, 06 and 08.
+- Integration: Blocks 05 and 07.
+- Operational intelligence: Blocks 04 and 10.
+- Operating model: Blocks 02, 04 and 06.
+
+Spanish:
+- Sistema / sistemas: Bloques 02, 03, 04, 05, 06, 07, 08 y 10.
+- Operación / operaciones / operativo / operativa: Bloques 02, 03, 04, 05, 06, 07, 08 y 10.
+- Herramienta / herramientas: Bloques 02, 03, 05, 06 y 08.
+- Datos: Bloques 02, 04, 05, 06 y 07.
+- Automatización / automatizaciones: Bloques 02, 03, 04, 05 y 06.
+- IA: Bloques 04, 06 y 07.
+- Proceso / procesos / flujo: Bloques 02, 04, 05, 06, 07 y 08.
+- Decisiones: Bloques 02, 04 y 06.
+- Gobernanza: Bloques 02, 03, 04 y 06.
+- Límite / límites: Bloques 02, 04, 06 y 08.
+- Control / controlada / gobernadas: Bloques 02, 03, 04, 06 y 07.
+- Confiable / confiables: Bloque 02.
+- Capacidad / capacidades: Bloques 04, 05, 06 y 08.
+- Ingeniería: Bloques 03, 05, 07 y 10.
+- Arquitectura: Bloques 05, 06 y 08.
+- Integración / integraciones: Bloques 05 y 07.
+- Inteligencia operativa: Bloques 04 y 10.
+- Modelo operativo: Bloques 02, 04 y 06.
+
+3. POTENTIAL INCONSISTENCIES BETWEEN EN AND ES
+
+- Header navigation: EN uses “Work”; ES uses “Sistemas”.
+- Header navigation: EN uses “About”; ES uses “Brunova”.
+- Header CTA: EN uses “Start a conversation”; ES uses “Hablemos”.
+- Logo accessible label: both locales use the English text “Brunova home”.
+- Hero secondary CTA: EN uses “Explore our work”; ES uses “Explorar sistemas”.
+- Hero description: EN states that fragmented processes, disconnected data and fragile automations become scalable business operations; ES states that fragmented processes, data and automations are integrated so complex operations can grow with control.
+- Hero operating-model label: EN uses “Ownership”; ES uses “Gobernanza”.
+- Problem conclusion: EN uses “The solution is not another tool. It is a better system.”; ES uses “La respuesta no es sumar otra herramienta, sino diseñar mejor el sistema.”
+- Operational Intelligence supporting paragraph: EN uses “what software owns”; ES uses “qué funciones corresponden al software”.
+- Operational Intelligence decision label: EN uses “Ownership”; ES uses “Gobernanza”.
+- Capabilities framing: EN uses “Five engineering disciplines”; ES uses “Cinco disciplinas de ingeniería”.
+- Capabilities core: EN uses “One operational system”; ES uses “Un sistema operacional”.
+- Architecture asset visible label: EN uses “Ownership”; ES uses “Gobernanza”.
+- Selected Systems section title: EN uses “Selected systems we’ve engineered”; ES uses “Sistemas que hemos diseñado y construido”.
+- Selected Systems CTA: EN uses “Explore engineered systems”; ES uses “Explorar sistemas diseñados y construidos”.
+- Process description: EN refers to “a fixed funnel”; ES refers to “una secuencia rígida”.
+- Process entry label: EN uses “Enter where the system needs work.”; ES uses “Empezamos donde el sistema lo necesita.”
+- Principle: EN uses “Systems, not workflows”; ES uses “Sistemas, no automatizaciones aisladas.”
+- Principle: EN uses “Close to operations”; ES uses “Con la operación en el centro”.
+- Footer navigation: EN uses “Work” and “About”; ES uses “Sistemas” and “Brunova”.
+
+4. TEXT EMBEDDED IN SVG/IMAGE ASSETS
+
+Asset: brunova-wordmark-dark.svg
+Locale use: EN and ES
+Visible wordmark:
+Brunova
+SVG text elements:
+None. The wordmark is composed of vector paths.
+
+Asset: brunova-wordmark-light.svg
+Locale use: EN and ES
+Visible wordmark:
+Brunova
+SVG text elements:
+None. The wordmark is composed of vector paths.
+
+Asset: hero-operating-model.svg
+Locale: EN
+
+SVG title:
+From fragmented operation to reliable operation
+
+SVG description:
+Work, data, and systems converge through a defined architectural boundary where state, decisions, and ownership form a governed operating model, producing controlled, operable, and scalable outcomes.
+
+SVG text elements in document order:
+1. FRAGMENTED OPERATION
+2. DEFINED BOUNDARY
+3. RELIABLE OPERATION
+4. Work
+5. Data
+6. Systems
+7. Operating model
+8. State
+9. Decisions
+10. Ownership
+11. Controlled
+12. Operable
+13. Scalable
+
+Asset: hero-operating-model-es.svg
+Locale: ES
+
+SVG title:
+De una operación fragmentada a una operación confiable
+
+SVG description:
+Trabajo, datos y sistemas se integran dentro de un límite claro. Estado, decisiones y responsables forman un modelo operativo gobernado que produce resultados controlados, operables y escalables.
+
+SVG text elements in document order:
+1. OPERACIÓN FRAGMENTADA
+2. LÍMITE DEFINIDO
+3. OPERACIÓN CONFIABLE
+4. Trabajo
+5. Datos
+6. Sistemas
+7. Modelo operativo
+8. Estado
+9. Decisiones
+10. Gobernanza
+11. Controlada
+12. Operable
+13. Escalable
+
+Asset: operational-intelligence-loop.svg
+Locale: EN
+
+SVG title:
+Operational intelligence control loop
+
+SVG description:
+Observe operational signals, decide with boundaries and ownership, and act through governed automation, software, and AI.
+
+SVG text elements in document order:
+1. Operational
+2. intelligence
+3. Observe
+4. Operations · Data · Systems
+5. Decide
+6. Meaning · Boundaries · Ownership
+7. Act
+8. Automation · Software · AI
+9. Operational state returns
+10. to the model
+
+Asset: operational-intelligence-loop-es.svg
+Locale: ES
+
+SVG title:
+Ciclo de control de inteligencia operativa
+
+SVG description:
+Observar señales operativas, decidir con límites y gobernanza, y actuar mediante automatización, software e IA gobernados.
+
+SVG text elements in document order:
+1. Inteligencia
+2. operativa
+3. Observar
+4. Operaciones · Datos · Sistemas
+5. Decidir
+6. Significado · Límites · Gobernanza
+7. Actuar
+8. Automatización · Software · IA
+9. El estado operativo vuelve
+10. al modelo
+
+Asset: architecture-boundary.svg
+Locale: EN
+
+SVG title:
+Architecture before tools
+
+SVG description:
+Fragmented operational context is resolved into a defined operating model. Process, data and decisions work under ownership to enable operational capability through automation, software and AI.
+
+SVG text elements in document order:
+1. OPERATIONAL CONTEXT
+2. Fragmented inputs · Unclear state
+3. DEFINED OPERATING MODEL
+4. Process
+5. Data
+6. Decisions
+7. Ownership
+8. Operational capability
+9. ENABLED BY THE OPERATING MODEL
+10. Automation
+11. Software
+12. AI
+
+Asset: architecture-boundary-es.svg
+Locale: ES
+
+SVG title:
+Arquitectura antes que herramientas
+
+SVG description:
+El contexto operativo fragmentado se convierte en un modelo operativo definido. Proceso, datos y decisiones funcionan bajo gobernanza para habilitar capacidad operativa mediante automatización, software e IA.
+
+SVG text elements in document order:
+1. CONTEXTO OPERATIVO
+2. Entradas fragmentadas · Estado poco claro
+3. MODELO OPERATIVO DEFINIDO
+4. Proceso
+5. Datos
+6. Decisiones
+7. Gobernanza
+8. Capacidad operativa
+9. HABILITADA POR EL MODELO OPERATIVO
+10. Automatización
+11. Software
+12. IA

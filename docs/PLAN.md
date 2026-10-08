@@ -1,6 +1,6 @@
 # BR-017 — Brunova Website v1 Implementation Plan
 
-**Status:** Architecture reviewed. Phase 0 and Phase 1 authorized. Phase 2 remains approval-gated.
+**Status:** Phase 0/1 and Phase 2 approved and merged into `develop`. Phase 3 authorized on `feature/br-017-homepage`. Phase 4 remains approval-gated.
 
 ## 1. Repository assessment
 
@@ -26,18 +26,18 @@ Preserve the source byte-for-byte. Derive a correctly encoded, tightly cropped r
 
 ### 2.1 Stack and versions
 
-| Area | Decision |
-|---|---|
-| Runtime | Node.js 24 Active LTS |
+| Area            | Decision                                                                                                 |
+| --------------- | -------------------------------------------------------------------------------------------------------- |
+| Runtime         | Node.js 24 Active LTS                                                                                    |
 | Package manager | Latest verified stable pnpm 11.x at scaffold time; exact version pinned in `package.json#packageManager` |
-| Framework | Next.js 16.2.11 Active LTS, App Router, Node runtime |
-| UI | React and React DOM 19.2.x compatible with Next.js 16.2.11 |
-| Language | TypeScript 5.9.3 strict baseline |
-| Styling | Tailwind CSS 4.3.x and semantic CSS variables in root `tokens.css` |
-| Validation | Zod 4.x |
-| Theme | `next-themes` 0.4.x |
-| Tests | Vitest 4.1.x, Testing Library 16.x, Playwright 1.62.x, axe Playwright integration |
-| Quality | ESLint 9.x, `eslint-config-next` 16.2.11, Prettier 3.x |
+| Framework       | Next.js 16.2.11 Active LTS, App Router, Node runtime                                                     |
+| UI              | React and React DOM 19.2.x compatible with Next.js 16.2.11                                               |
+| Language        | TypeScript 5.9.3 strict baseline                                                                         |
+| Styling         | Tailwind CSS 4.3.x and semantic CSS variables in root `tokens.css`                                       |
+| Validation      | Zod 4.x                                                                                                  |
+| Theme           | `next-themes` 0.4.x                                                                                      |
+| Tests           | Vitest 4.1.x, Testing Library 16.x, Playwright 1.62.x, axe Playwright integration                        |
+| Quality         | ESLint 9.x, `eslint-config-next` 16.2.11, Prettier 3.x                                                   |
 
 Use Next.js 16.2.11 Active LTS instead of the 16.3.x Current line for Website v1. Re-evaluate Current only after v1 is stable. Commit `pnpm-lock.yaml`, use frozen-lockfile installs, and do not adopt a new pnpm major without an architecture decision.
 
@@ -236,15 +236,19 @@ Acceptance:
 - README works as the operational entrypoint.
 - Feature branch is pushed and unmerged.
 
-## 5. Later phases — not authorized
+## 5. Later phases and authorization state
 
 ### Phase 2 — Global shell and typed content
 
 Implement typed content, desktop/mobile navigation, footer, CTA system, semantic layout primitives, no-op analytics, and UTM capture. Acceptance includes accessible mobile focus behavior, complete required destinations, no AI-nav/footer fingerprint, and single-line clickable labels from 320–1920px.
 
+**Authorization:** Approved and merged into `develop` with explicit non-fast-forward merge `4ae0194`.
+
 ### Phase 3 — Homepage
 
 Implement the ten-part narrative. Acceptance includes all eight buyer questions in order, exact approved hero copy, exactly five capabilities/four work entries/four stages/three differentiators, no fake proof, fold fit at 1280×800, and Hallmark mobile widths.
+
+**Authorization:** Approved for implementation on `feature/br-017-homepage`; do not merge into `develop` without review.
 
 ### Phase 4 — Core routes
 

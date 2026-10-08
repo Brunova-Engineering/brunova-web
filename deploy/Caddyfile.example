@@ -1,0 +1,33 @@
+# Recommendation only. Replace brunova.example after the production hostname is approved.
+# Caddy owns certificates and redirects HTTP to HTTPS automatically for a valid public hostname.
+brunova.example {
+	encode zstd gzip
+
+	@contact path /api/contact
+	handle @contact {
+		request_body {
+			max_size 16KB
+		}
+
+		reverse_proxy 127.0.0.1:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+
+			transport http {
+				read_timeout 15s
+				write_timeout 15s
+			}
+		}
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+}

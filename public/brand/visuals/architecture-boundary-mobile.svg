@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="650" viewBox="0 0 390 650" role="img" aria-labelledby="title desc">
+  <!-- Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 -->
+  <title id="title">Architecture before tools</title>
+  <desc id="desc">Fragmented operational context is resolved into a defined operating model. Process, data and decisions work under ownership to enable operational capability through automation, software and AI.</desc>
+  <style>:root{--accent:#CDBB9D;--boundary:#6B7474;--muted:#AEB4B0;--label:#D5D9D6;--rule:#475153;--foreground:#F4F3EF;--subtle:#343E40;--relationship:#596365;--secondary:#D8DCDA;--font:Manrope,Arial,sans-serif}</style>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1l8 4-8 4z" fill="var(--accent)"/></marker></defs>
+  <g font-family="var(--font)">
+    <text x="195" y="24" fill="var(--muted)" font-size="11" font-weight="600" letter-spacing="1.25" text-anchor="middle">OPERATIONAL CONTEXT</text>
+    <text x="195" y="48" fill="var(--secondary)" font-size="13" font-weight="500" text-anchor="middle">Fragmented inputs · Unclear state</text>
+    <path d="M195 62v35" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <rect x="20" y="102" width="350" height="340" fill="none" stroke="var(--boundary)" stroke-width="1.5"/>
+    <text x="40" y="134" fill="var(--label)" font-size="10.5" font-weight="600" letter-spacing="1.25">DEFINED OPERATING MODEL</text>
+    <path d="M40 151h310" fill="none" stroke="var(--rule)"/>
+    <g fill="var(--foreground)" font-size="17" font-weight="500"><text x="40" y="197">Process</text><text x="56" y="254">Data</text><text x="72" y="311">Decisions</text></g>
+    <g fill="none" stroke="var(--subtle)"><path d="M40 214h215"/><path d="M56 271h199"/><path d="M72 328h183"/></g>
+    <path d="M278 174v238" fill="none" stroke="var(--boundary)"/>
+    <text x="324" y="298" fill="var(--foreground)" font-size="15" font-weight="600" text-anchor="middle">Ownership</text>
+
+    <path d="M195 442v40" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="195" y="518" fill="var(--foreground)" font-size="20" font-weight="700" text-anchor="middle">Operational capability</text>
+    <text x="195" y="541" fill="var(--muted)" font-size="9.5" font-weight="600" letter-spacing="1.05" text-anchor="middle">ENABLED BY THE OPERATING MODEL</text>
+    <g fill="none" stroke="var(--relationship)"><path d="M195 551v14"/><path d="M65 565h260"/><path d="M65 565v22"/><path d="M195 565v22"/><path d="M325 565v22"/></g>
+    <g fill="var(--secondary)" font-size="13" font-weight="500" text-anchor="middle"><text x="65" y="616">Automation</text><text x="195" y="616">Software</text><text x="325" y="616">AI</text></g>
+  </g>
+</svg>

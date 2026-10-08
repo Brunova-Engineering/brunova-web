@@ -1,0 +1,58 @@
+{
+  "name": "brunova-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=11 <12"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "format:check": "prettier --check .",
+    "bundle:report": "node scripts/measure-bundles.mjs",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:verify": "./scripts/verify-deployment.sh",
+    "env:validate": "node --env-file=.env scripts/validate-production-env.mjs",
+    "lighthouse": "node scripts/run-lighthouse.mjs",
+    "qa:visuals": "node scripts/capture-phase7-visuals.mjs",
+    "qa:visuals:phase8": "node scripts/capture-phase8-visuals.mjs",
+    "qa:visuals:phase8.1": "node scripts/capture-phase8-1-visuals.mjs",
+    "qa:visuals:phase8.2": "node scripts/capture-phase8-2-visuals.mjs"
+  },
+  "dependencies": {
+    "next": "16.2.11",
+    "next-themes": "0.4.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@lhci/cli": "0.15.1",
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.5",
+    "axe-core": "4.13.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.11",
+    "jsdom": "30.0.1",
+    "prettier": "3.9.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

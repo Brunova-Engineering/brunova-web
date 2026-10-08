@@ -1,0 +1,3508 @@
+==================================================
+BRUNOVA PUBLIC WEBSITE — COMPLETE TEXTUAL CONTENT INVENTORY
+==================================================
+
+Extraction scope: current public routes in the repository
+Locales: English and Spanish
+Extraction date: 2026-08-23
+Site content has not been edited by this inventory.
+
+==================================================
+GLOBAL SHELL — HEADER, NAVIGATION, FOOTER AND SITE UTILITIES
+==================================================
+
+The shared header, desktop and mobile navigation, skip links, site preferences, language controls, footer navigation, wordmark text and copyright are inventoried in NAV 01 — HOME.
+Reference:
+/Users/jorgeaveraf/Documents/Brunova/brunova-web/docs/HOMEPAGE_CONTENT_INVENTORY.txt
+
+The same global shell is rendered on NAV 02–08 in the corresponding locale.
+
+==================================================
+NAV 01 — HOME
+==================================================
+
+Routes:
+EN: /
+ES: /es
+
+Complete inventory already exists.
+Reference:
+/Users/jorgeaveraf/Documents/Brunova/brunova-web/docs/HOMEPAGE_CONTENT_INVENTORY.txt
+
+==================================================
+NAV 02 — CAPABILITIES
+==================================================
+
+Current routes:
+EN: /capabilities
+ES: /es/capabilities
+
+--------------------------------------------------
+PAGE LEVEL — EN
+--------------------------------------------------
+
+Browser title:
+Systems engineering capabilities — Brunova
+
+Metadata description:
+Five connected systems-engineering capabilities for complex operations: architecture, data, financial automation, process engineering and modernization.
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Explore
+- Capabilities
+
+Page title:
+Capabilities that combine into systems.
+
+Page introduction:
+Brunova brings architecture, data, automation and process work into one operating boundary. The five capabilities are connected responsibilities—not isolated service lines.
+
+Capability-map accessible label:
+Capability sections
+
+Capability-map statement:
+One system, five responsibilities
+
+Capability-map links:
+- 01 Architecture
+- 02 Data & integration
+- 03 Financial automation
+- 04 Process engineering
+- 05 Automation modernization
+
+--------------------------------------------------
+PAGE LEVEL — ES
+--------------------------------------------------
+
+Browser title:
+Capacidades de ingeniería — Brunova
+
+Metadata description:
+Cinco disciplinas conectadas para diseñar sistemas confiables para la operación: arquitectura, datos, automatización financiera, procesos y modernización.
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Explorar
+- Capacidades
+
+Page title:
+Cinco capacidades, un solo sistema.
+
+Page introduction:
+Brunova integra arquitectura, datos, automatización y procesos dentro de un mismo marco operativo. Son responsabilidades conectadas, no servicios aislados.
+
+Capability-map accessible label:
+Secciones de capacidades
+
+Capability-map statement:
+Un sistema, cinco responsabilidades
+
+Capability-map links:
+- 01 Arquitectura
+- 02 Datos e integraciones
+- 03 Automatización financiera
+- 04 Ingeniería de procesos
+- 05 Modernización
+
+--------------------------------------------------
+SECTION 01 — CAPABILITY 01
+--------------------------------------------------
+
+Capability name — EN:
+Systems Architecture & Internal Platforms
+
+Capability name — ES:
+Arquitectura de sistemas y plataformas internas
+
+Navigation label — EN:
+Architecture
+
+Navigation label — ES:
+Arquitectura
+
+Description — EN:
+We design system boundaries, services, operating models and internal platforms around critical business operations.
+
+Description — ES:
+Diseñamos límites, servicios, modelos operativos y plataformas internas para sostener operaciones críticas.
+
+Supporting heading — EN:
+The class of problem
+
+Problem — EN:
+Critical operations have grown across local tools and decisions without a shared system boundary, service model or clear ownership.
+
+Supporting heading — ES:
+Problema que resuelve
+
+Problem — ES:
+Las operaciones críticas crecieron entre herramientas y decisiones locales, sin una arquitectura común, un modelo de servicios ni responsables claros.
+
+Supporting heading — EN:
+How Brunova approaches it
+
+Approach — EN:
+Brunova starts with the operation—its data, decisions, failure paths and owners—then defines the boundaries, services and internal platform needed to support it.
+
+Supporting heading — ES:
+Enfoque de Brunova
+
+Approach — ES:
+Brunova parte de la operación —sus datos, decisiones, escenarios de falla y responsables— y define los límites, servicios y plataformas que necesita para funcionar con control.
+
+Supporting heading — EN:
+Typical system outcomes
+
+Outcomes — EN:
+- Reusable internal services
+- Internal platforms
+- Maintainable system ownership
+- Reduced key-person dependency
+- Clearer architecture
+
+Supporting heading — ES:
+Resultados habituales
+
+Outcomes — ES:
+- Servicios internos reutilizables
+- Plataformas internas
+- Responsables claros y sostenibles
+- Menor dependencia de personas clave
+- Arquitectura más clara
+
+Supporting heading — EN:
+Operational concerns
+
+Operational concerns — EN:
+- System boundaries
+- Service ownership
+- Key-person dependency
+- Maintainability as the operation changes
+
+Supporting heading — ES:
+Aspectos operativos
+
+Operational concerns — ES:
+- Límites del sistema
+- Responsables de cada servicio
+- Dependencia de personas clave
+- Mantenibilidad a medida que cambia la operación
+
+Supporting heading — EN:
+Related selected work
+
+Related systems and CTA — EN:
+- Multi-tenant Financial Integration Platform — View system
+
+Supporting heading — ES:
+Sistemas relacionados
+
+Related systems and CTA — ES:
+- Plataforma de integración financiera para múltiples entidades — Ver sistema
+
+--------------------------------------------------
+SECTION 02 — CAPABILITY 02
+--------------------------------------------------
+
+Capability name — EN:
+Data & Integration Engineering
+
+Capability name — ES:
+Ingeniería de datos e integraciones
+
+Navigation label — EN:
+Data & integration
+
+Navigation label — ES:
+Datos e integraciones
+
+Description — EN:
+We connect APIs, databases, SaaS platforms, warehouses and operational data flows with explicit semantics and ownership.
+
+Description — ES:
+Conectamos APIs, bases de datos, plataformas SaaS y almacenes con definiciones y responsables claros para cada flujo de datos.
+
+Supporting heading — EN:
+The class of problem
+
+Problem — EN:
+Operational data is distributed across systems, but its meaning, movement and ownership are not reliable enough for shared use.
+
+Supporting heading — ES:
+Problema que resuelve
+
+Problem — ES:
+Los datos clave están repartidos entre sistemas y no existe suficiente claridad sobre su significado, recorrido o responsables para usarlos de forma compartida.
+
+Supporting heading — EN:
+How Brunova approaches it
+
+Approach — EN:
+Brunova defines the semantics and ownership of each flow before connecting APIs, databases, SaaS platforms and warehouses into a controlled integration boundary.
+
+Supporting heading — ES:
+Enfoque de Brunova
+
+Approach — ES:
+Antes de conectar APIs, bases de datos, plataformas SaaS y almacenes, Brunova define qué significa cada dato, de dónde proviene y quién responde por él.
+
+Supporting heading — EN:
+Typical system outcomes
+
+Outcomes — EN:
+- Reliable synchronization
+- Data pipelines
+- Warehouses
+- Shared integration services
+- Trustworthy reporting foundations
+
+Supporting heading — ES:
+Resultados habituales
+
+Outcomes — ES:
+- Sincronización confiable
+- Pipelines de datos
+- Almacenes de datos
+- Servicios de integración compartidos
+- Bases confiables para reportes
+
+Supporting heading — EN:
+Operational concerns
+
+Operational concerns — EN:
+- Source ownership
+- Reference resolution
+- Synchronization and recovery
+- Reporting trust
+
+Supporting heading — ES:
+Aspectos operativos
+
+Operational concerns — ES:
+- Fuentes y responsables definidos
+- Resolución de referencias
+- Sincronización y recuperación
+- Confianza en reportes
+
+Supporting heading — EN:
+Related selected work
+
+Related systems and CTA — EN:
+- Multi-tenant Financial Integration Platform — View system
+- Operational Finance Data Infrastructure — View system
+
+Supporting heading — ES:
+Sistemas relacionados
+
+Related systems and CTA — ES:
+- Plataforma de integración financiera para múltiples entidades — Ver sistema
+- Infraestructura de datos para finanzas operativas — Ver sistema
+
+--------------------------------------------------
+SECTION 03 — CAPABILITY 03
+--------------------------------------------------
+
+Capability name — EN:
+Financial & Operational Automation
+
+Capability name — ES:
+Automatización financiera y operativa
+
+Navigation label — EN:
+Financial automation
+
+Navigation label — ES:
+Automatización financiera
+
+Description — EN:
+We build controlled automation for critical financial and operational workflows, including accounting integrations, reconciliation, reporting, AR/AP and inventory-related operations.
+
+Description — ES:
+Construimos automatizaciones controladas para procesos financieros y operativos críticos: integraciones contables, conciliación, reportes, cuentas por cobrar y por pagar e inventario.
+
+Supporting heading — EN:
+The class of problem
+
+Problem — EN:
+Important financial and operational work depends on manual handoffs or loosely connected automations across accounting, reporting and inventory-related processes.
+
+Supporting heading — ES:
+Problema que resuelve
+
+Problem — ES:
+Procesos financieros y operativos críticos dependen de relevos manuales o automatizaciones aisladas entre contabilidad, reportes e inventario.
+
+Supporting heading — EN:
+How Brunova approaches it
+
+Approach — EN:
+Brunova engineers the system around operational rules, reconciliation, exceptions and ownership. The work supports financial operations; it is not accounting advice or an accounting service.
+
+Supporting heading — ES:
+Enfoque de Brunova
+
+Approach — ES:
+Brunova diseña el sistema a partir de reglas operativas, conciliaciones, excepciones y responsables. Fortalecemos la operación financiera; no prestamos asesoría ni servicios contables.
+
+Supporting heading — EN:
+Typical system outcomes
+
+Outcomes — EN:
+- Controlled financial workflows
+- Reconciliation infrastructure
+- Operational reporting
+- Reliable accounting integrations
+
+Supporting heading — ES:
+Resultados habituales
+
+Outcomes — ES:
+- Flujos financieros controlados
+- Infraestructura de conciliación
+- Reportes operativos
+- Integraciones contables confiables
+
+Supporting heading — EN:
+Operational concerns
+
+Operational concerns — EN:
+- Reconciliation
+- Exception handling
+- Operational ownership
+- Reporting continuity
+
+Supporting heading — ES:
+Aspectos operativos
+
+Operational concerns — ES:
+- Conciliación
+- Manejo de excepciones
+- Responsables operativos
+- Continuidad de reportes
+
+Supporting heading — EN:
+Related selected work
+
+Related systems and CTA — EN:
+- Multi-tenant Financial Integration Platform — View system
+- Operational Finance Data Infrastructure — View system
+
+Supporting heading — ES:
+Sistemas relacionados
+
+Related systems and CTA — ES:
+- Plataforma de integración financiera para múltiples entidades — Ver sistema
+- Infraestructura de datos para finanzas operativas — Ver sistema
+
+--------------------------------------------------
+SECTION 04 — CAPABILITY 04
+--------------------------------------------------
+
+Capability name — EN:
+Workflow / Process Engineering
+
+Capability name — ES:
+Ingeniería de flujos y procesos
+
+Navigation label — EN:
+Process engineering
+
+Navigation label — ES:
+Ingeniería de procesos
+
+Description — EN:
+We redesign the process before automating it: states, owners, approvals, exceptions, human review and escalation.
+
+Description — ES:
+Rediseñamos el proceso antes de automatizarlo: estados, responsables, aprobaciones, excepciones, revisión humana y escalamiento.
+
+Supporting heading — EN:
+The class of problem
+
+Problem — EN:
+A process works in its standard path but loses control when ownership changes, exceptions appear or judgment is required.
+
+Supporting heading — ES:
+Problema que resuelve
+
+Problem — ES:
+Un proceso funciona en su ruta estándar, pero pierde control cuando cambia de manos, aparecen excepciones o se requiere criterio.
+
+Supporting heading — EN:
+How Brunova approaches it
+
+Approach — EN:
+Brunova makes states, owners, approvals, exceptions, human review and escalation explicit before choosing what should be automated.
+
+Supporting heading — ES:
+Enfoque de Brunova
+
+Approach — ES:
+Brunova hace explícitos los estados, responsables, aprobaciones, excepciones, revisión humana y escalamiento antes de decidir qué automatizar.
+
+Supporting heading — EN:
+Typical system outcomes
+
+Outcomes — EN:
+- Clearer handoffs
+- Explicit state
+- Fewer hidden manual steps
+- Automation that survives real-world exceptions
+
+Supporting heading — ES:
+Resultados habituales
+
+Outcomes — ES:
+- Relevos más claros
+- Estado explícito
+- Menos pasos manuales ocultos
+- Automatización que resiste excepciones reales
+
+Supporting heading — EN:
+Operational concerns
+
+Operational concerns — EN:
+- State and handoffs
+- Approvals and escalation
+- Exception paths
+- Human review
+
+Supporting heading — ES:
+Aspectos operativos
+
+Operational concerns — ES:
+- Estados y relevos
+- Aprobaciones y escalamiento
+- Rutas de excepción
+- Revisión humana
+
+Supporting heading — EN:
+Related selected work
+
+Related systems and CTA — EN:
+- Document Intelligence Workflow — View system
+
+Supporting heading — ES:
+Sistemas relacionados
+
+Related systems and CTA — ES:
+- Flujo de inteligencia documental — Ver sistema
+
+--------------------------------------------------
+SECTION 05 — CAPABILITY 05
+--------------------------------------------------
+
+Capability name — EN:
+Modernization of Fragile Automations
+
+Capability name — ES:
+Modernización de automatizaciones frágiles
+
+Navigation label — EN:
+Automation modernization
+
+Navigation label — ES:
+Modernización
+
+Description — EN:
+We take automations that already work but are brittle, opaque or person-dependent and move them toward stronger architecture and operations.
+
+Description — ES:
+Modernizamos automatizaciones valiosas que se han vuelto frágiles, opacas o dependientes de una persona, sin reemplazar lo que todavía funciona.
+
+Supporting heading — EN:
+The class of problem
+
+Problem — EN:
+Existing automations deliver useful behavior, but they are brittle, opaque, difficult to recover or dependent on one person.
+
+Supporting heading — ES:
+Problema que resuelve
+
+Problem — ES:
+Las automatizaciones existentes aportan valor, pero son frágiles, opacas, difíciles de recuperar o dependen de una sola persona.
+
+Supporting heading — EN:
+How Brunova approaches it
+
+Approach — EN:
+Brunova preserves working behavior where possible while introducing clearer boundaries, observability, recovery, idempotency, deployment discipline and documentation.
+
+Supporting heading — ES:
+Enfoque de Brunova
+
+Approach — ES:
+Brunova conserva el comportamiento que funciona cuando es posible e incorpora límites más claros, observabilidad, recuperación, idempotencia, disciplina de despliegue y documentación.
+
+Supporting heading — EN:
+Typical system outcomes
+
+Outcomes — EN:
+- Observability
+- Recovery
+- Idempotency
+- Documentation
+- Maintainability
+- Clearer ownership
+
+Supporting heading — ES:
+Resultados habituales
+
+Outcomes — ES:
+- Observabilidad
+- Recuperación
+- Idempotencia
+- Documentación
+- Mantenibilidad
+- Responsables claros
+
+Supporting heading — EN:
+Operational concerns
+
+Operational concerns — EN:
+- Observability
+- Recovery and idempotency
+- Deployment discipline
+- Documentation and ownership
+
+Supporting heading — ES:
+Aspectos operativos
+
+Operational concerns — ES:
+- Observabilidad
+- Recuperación e idempotencia
+- Disciplina de despliegue
+- Documentación y responsables
+
+Supporting heading — EN:
+Related selected work
+
+Related systems and CTA — EN:
+- Fragile Automation Modernization — View system
+
+Supporting heading — ES:
+Sistemas relacionados
+
+Related systems and CTA — ES:
+- Modernización de automatizaciones frágiles — Ver sistema
+
+--------------------------------------------------
+FINAL CTA
+--------------------------------------------------
+
+Heading — EN:
+Start with the operation, not a service label.
+
+Supporting text — EN:
+Brunova can identify the combination of capabilities the system actually requires.
+
+CTA — EN:
+Start a conversation
+
+Heading — ES:
+Empiece por la operación, no por una categoría de servicio.
+
+Supporting text — ES:
+Brunova identifica qué combinación de capacidades necesita realmente el sistema.
+
+CTA — ES:
+Hablemos
+
+==================================================
+NAV 03 — PROCESS
+==================================================
+
+Current routes:
+EN: /process
+ES: /es/process
+
+--------------------------------------------------
+PAGE LEVEL — EN
+--------------------------------------------------
+
+Browser title:
+How Brunova works — Brunova
+
+Metadata description:
+Brunova’s four engagement stages—Discovery, Blueprint, Implementation and Managed Evolution—with explicit lateral entry points.
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Explore
+- Process
+
+Page title:
+Enter where the system is.
+
+Page introduction:
+Brunova’s process is a set of useful system states, not a fixed funnel. Discovery is available when the problem is unclear; it is not a prerequisite for work that already has a defensible boundary.
+
+Lateral-entry heading:
+Lateral entry is explicit.
+
+Lateral-entry description:
+Begin at the stage that matches what is already known.
+
+Lateral-entry map:
+- Known problem → Blueprint
+- Defined architecture → Implementation
+- Existing production system → Managed Evolution
+
+Process-map accessible label:
+Process states
+
+--------------------------------------------------
+PAGE LEVEL — ES
+--------------------------------------------------
+
+Browser title:
+Cómo trabaja Brunova — Brunova
+
+Metadata description:
+Diagnóstico, diseño de arquitectura, implementación y evolución continua: Brunova empieza en la etapa que corresponde al estado real del sistema.
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Explorar
+- Proceso
+
+Page title:
+Partimos del estado actual del sistema.
+
+Page introduction:
+Brunova organiza el trabajo según el estado real del sistema, no como una secuencia obligatoria. El Diagnóstico sirve cuando el problema aún no está claro; si ya existen límites bien definidos, empezamos más adelante.
+
+Lateral-entry heading:
+No siempre hay que empezar desde cero.
+
+Lateral-entry description:
+Iniciamos en la etapa que corresponde con lo que su equipo ya sabe.
+
+Lateral-entry map:
+- Problema definido → Diseño
+- Arquitectura definida → Implementación
+- Sistema existente en producción → Evolución continua
+
+Process-map accessible label:
+Estados del proceso
+
+--------------------------------------------------
+STAGE 01 — Systems Discovery / Diagnóstico del sistema
+--------------------------------------------------
+
+Process-map label — EN:
+01 Discover · Systems Discovery · Evidence and boundary
+
+Process-map label — ES:
+01 Diagnosticar · Diagnóstico del sistema · Evidencia y límites
+
+Stage name — EN:
+Systems Discovery
+
+Stage name — ES:
+Diagnóstico del sistema
+
+Timeline — EN:
+1–2 weeks
+
+Timeline — ES:
+1–2 semanas
+
+Description — EN:
+We turn an unclear operational problem into a clear system problem with evidence, boundaries and a recommended next step.
+
+Description — ES:
+Convertimos una situación operativa poco clara en un problema de sistema bien definido, con evidencia, límites y un siguiente paso concreto.
+
+Supporting heading — EN:
+What this stage resolves
+
+Problem resolved — EN:
+The operation matters, but the actual system problem, its boundary and the source of failure are still unclear.
+
+Supporting heading — ES:
+El problema que resuelve
+
+Problem resolved — ES:
+La operación es crítica, pero aún no están claros el problema de fondo, los límites del sistema ni el origen de la falla.
+
+Supporting heading — EN:
+What to know before entering
+
+Entry condition — EN:
+You can identify the operation and the consequences of its current behavior; a complete technical diagnosis is not required.
+
+Supporting heading — ES:
+Qué debe estar claro al comenzar
+
+Entry condition — ES:
+Basta con identificar la operación y las consecuencias de su funcionamiento actual; no hace falta llegar con un diagnóstico técnico.
+
+Supporting heading — EN:
+What Brunova establishes
+
+Established outputs — EN:
+- Evidence about the current operation
+- A defensible problem and system boundary
+- A recommended next step
+
+Supporting heading — ES:
+Qué deja definido Brunova
+
+Established outputs — ES:
+- Evidencia sobre la operación actual
+- Un problema y límites sustentados en evidencia
+- Un siguiente paso concreto
+
+Supporting heading — EN:
+What typically comes next
+
+Next step — EN:
+A known system problem can move into an Architecture Blueprint when a build-ready design is needed.
+
+Supporting heading — ES:
+Siguiente paso
+
+Next step — ES:
+Con el problema definido, el trabajo puede avanzar al Diseño de arquitectura cuando se necesita una solución lista para implementar.
+
+--------------------------------------------------
+STAGE 02 — Architecture Blueprint / Diseño de arquitectura
+--------------------------------------------------
+
+Process-map label — EN:
+02 Design · Architecture Blueprint · Build-ready design
+
+Process-map label — ES:
+02 Diseñar · Diseño de arquitectura · Diseño listo para implementar
+
+Stage name — EN:
+Architecture Blueprint
+
+Stage name — ES:
+Diseño de arquitectura
+
+Timeline — EN:
+2–4 weeks
+
+Timeline — ES:
+2–4 semanas
+
+Description — EN:
+We turn a known operational problem into a build-ready technical and operational design.
+
+Description — ES:
+Convertimos un problema operativo definido en un diseño técnico y operativo listo para implementar.
+
+Supporting heading — EN:
+What this stage resolves
+
+Problem resolved — EN:
+The problem is understood, but the technical and operational design is not yet precise enough to build responsibly.
+
+Supporting heading — ES:
+El problema que resuelve
+
+Problem resolved — ES:
+El problema está claro, pero todavía falta un diseño técnico y operativo suficientemente preciso para implementar de forma controlada.
+
+Supporting heading — EN:
+What to know before entering
+
+Entry condition — EN:
+The operational problem and desired boundary are known, whether through Discovery or prior internal work.
+
+Supporting heading — ES:
+Qué debe estar claro al comenzar
+
+Entry condition — ES:
+El problema operativo y los límites deseados ya están claros, ya sea por el Diagnóstico o por trabajo interno previo.
+
+Supporting heading — EN:
+What Brunova establishes
+
+Established outputs — EN:
+- A build-ready system boundary
+- Technical and operational design decisions
+- A defined implementation path
+
+Supporting heading — ES:
+Qué deja definido Brunova
+
+Established outputs — ES:
+- Límites del sistema listos para implementar
+- Decisiones de diseño técnico y operativo
+- Una ruta de implementación definida
+
+Supporting heading — EN:
+What typically comes next
+
+Next step — EN:
+A defined architecture can move into an Implementation Sprint with Brunova or an appropriate delivery team.
+
+Supporting heading — ES:
+Siguiente paso
+
+Next step — ES:
+Con la arquitectura definida, la implementación puede quedar en manos de Brunova o de otro equipo de ingeniería preparado para ejecutarla.
+
+--------------------------------------------------
+STAGE 03 — Implementation Sprint / Sprint de implementación
+--------------------------------------------------
+
+Process-map label — EN:
+03 Build · Implementation Sprint · Production capability
+
+Process-map label — ES:
+03 Construir · Sprint de implementación · Capacidad en producción
+
+Stage name — EN:
+Implementation Sprint
+
+Stage name — ES:
+Sprint de implementación
+
+Timeline — EN:
+4–8 weeks per defined scope
+
+Timeline — ES:
+4–8 semanas por alcance definido
+
+Description — EN:
+We build and operationalize a defined production system capability.
+
+Description — ES:
+Construimos y ponemos en producción una capacidad del sistema con alcance definido.
+
+Supporting heading — EN:
+What this stage resolves
+
+Problem resolved — EN:
+A defined capability needs to become a production system that can be operated, not only a technical deliverable.
+
+Supporting heading — ES:
+El problema que resuelve
+
+Problem resolved — ES:
+El diseño debe convertirse en una capacidad operable en producción, no quedarse en un entregable técnico.
+
+Supporting heading — EN:
+What to know before entering
+
+Entry condition — EN:
+The architecture, scope and operational responsibility are defined before implementation begins.
+
+Supporting heading — ES:
+Qué debe estar claro al comenzar
+
+Entry condition — ES:
+La arquitectura, el alcance y los responsables operativos se definen antes de comenzar la implementación.
+
+Supporting heading — EN:
+What Brunova establishes
+
+Established outputs — EN:
+- The agreed production capability
+- Operational ownership and handoff
+- The controls required by the defined scope
+
+Supporting heading — ES:
+Qué deja definido Brunova
+
+Established outputs — ES:
+- La capacidad acordada en producción
+- Responsables operativos y transferencia
+- Los controles requeridos por el alcance definido
+
+Supporting heading — EN:
+What typically comes next
+
+Next step — EN:
+The system can transition to its operating owner or continue into Managed Evolution when ongoing proximity is valuable.
+
+Supporting heading — ES:
+Siguiente paso
+
+Next step — ES:
+El sistema puede transferirse al equipo responsable o continuar en Evolución continua cuando conviene mantener el acompañamiento.
+
+--------------------------------------------------
+STAGE 04 — Managed Evolution / Evolución continua
+--------------------------------------------------
+
+Process-map label — EN:
+04 Evolve · Managed Evolution · Continuing improvement
+
+Process-map label — ES:
+04 Evolucionar · Evolución continua · Mejora continua
+
+Stage name — EN:
+Managed Evolution
+
+Stage name — ES:
+Evolución continua
+
+Timeline — EN:
+Ongoing monthly engagement
+
+Timeline — ES:
+Colaboración mensual continua
+
+Description — EN:
+We stay close to important production systems, continuously improving reliability, architecture and capability as the business changes.
+
+Description — ES:
+Acompañamos sistemas críticos en producción y mejoramos su confiabilidad, arquitectura y capacidad a medida que cambia la empresa.
+
+Supporting heading — EN:
+What this stage resolves
+
+Problem resolved — EN:
+An important production system must keep improving as operating conditions, risks and business needs change.
+
+Supporting heading — ES:
+El problema que resuelve
+
+Problem resolved — ES:
+Un sistema crítico en producción debe seguir mejorando a medida que cambian la operación, los riesgos y las necesidades del negocio.
+
+Supporting heading — EN:
+What to know before entering
+
+Entry condition — EN:
+A production system already exists and its current owners can identify the reliability or capability pressure around it.
+
+Supporting heading — ES:
+Qué debe estar claro al comenzar
+
+Entry condition — ES:
+Ya existe un sistema en producción y sus responsables pueden identificar dónde necesita ganar confiabilidad o capacidad.
+
+Supporting heading — EN:
+What Brunova establishes
+
+Established outputs — EN:
+- A continuing improvement boundary
+- Prioritized reliability and architecture work
+- Operational context that remains close to delivery
+
+Supporting heading — ES:
+Qué deja definido Brunova
+
+Established outputs — ES:
+- Un alcance claro de mejora continua
+- Trabajo priorizado de confiabilidad y arquitectura
+- Contexto operativo conectado con la ejecución
+
+Supporting heading — EN:
+What typically comes next
+
+Next step — EN:
+Evolution continues for as long as the system remains important and the engagement remains useful.
+
+Supporting heading — ES:
+Siguiente paso
+
+Next step — ES:
+El trabajo continúa mientras el sistema siga siendo crítico y la colaboración aporte valor.
+
+--------------------------------------------------
+FINAL CTA
+--------------------------------------------------
+
+Heading — EN:
+Not sure which stage matches?
+
+Supporting text — EN:
+Bring the operation and what you already know.
+
+CTA — EN:
+Start a conversation
+
+Heading — ES:
+¿No está claro por dónde empezar?
+
+Supporting text — ES:
+Cuéntenos cómo funciona hoy la operación y qué información ya tiene.
+
+CTA — ES:
+Hablemos
+
+==================================================
+NAV 04 — WORK / SYSTEMS
+==================================================
+
+Current index routes:
+EN: /work
+ES: /es/work
+
+--------------------------------------------------
+INDEX PAGE — EN
+--------------------------------------------------
+
+Browser title:
+Selected systems — Brunova
+
+Metadata description:
+An anonymized portfolio of financial integration, data infrastructure, document intelligence and automation modernization systems engineered by Brunova.
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Explore
+- Selected Work
+
+Page title:
+Selected systems we’ve engineered.
+
+Page introduction:
+An anonymized portfolio of system classes built around real operational boundaries. The records show the work without inventing client proof, metrics or product interfaces.
+
+System 01 number:
+01
+
+System 01 label:
+Multi-tenant Financial Integration Platform
+
+System 01 title:
+A shared financial integration layer across multiple operating entities
+
+System 01 description:
+A reusable accounting integration platform centralizing OAuth lifecycle, financial reads and writes, reference resolution, recurring reporting and downstream operational access.
+
+System 01 capabilities accessible label:
+Capabilities in Multi-tenant Financial Integration Platform
+
+System 01 capability links:
+- Systems Architecture
+- Financial Automation
+- API / Integration Engineering
+
+System 01 CTA:
+View system
+
+System 02 number:
+02
+
+System 02 label:
+Operational Finance Data Infrastructure
+
+System 02 title:
+Turning recurring financial reporting into shared operational infrastructure
+
+System 02 description:
+Automated extraction and reporting pipelines connecting accounting and operational systems to a data warehouse and business-facing spreadsheets, giving non-technical teams consistent access to financial information.
+
+System 02 capabilities accessible label:
+Capabilities in Operational Finance Data Infrastructure
+
+System 02 capability links:
+- Data Engineering
+- Financial Automation
+- Systems Architecture
+
+System 02 CTA:
+View system
+
+System 03 number:
+03
+
+System 03 label:
+Document Intelligence Workflow
+
+System 03 title:
+AI-assisted document processing with control built in
+
+System 03 description:
+A document-processing system combining classification, structured extraction, validation, human review and downstream workflow integration for operationally sensitive documents.
+
+System 03 capabilities accessible label:
+Capabilities in Document Intelligence Workflow
+
+System 03 capability links:
+- Workflow Engineering
+- Systems Architecture
+
+System 03 CTA:
+View system
+
+System 04 number:
+04
+
+System 04 label:
+Fragile Automation Modernization
+
+System 04 title:
+From person-dependent workflows to operable systems
+
+System 04 description:
+Modernization of automation estates by introducing clearer boundaries, observability, recovery, idempotency, deployment discipline and operational documentation without rewriting working behavior unnecessarily.
+
+System 04 capabilities accessible label:
+Capabilities in Fragile Automation Modernization
+
+System 04 capability links:
+- Modernization
+- Systems Architecture
+
+System 04 CTA:
+View system
+
+--------------------------------------------------
+INDEX PAGE — ES
+--------------------------------------------------
+
+Browser title:
+Sistemas seleccionados — Brunova
+
+Metadata description:
+Una selección anonimizada de sistemas de integración financiera, infraestructura de datos, inteligencia documental y modernización desarrollados por Brunova.
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Explorar
+- Sistemas
+
+Page title:
+Sistemas desarrollados por Brunova.
+
+Page introduction:
+Una selección anonimizada de sistemas construidos para resolver problemas operativos reales. Presentamos la arquitectura y las decisiones de ingeniería sin revelar clientes ni inventar métricas.
+
+Sistema 01 número:
+01
+
+Sistema 01 etiqueta:
+Plataforma de integración financiera para múltiples entidades
+
+Sistema 01 título:
+Integración financiera compartida para múltiples entidades operativas
+
+Sistema 01 descripción:
+Una plataforma reutilizable que centraliza el ciclo de OAuth, las operaciones contables, la resolución de referencias y los reportes recurrentes para múltiples entidades.
+
+Sistema 01 etiqueta accesible de capacidades:
+Capacidades aplicadas en Plataforma de integración financiera para múltiples entidades
+
+Sistema 01 enlaces de capacidades:
+- Arquitectura de sistemas
+- Automatización financiera
+- Ingeniería de APIs e integraciones
+
+Sistema 01 CTA:
+Ver sistema
+
+Sistema 02 número:
+02
+
+Sistema 02 etiqueta:
+Infraestructura de datos para finanzas operativas
+
+Sistema 02 título:
+Reportes financieros recurrentes convertidos en infraestructura compartida
+
+Sistema 02 descripción:
+Flujos automatizados de extracción y reporte conectan sistemas contables y operativos con un almacén de datos y las hojas de cálculo que usan los equipos, para dar acceso consistente a la información financiera.
+
+Sistema 02 etiqueta accesible de capacidades:
+Capacidades aplicadas en Infraestructura de datos para finanzas operativas
+
+Sistema 02 enlaces de capacidades:
+- Ingeniería de datos
+- Automatización financiera
+- Arquitectura de sistemas
+
+Sistema 02 CTA:
+Ver sistema
+
+Sistema 03 número:
+03
+
+Sistema 03 etiqueta:
+Flujo de inteligencia documental
+
+Sistema 03 título:
+Procesamiento documental con IA y controles explícitos
+
+Sistema 03 descripción:
+Un sistema que combina clasificación, extracción estructurada, validación y revisión humana para procesar documentos sensibles sin perder control operativo.
+
+Sistema 03 etiqueta accesible de capacidades:
+Capacidades aplicadas en Flujo de inteligencia documental
+
+Sistema 03 enlaces de capacidades:
+- Ingeniería de flujos
+- Arquitectura de sistemas
+
+Sistema 03 CTA:
+Ver sistema
+
+Sistema 04 número:
+04
+
+Sistema 04 etiqueta:
+Modernización de automatizaciones frágiles
+
+Sistema 04 título:
+De automatizaciones dependientes de personas a sistemas operables
+
+Sistema 04 descripción:
+Modernización de conjuntos de automatizaciones mediante límites más claros, observabilidad, recuperación, idempotencia, disciplina de despliegue y documentación operativa, sin reescribir innecesariamente el comportamiento que funciona.
+
+Sistema 04 etiqueta accesible de capacidades:
+Capacidades aplicadas en Modernización de automatizaciones frágiles
+
+Sistema 04 enlaces de capacidades:
+- Modernización
+- Arquitectura de sistemas
+
+Sistema 04 CTA:
+Ver sistema
+
+==================================================
+SYSTEM 01 — Multi-tenant Financial Integration Platform
+==================================================
+
+Slug:
+multi-tenant-financial-integration-platform
+
+--------------------------------------------------
+SYSTEM DETAIL — EN
+--------------------------------------------------
+
+Route:
+/work/multi-tenant-financial-integration-platform
+
+Browser title:
+A shared financial integration layer across multiple operating entities — Brunova
+
+Metadata description:
+A reusable accounting integration platform centralizing OAuth lifecycle, financial reads and writes, reference resolution, recurring reporting and downstream operational access.
+
+Context-navigation accessible label:
+Dossier context
+
+Context-navigation labels:
+- Selected Work
+- Multi-tenant Financial Integration Platform
+
+Record label:
+Anonymized system record
+
+Title:
+A shared financial integration layer across multiple operating entities
+
+Summary:
+A reusable accounting integration platform centralizing OAuth lifecycle, financial reads and writes, reference resolution, recurring reporting and downstream operational access.
+
+Dossier-index accessible label:
+Case study sections
+
+Back action:
+← Back to Work
+
+Dossier label:
+Multi-tenant Financial Integration Platform
+
+Dossier index:
+- Context
+- System boundary
+- Engineering decisions
+- Outcome
+
+Section heading:
+Context
+
+Context:
+Multiple operating entities needed a shared way to reach accounting operations and recurring financial information.
+
+Section heading:
+Operational problem
+
+Operational problem:
+Authentication lifecycle, financial reads and writes, reference resolution and reporting belonged to one operational boundary, but each concern needed consistent handling across entities.
+
+Section heading:
+System approach
+
+System approach:
+A reusable accounting integration platform centralized OAuth lifecycle, financial reads and writes, reference resolution, recurring reporting and downstream operational access.
+
+Section heading:
+Architecture / system boundary
+
+System-flow caption:
+Operating entities enter one controlled integration boundary before financial operations and reporting become available downstream.
+
+System-flow diagram steps:
+1. Operating entities — Multiple entities requiring consistent accounting access
+2. Connection lifecycle — Centralized OAuth and reference resolution
+3. Financial operations — Reads, writes and recurring reporting
+4. Operational access — Reusable downstream access to the shared layer
+
+Section heading:
+Key engineering decisions
+
+Engineering decisions:
+- Centralize connection lifecycle and reference resolution in a shared layer.
+- Support both financial reads and writes inside the same defined boundary.
+- Make recurring reporting and downstream operational access consumers of the reusable platform.
+
+Section heading:
+Outcome
+
+Outcome:
+A shared financial integration layer designed for reuse across multiple operating entities.
+
+Supporting heading:
+Capabilities involved
+
+Capability links:
+- Systems Architecture
+- Financial Automation
+- API / Integration Engineering
+
+Related-systems heading:
+Explore the next system
+
+Related systems and CTA:
+- Operational Finance Data Infrastructure — View system
+- Document Intelligence Workflow — View system
+
+Final CTA heading:
+Recognize a similar system boundary?
+
+Final CTA supporting text:
+Start with the operation and the pressure around it.
+
+Final CTA:
+Start a conversation
+
+--------------------------------------------------
+SYSTEM DETAIL — ES
+--------------------------------------------------
+
+Route:
+/es/work/multi-tenant-financial-integration-platform
+
+Browser title:
+Integración financiera compartida para múltiples entidades operativas — Brunova
+
+Metadata description:
+Una plataforma reutilizable que centraliza el ciclo de OAuth, las operaciones contables, la resolución de referencias y los reportes recurrentes para múltiples entidades.
+
+Context-navigation accessible label:
+Contexto del sistema
+
+Context-navigation labels:
+- Sistemas
+- Plataforma de integración financiera para múltiples entidades
+
+Record label:
+Sistema anonimizado
+
+Title:
+Integración financiera compartida para múltiples entidades operativas
+
+Summary:
+Una plataforma reutilizable que centraliza el ciclo de OAuth, las operaciones contables, la resolución de referencias y los reportes recurrentes para múltiples entidades.
+
+Dossier-index accessible label:
+Secciones del sistema
+
+Back action:
+← Volver a Sistemas
+
+Dossier label:
+Plataforma de integración financiera para múltiples entidades
+
+Dossier index:
+- Contexto
+- Límite del sistema
+- Decisiones de ingeniería
+- Resultado
+
+Section heading:
+Contexto
+
+Context:
+Varias entidades operativas necesitaban acceder de forma consistente a operaciones contables e información financiera recurrente.
+
+Section heading:
+Problema operativo
+
+Operational problem:
+La autenticación, las operaciones financieras, la resolución de referencias y los reportes debían funcionar como un solo sistema y mantener el mismo comportamiento en todas las entidades.
+
+Section heading:
+Enfoque de ingeniería
+
+System approach:
+Una plataforma reutilizable centralizó el ciclo de OAuth, las operaciones contables, la resolución de referencias y los reportes recurrentes para todas las entidades.
+
+Section heading:
+Arquitectura y límites del sistema
+
+System-flow caption:
+Cada entidad se conecta mediante una capa de integración controlada que pone las operaciones financieras y los reportes a disposición de otros sistemas.
+
+System-flow diagram steps:
+1. Entidades operativas — Entidades que requieren un acceso contable consistente
+2. Ciclo de conexión — OAuth y referencias administrados de forma central
+3. Operaciones financieras — Lecturas, escrituras y reportes recurrentes
+4. Acceso operativo — Servicios compartidos disponibles para otros sistemas
+
+Section heading:
+Decisiones clave de ingeniería
+
+Engineering decisions:
+- Centralizar la conexión y la resolución de referencias en una capa compartida.
+- Resolver lecturas y escrituras financieras dentro del mismo límite del sistema.
+- Ofrecer reportes recurrentes y acceso operativo como servicios reutilizables de la plataforma.
+
+Section heading:
+Resultado
+
+Outcome:
+Una capa de integración financiera reutilizable y consistente para múltiples entidades operativas.
+
+Supporting heading:
+Capacidades involucradas
+
+Capability links:
+- Arquitectura de sistemas
+- Automatización financiera
+- Ingeniería de APIs e integraciones
+
+Related-systems heading:
+Otros sistemas
+
+Related systems and CTA:
+- Infraestructura de datos para finanzas operativas — Ver sistema
+- Flujo de inteligencia documental — Ver sistema
+
+Final CTA heading:
+¿Su operación enfrenta un reto similar?
+
+Final CTA supporting text:
+Cuéntenos qué está fallando y qué impacto está generando.
+
+Final CTA:
+Hablemos
+
+==================================================
+SYSTEM 02 — Operational Finance Data Infrastructure
+==================================================
+
+Slug:
+operational-finance-data-infrastructure
+
+--------------------------------------------------
+SYSTEM DETAIL — EN
+--------------------------------------------------
+
+Route:
+/work/operational-finance-data-infrastructure
+
+Browser title:
+Turning recurring financial reporting into shared operational infrastructure — Brunova
+
+Metadata description:
+Automated extraction and reporting pipelines connecting accounting and operational systems to a data warehouse and business-facing spreadsheets, giving non-technical teams consistent access to financial information.
+
+Context-navigation accessible label:
+Dossier context
+
+Context-navigation labels:
+- Selected Work
+- Operational Finance Data Infrastructure
+
+Record label:
+Anonymized system record
+
+Title:
+Turning recurring financial reporting into shared operational infrastructure
+
+Summary:
+Automated extraction and reporting pipelines connecting accounting and operational systems to a data warehouse and business-facing spreadsheets, giving non-technical teams consistent access to financial information.
+
+Dossier-index accessible label:
+Case study sections
+
+Back action:
+← Back to Work
+
+Dossier label:
+Operational Finance Data Infrastructure
+
+Dossier index:
+- Context
+- System boundary
+- Engineering decisions
+- Outcome
+
+Section heading:
+Context
+
+Context:
+Recurring financial reporting depended on information held across accounting and operational systems, while non-technical teams needed consistent business-facing access.
+
+Section heading:
+Operational problem
+
+Operational problem:
+The source systems, reporting pipeline and spreadsheet access needed to behave as shared operational infrastructure rather than separate reporting tasks.
+
+Section heading:
+System approach
+
+System approach:
+Automated extraction and reporting pipelines connected accounting and operational systems to a data warehouse and business-facing spreadsheets.
+
+Section heading:
+Architecture / system boundary
+
+System-flow caption:
+Source data moves through a shared reporting boundary before it reaches the business-facing spreadsheet layer.
+
+System-flow diagram steps:
+1. Source systems — Accounting and operational information
+2. Extraction pipeline — Automated movement from operational sources
+3. Data warehouse — Shared reporting foundation
+4. Business access — Consistent information in familiar spreadsheets
+
+Section heading:
+Key engineering decisions
+
+Engineering decisions:
+- Connect accounting and operational sources through one reporting pipeline.
+- Use the warehouse as shared infrastructure rather than a final user interface.
+- Preserve business-facing spreadsheet access for non-technical teams.
+
+Section heading:
+Outcome
+
+Outcome:
+A reporting path that gives non-technical teams consistent access to recurring financial information.
+
+Supporting heading:
+Capabilities involved
+
+Capability links:
+- Data Engineering
+- Financial Automation
+- Systems Architecture
+
+Related-systems heading:
+Explore the next system
+
+Related systems and CTA:
+- Multi-tenant Financial Integration Platform — View system
+- Document Intelligence Workflow — View system
+
+Final CTA heading:
+Recognize a similar system boundary?
+
+Final CTA supporting text:
+Start with the operation and the pressure around it.
+
+Final CTA:
+Start a conversation
+
+--------------------------------------------------
+SYSTEM DETAIL — ES
+--------------------------------------------------
+
+Route:
+/es/work/operational-finance-data-infrastructure
+
+Browser title:
+Reportes financieros recurrentes convertidos en infraestructura compartida — Brunova
+
+Metadata description:
+Flujos automatizados de extracción y reporte conectan sistemas contables y operativos con un almacén de datos y las hojas de cálculo que usan los equipos, para dar acceso consistente a la información financiera.
+
+Context-navigation accessible label:
+Contexto del sistema
+
+Context-navigation labels:
+- Sistemas
+- Infraestructura de datos para finanzas operativas
+
+Record label:
+Sistema anonimizado
+
+Title:
+Reportes financieros recurrentes convertidos en infraestructura compartida
+
+Summary:
+Flujos automatizados de extracción y reporte conectan sistemas contables y operativos con un almacén de datos y las hojas de cálculo que usan los equipos, para dar acceso consistente a la información financiera.
+
+Dossier-index accessible label:
+Secciones del sistema
+
+Back action:
+← Volver a Sistemas
+
+Dossier label:
+Infraestructura de datos para finanzas operativas
+
+Dossier index:
+- Contexto
+- Límite del sistema
+- Decisiones de ingeniería
+- Resultado
+
+Section heading:
+Contexto
+
+Context:
+Los reportes financieros recurrentes dependían de información dispersa entre sistemas contables y operativos. Al mismo tiempo, los equipos de negocio necesitaban un acceso consistente y fácil de usar.
+
+Section heading:
+Problema operativo
+
+Operational problem:
+Las fuentes, el pipeline de reportes y las hojas de cálculo debían funcionar como infraestructura compartida, no como tareas de reporte independientes.
+
+Section heading:
+Enfoque de ingeniería
+
+System approach:
+Pipelines automatizados conectaron los sistemas contables y operativos con un almacén de datos y con las hojas de cálculo que ya utilizaban los equipos.
+
+Section heading:
+Arquitectura y límites del sistema
+
+System-flow caption:
+Los datos de origen pasan por una capa compartida de extracción y reporte antes de llegar a las hojas de cálculo de los equipos.
+
+System-flow diagram steps:
+1. Sistemas de origen — Información contable y operativa
+2. Pipeline de extracción — Movimiento automatizado desde fuentes operativas
+3. Almacén de datos — Base compartida para reportes
+4. Acceso del negocio — Información consistente en herramientas conocidas por los equipos
+
+Section heading:
+Decisiones clave de ingeniería
+
+Engineering decisions:
+- Integrar las fuentes contables y operativas mediante un solo pipeline de reportes.
+- Usar el almacén como infraestructura compartida y no como interfaz final.
+- Conservar el acceso mediante hojas de cálculo para equipos no técnicos.
+
+Section heading:
+Resultado
+
+Outcome:
+Una infraestructura de reportes que ofrece acceso consistente a información financiera recurrente sin exigir herramientas técnicas.
+
+Supporting heading:
+Capacidades involucradas
+
+Capability links:
+- Ingeniería de datos
+- Automatización financiera
+- Arquitectura de sistemas
+
+Related-systems heading:
+Otros sistemas
+
+Related systems and CTA:
+- Plataforma de integración financiera para múltiples entidades — Ver sistema
+- Flujo de inteligencia documental — Ver sistema
+
+Final CTA heading:
+¿Su operación enfrenta un reto similar?
+
+Final CTA supporting text:
+Cuéntenos qué está fallando y qué impacto está generando.
+
+Final CTA:
+Hablemos
+
+==================================================
+SYSTEM 03 — Document Intelligence Workflow
+==================================================
+
+Slug:
+document-intelligence-workflow
+
+--------------------------------------------------
+SYSTEM DETAIL — EN
+--------------------------------------------------
+
+Route:
+/work/document-intelligence-workflow
+
+Browser title:
+AI-assisted document processing with control built in — Brunova
+
+Metadata description:
+A document-processing system combining classification, structured extraction, validation, human review and downstream workflow integration for operationally sensitive documents.
+
+Context-navigation accessible label:
+Dossier context
+
+Context-navigation labels:
+- Selected Work
+- Document Intelligence Workflow
+
+Record label:
+Anonymized system record
+
+Title:
+AI-assisted document processing with control built in
+
+Summary:
+A document-processing system combining classification, structured extraction, validation, human review and downstream workflow integration for operationally sensitive documents.
+
+Dossier-index accessible label:
+Case study sections
+
+Back action:
+← Back to Work
+
+Dossier label:
+Document Intelligence Workflow
+
+Dossier index:
+- Context
+- System boundary
+- Engineering decisions
+- Outcome
+
+Section heading:
+Context
+
+Context:
+Operationally sensitive documents needed structured processing without removing the controls that human judgment requires.
+
+Section heading:
+Operational problem
+
+Operational problem:
+Classification and extraction alone were not enough; the workflow also needed validation, human review and a controlled downstream handoff.
+
+Section heading:
+System approach
+
+System approach:
+A document-processing system combined classification, structured extraction, validation, human review and downstream workflow integration.
+
+Section heading:
+Architecture / system boundary
+
+System-flow caption:
+Automation prepares structured information, while validation and human review remain explicit gates before downstream use.
+
+System-flow diagram steps:
+1. Document intake — Operationally sensitive source documents
+2. Classification + extraction — AI-assisted structured processing
+3. Validation + review — Control boundary with human judgment
+4. Downstream workflow — Reviewed information enters the operating process
+
+Section heading:
+Key engineering decisions
+
+Engineering decisions:
+- Separate classification and structured extraction from validation.
+- Keep human review inside the system boundary rather than treating it as an exception outside the workflow.
+- Integrate reviewed outputs with the downstream operational process.
+
+Section heading:
+Operational safeguards
+
+Safeguards:
+- Structured validation before downstream use
+- Human review for operationally sensitive documents
+- A defined handoff into the downstream workflow
+
+Section heading:
+Outcome
+
+Outcome:
+A controlled document-intelligence workflow in which AI assists while judgment remains bounded and governed.
+
+Supporting heading:
+Capabilities involved
+
+Capability links:
+- Workflow Engineering
+- Systems Architecture
+
+Related-systems heading:
+Explore the next system
+
+Related systems and CTA:
+- Multi-tenant Financial Integration Platform — View system
+- Operational Finance Data Infrastructure — View system
+
+Final CTA heading:
+Recognize a similar system boundary?
+
+Final CTA supporting text:
+Start with the operation and the pressure around it.
+
+Final CTA:
+Start a conversation
+
+--------------------------------------------------
+SYSTEM DETAIL — ES
+--------------------------------------------------
+
+Route:
+/es/work/document-intelligence-workflow
+
+Browser title:
+Procesamiento documental con IA y controles explícitos — Brunova
+
+Metadata description:
+Un sistema que combina clasificación, extracción estructurada, validación y revisión humana para procesar documentos sensibles sin perder control operativo.
+
+Context-navigation accessible label:
+Contexto del sistema
+
+Context-navigation labels:
+- Sistemas
+- Flujo de inteligencia documental
+
+Record label:
+Sistema anonimizado
+
+Title:
+Procesamiento documental con IA y controles explícitos
+
+Summary:
+Un sistema que combina clasificación, extracción estructurada, validación y revisión humana para procesar documentos sensibles sin perder control operativo.
+
+Dossier-index accessible label:
+Secciones del sistema
+
+Back action:
+← Volver a Sistemas
+
+Dossier label:
+Flujo de inteligencia documental
+
+Dossier index:
+- Contexto
+- Límite del sistema
+- Decisiones de ingeniería
+- Resultado
+
+Section heading:
+Contexto
+
+Context:
+Documentos sensibles para la operación requerían procesamiento estructurado sin eliminar los controles que dependen del criterio humano.
+
+Section heading:
+Problema operativo
+
+Operational problem:
+Clasificar y extraer información no era suficiente: el flujo también requería validación, revisión humana y una entrega controlada al siguiente proceso.
+
+Section heading:
+Enfoque de ingeniería
+
+System approach:
+El sistema integró clasificación, extracción estructurada, validación y revisión humana antes de entregar la información al proceso siguiente.
+
+Section heading:
+Arquitectura y límites del sistema
+
+System-flow caption:
+La automatización prepara la información; la validación y la revisión humana conservan el control antes de que avance al siguiente proceso.
+
+System-flow diagram steps:
+1. Ingreso de documentos — Documentos fuente sensibles para la operación
+2. Clasificación y extracción — Procesamiento estructurado asistido por IA
+3. Validación y revisión — Control explícito basado en criterio humano
+4. Proceso siguiente — La información validada avanza al proceso operativo
+
+Section heading:
+Decisiones clave de ingeniería
+
+Engineering decisions:
+- Separar la clasificación y la extracción estructurada de la validación.
+- Incorporar la revisión humana al sistema como un control explícito, no como una excepción externa.
+- Integrar la información validada con el siguiente proceso operativo.
+
+Section heading:
+Salvaguardas operativas
+
+Safeguards:
+- Validación estructurada antes de continuar
+- Revisión humana para documentos sensibles
+- Entrega controlada al siguiente proceso
+
+Section heading:
+Resultado
+
+Outcome:
+Un flujo de inteligencia documental en el que la IA acelera el trabajo y el criterio humano conserva el control.
+
+Supporting heading:
+Capacidades involucradas
+
+Capability links:
+- Ingeniería de flujos
+- Arquitectura de sistemas
+
+Related-systems heading:
+Otros sistemas
+
+Related systems and CTA:
+- Plataforma de integración financiera para múltiples entidades — Ver sistema
+- Infraestructura de datos para finanzas operativas — Ver sistema
+
+Final CTA heading:
+¿Su operación enfrenta un reto similar?
+
+Final CTA supporting text:
+Cuéntenos qué está fallando y qué impacto está generando.
+
+Final CTA:
+Hablemos
+
+==================================================
+SYSTEM 04 — Fragile Automation Modernization
+==================================================
+
+Slug:
+fragile-automation-modernization
+
+--------------------------------------------------
+SYSTEM DETAIL — EN
+--------------------------------------------------
+
+Route:
+/work/fragile-automation-modernization
+
+Browser title:
+From person-dependent workflows to operable systems — Brunova
+
+Metadata description:
+Modernization of automation estates by introducing clearer boundaries, observability, recovery, idempotency, deployment discipline and operational documentation without rewriting working behavior unnecessarily.
+
+Context-navigation accessible label:
+Dossier context
+
+Context-navigation labels:
+- Selected Work
+- Fragile Automation Modernization
+
+Record label:
+Anonymized system record
+
+Title:
+From person-dependent workflows to operable systems
+
+Summary:
+Modernization of automation estates by introducing clearer boundaries, observability, recovery, idempotency, deployment discipline and operational documentation without rewriting working behavior unnecessarily.
+
+Dossier-index accessible label:
+Case study sections
+
+Back action:
+← Back to Work
+
+Dossier label:
+Fragile Automation Modernization
+
+Dossier index:
+- Context
+- System boundary
+- Engineering decisions
+- Outcome
+
+Section heading:
+Context
+
+Context:
+An existing automation estate delivered useful behavior but had become brittle, opaque and dependent on individual knowledge.
+
+Section heading:
+Operational problem
+
+Operational problem:
+The operating risk came from unclear boundaries, weak observability and recovery, and insufficient deployment and operational documentation.
+
+Section heading:
+Why the previous approach stopped scaling
+
+Scaling constraint:
+Working behavior did not justify an unnecessary rewrite, but the surrounding operating model was not strong enough for continued change.
+
+Section heading:
+System approach
+
+System approach:
+The modernization introduced clearer boundaries, observability, recovery, idempotency, deployment discipline and operational documentation while preserving working behavior where possible.
+
+Section heading:
+Architecture / system boundary
+
+System-flow caption:
+The useful automation remains, while an explicit operating boundary is added around failure, recovery, deployment and ownership.
+
+System-flow diagram steps:
+1. Working behavior — Existing automation worth preserving
+2. Clear boundaries — Defined responsibilities and ownership
+3. Operability controls — Observability, recovery and idempotency
+4. Managed system — Disciplined deployment and operational documentation
+
+Section heading:
+Key engineering decisions
+
+Engineering decisions:
+- Preserve working behavior instead of rewriting it without cause.
+- Introduce clearer system boundaries before extending capability.
+- Treat deployment discipline and documentation as part of the system.
+
+Section heading:
+Operational safeguards
+
+Safeguards:
+- Observability
+- Recovery
+- Idempotency
+- Operational documentation
+
+Section heading:
+Outcome
+
+Outcome:
+A more operable automation estate with clearer ownership and stronger maintainability.
+
+Supporting heading:
+Capabilities involved
+
+Capability links:
+- Modernization
+- Systems Architecture
+
+Related-systems heading:
+Explore the next system
+
+Related systems and CTA:
+- Multi-tenant Financial Integration Platform — View system
+- Operational Finance Data Infrastructure — View system
+
+Final CTA heading:
+Recognize a similar system boundary?
+
+Final CTA supporting text:
+Start with the operation and the pressure around it.
+
+Final CTA:
+Start a conversation
+
+--------------------------------------------------
+SYSTEM DETAIL — ES
+--------------------------------------------------
+
+Route:
+/es/work/fragile-automation-modernization
+
+Browser title:
+De automatizaciones dependientes de personas a sistemas operables — Brunova
+
+Metadata description:
+Modernización de conjuntos de automatizaciones mediante límites más claros, observabilidad, recuperación, idempotencia, disciplina de despliegue y documentación operativa, sin reescribir innecesariamente el comportamiento que funciona.
+
+Context-navigation accessible label:
+Contexto del sistema
+
+Context-navigation labels:
+- Sistemas
+- Modernización de automatizaciones frágiles
+
+Record label:
+Sistema anonimizado
+
+Title:
+De automatizaciones dependientes de personas a sistemas operables
+
+Summary:
+Modernización de conjuntos de automatizaciones mediante límites más claros, observabilidad, recuperación, idempotencia, disciplina de despliegue y documentación operativa, sin reescribir innecesariamente el comportamiento que funciona.
+
+Dossier-index accessible label:
+Secciones del sistema
+
+Back action:
+← Volver a Sistemas
+
+Dossier label:
+Modernización de automatizaciones frágiles
+
+Dossier index:
+- Contexto
+- Límite del sistema
+- Decisiones de ingeniería
+- Resultado
+
+Section heading:
+Contexto
+
+Context:
+Un conjunto de automatizaciones seguía aportando valor, pero se había vuelto frágil, opaco y dependiente del conocimiento de una sola persona.
+
+Section heading:
+Problema operativo
+
+Operational problem:
+El riesgo provenía de límites poco claros, poca observabilidad, mecanismos débiles de recuperación y documentación insuficiente para desplegar y operar.
+
+Section heading:
+Por qué el enfoque anterior dejó de escalar
+
+Scaling constraint:
+No tenía sentido reescribir lo que funcionaba, pero la forma de operar y mantener las automatizaciones ya no soportaba nuevos cambios.
+
+Section heading:
+Enfoque de ingeniería
+
+System approach:
+La modernización añadió límites claros, observabilidad, recuperación, idempotencia, disciplina de despliegue y documentación, conservando el comportamiento útil.
+
+Section heading:
+Arquitectura y límites del sistema
+
+System-flow caption:
+La automatización útil se conserva y se incorpora un marco operativo explícito para fallas, recuperación, despliegue y responsables.
+
+System-flow diagram steps:
+1. Comportamiento funcional — Automatización existente que vale la pena conservar
+2. Límites claros — Alcance y responsables definidos
+3. Controles de operabilidad — Observabilidad, recuperación e idempotencia
+4. Sistema gestionado — Despliegues disciplinados y documentación operativa
+Section heading:
+Decisiones clave de ingeniería
+
+Engineering decisions:
+- Conservar el comportamiento funcional en vez de reescribirlo sin causa.
+- Aclarar los límites del sistema antes de ampliar sus capacidades.
+- Incorporar la disciplina de despliegue y la documentación al propio sistema.
+
+Section heading:
+Salvaguardas operativas
+
+Safeguards:
+- Observabilidad
+- Recuperación
+- Idempotencia
+- Documentación operativa
+
+Section heading:
+Resultado
+
+Outcome:
+Automatizaciones más operables, con responsables claros y una base más fácil de mantener.
+
+Supporting heading:
+Capacidades involucradas
+
+Capability links:
+- Modernización
+- Arquitectura de sistemas
+
+Related-systems heading:
+Otros sistemas
+
+Related systems and CTA:
+- Plataforma de integración financiera para múltiples entidades — Ver sistema
+- Infraestructura de datos para finanzas operativas — Ver sistema
+
+Final CTA heading:
+¿Su operación enfrenta un reto similar?
+
+Final CTA supporting text:
+Cuéntenos qué está fallando y qué impacto está generando.
+
+Final CTA:
+Hablemos
+
+==================================================
+NAV 05 — ABOUT / BRUNOVA
+==================================================
+
+Current routes:
+EN: /about
+ES: /es/about
+
+--------------------------------------------------
+PAGE LEVEL — EN
+--------------------------------------------------
+
+Browser title:
+About Brunova — Brunova
+
+Metadata description:
+Why Brunova exists, how it works and why systems engineering must stay close to real operations.
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Explore
+- About
+
+Page title:
+Built at the operating boundary.
+
+Narrative observation:
+Brunova was built around a simple observation: as companies grow, important operations often become collections of spreadsheets, SaaS tools, scripts and automations before anyone deliberately designs the system behind them.
+
+Narrative boundary:
+We work at that boundary—where process, data, software and automation meet—to turn those operations into systems that are easier to trust, operate and evolve.
+
+Section heading:
+Architecture remains close to delivery.
+
+Section statement:
+Brunova is a systems engineering company: founder-led in architecture, team-based in delivery and accountable to the operation the system must support.
+
+Company-model item 1:
+Founder-led architecture
+
+Company-model item 1 description:
+System direction stays close to the operating problem, the critical decisions and the people accountable for the result.
+
+Company-model item 2:
+Team-based delivery
+
+Company-model item 2 description:
+Delivery brings together the engineering responsibilities the system actually needs, without presenting one generalist as the whole company.
+
+Company-model item 3:
+Close to operations
+
+Company-model item 3 description:
+The work remains close enough to the real process to understand exceptions, ownership, handoffs and failure points.
+
+Company-model item 4:
+Operational intelligence
+
+Company-model item 4 description:
+Process, data, systems and automation are treated as one operating model that the business can understand and improve.
+
+Exploration navigation accessible label:
+Explore Brunova
+
+Exploration CTAs:
+- Explore capabilities
+- View selected work
+
+--------------------------------------------------
+PAGE LEVEL — ES
+--------------------------------------------------
+
+Browser title:
+Sobre Brunova — Brunova
+
+Metadata description:
+Por qué existe Brunova, cómo trabaja y por qué la ingeniería de sistemas debe mantenerse conectada con la operación real.
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Explorar
+- Brunova
+
+Page title:
+Donde la operación exige ingeniería.
+
+Narrative observation:
+Brunova parte de una realidad frecuente: al crecer una empresa, sus operaciones críticas terminan repartidas entre hojas de cálculo, herramientas SaaS, scripts y automatizaciones antes de que alguien diseñe el sistema que debe sostenerlas.
+
+Narrative boundary:
+Trabajamos donde convergen procesos, datos, software y automatización para convertir esas operaciones en sistemas confiables, operables y preparados para evolucionar.
+
+Section heading:
+La arquitectura no se separa de la ejecución.
+
+Section statement:
+Brunova es una empresa de ingeniería de sistemas. La arquitectura está liderada por el fundador, la ejecución reúne al equipo adecuado y cada decisión responde a la operación que el sistema debe sostener.
+
+Company-model item 1:
+Arquitectura liderada por el fundador
+
+Company-model item 1 description:
+Las decisiones de arquitectura se toman en contacto directo con el problema operativo y con quienes responden por el resultado.
+
+Company-model item 2:
+Equipos según las necesidades del sistema
+
+Company-model item 2 description:
+Cada iniciativa reúne las especialidades de ingeniería que realmente necesita, sin concentrar toda la responsabilidad en una sola persona generalista.
+
+Company-model item 3:
+Vinculados a la operación
+
+Company-model item 3 description:
+El trabajo parte del proceso real para entender excepciones, responsables, relevos y puntos de falla.
+
+Company-model item 4:
+Inteligencia operativa
+
+Company-model item 4 description:
+Procesos, datos, sistemas y automatización forman un solo modelo operativo que la empresa puede entender y mejorar.
+
+Exploration navigation accessible label:
+Explorar Brunova
+
+Exploration CTAs:
+- Explorar capacidades
+- Ver sistemas desarrollados
+
+==================================================
+NAV 06 — CONTACT
+==================================================
+
+Current routes:
+EN: /contact
+ES: /es/contact
+
+--------------------------------------------------
+PAGE LEVEL AND FORM STATES — EN
+--------------------------------------------------
+
+Browser title:
+Start a conversation — Brunova
+
+Metadata description:
+Tell Brunova what operation is becoming difficult to run and where the friction shows up.
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Brunova
+- Contact
+
+Page title:
+Start a conversation.
+
+Supporting text:
+Tell us what operation is becoming difficult to run, where the friction shows up, and what you already know about the problem.
+
+Expectation 1:
+Start with the operation.
+
+Expectation 1 description:
+Name what is becoming difficult to run and where the friction appears.
+
+Expectation 2:
+Share what you know.
+
+Expectation 2 description:
+Existing systems, recurring manual work and known constraints are useful context.
+
+Expectation 3:
+Leave the framing to us.
+
+Expectation 3 description:
+We’ll review the note and respond with the most useful next step.
+
+Form-section accessible label:
+Operational systems conversation form
+
+Form heading:
+Describe the operating problem.
+
+Required-fields message:
+All fields are required.
+
+Form guidance:
+A concrete description is useful. You do not need a polished brief.
+
+Fieldset legend 01:
+About you
+
+Fieldset legend 02:
+The operation
+
+Field labels:
+- Name
+- Work email
+- Company
+- Role
+- Problem category
+- Problem description
+
+Category placeholder:
+Choose the closest category
+
+Category options:
+- Fragmented systems
+- Manual operational process
+- Fragile automation
+- Data / reporting reliability
+- Financial operations
+- Internal platform
+- Something else
+
+Problem-description helper:
+What is difficult to operate, where does the friction show up, and what do you already know?
+
+Submit action:
+Send the context
+
+Submitting action:
+Sending…
+
+Accessible live announcement:
+Sending your information.
+
+Privacy statement:
+Brunova uses this information only to evaluate and respond to the operational context you share.
+
+Field validation messages:
+- Enter your name using 2–100 characters.
+- Enter a valid work email address.
+- Enter your company using 2–120 characters.
+- Enter your role using 2–100 characters.
+- Choose the category closest to the problem.
+- Describe the operational problem using 30–4,000 characters.
+
+Validation title:
+Check the highlighted fields.
+
+Validation message:
+A few details need attention before this can be sent.
+
+Service error title:
+We couldn't send this right now.
+
+Service error message:
+Your information is still here—please try again.
+
+Network error title:
+The connection was interrupted.
+
+Network error message:
+Your information is still here. Check the connection and retry.
+
+Rejected title:
+This request could not be accepted.
+
+Rejected message:
+Review the information and try again from this page.
+
+Rate limited title:
+Please wait before trying again.
+
+Rate limited message:
+Too many attempts were received in a short period.
+
+Unexpected error title:
+We couldn't complete this request.
+
+Unexpected error message:
+Your information is still here—please try again.
+
+Success state:
+- ✓
+- Thanks. We received your note.
+- We’ll review the context and get back to you with the right next step.
+- Send another note
+
+Accessibility behavior:
+Submission status uses aria-live and aria-atomic. Validation uses role=alert; other result states use role=status.
+
+--------------------------------------------------
+PAGE LEVEL AND FORM STATES — ES
+--------------------------------------------------
+
+Browser title:
+Hablemos de su operación — Brunova
+
+Metadata description:
+Cuéntenos qué parte de su operación se ha vuelto difícil de ejecutar y dónde aparece la fricción.
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Brunova
+- Contacto
+
+Page title:
+Hablemos de su operación.
+
+Supporting text:
+Cuéntenos qué se ha vuelto difícil de ejecutar, dónde aparece la fricción y qué información tiene hasta ahora.
+
+Expectation 1:
+Describa la operación.
+
+Expectation 1 description:
+Señale qué cuesta ejecutar hoy y dónde aparece la fricción.
+
+Expectation 2:
+Comparta el contexto disponible.
+
+Expectation 2 description:
+Los sistemas actuales, las tareas manuales recurrentes y las restricciones conocidas son un buen punto de partida.
+
+Expectation 3:
+Nosotros definimos el siguiente paso.
+
+Expectation 3 description:
+Revisamos el caso y respondemos con una recomendación concreta.
+
+Form-section accessible label:
+Formulario de consulta sobre sistemas para la operación
+
+Form heading:
+Describa la situación operativa.
+
+Required-fields message:
+Todos los campos son obligatorios.
+
+Form guidance:
+Una descripción concreta es suficiente; no hace falta preparar un documento formal.
+
+Fieldset legend 01:
+Sobre usted
+
+Fieldset legend 02:
+La operación
+
+Field labels:
+- Nombre
+- Correo corporativo
+- Empresa
+- Cargo
+- Tipo de situación
+- Descripción del problema
+
+Category placeholder:
+Seleccione la opción más cercana
+
+Category options:
+- Sistemas fragmentados
+- Proceso operativo manual
+- Automatización frágil
+- Confiabilidad de datos y reportes
+- Operaciones financieras
+- Plataforma interna
+- Otra situación
+
+Problem-description helper:
+¿Qué parte de la operación cuesta ejecutar, dónde aparece la fricción y qué información tiene?
+
+Submit action:
+Enviar consulta
+
+Submitting action:
+Enviando…
+
+Accessible live announcement:
+Enviando su consulta.
+
+Privacy statement:
+Brunova usa esta información únicamente para evaluar su consulta y responderle.
+
+Field validation messages:
+- El nombre debe tener entre 2 y 100 caracteres.
+- Ingrese un correo corporativo válido.
+- El nombre de la empresa debe tener entre 2 y 120 caracteres.
+- El cargo debe tener entre 2 y 100 caracteres.
+- Seleccione la opción que mejor describa la situación.
+- La descripción debe tener entre 30 y 4.000 caracteres.
+
+Validación title:
+Revise los campos resaltados.
+
+Validación message:
+Falta completar o corregir algunos datos antes de enviar.
+
+Error de servicio title:
+No pudimos enviar su consulta.
+
+Error de servicio message:
+Sus datos siguen en el formulario. Inténtelo de nuevo.
+
+Error de red title:
+La conexión se interrumpió.
+
+Error de red message:
+Sus datos siguen en el formulario. Revise su conexión e inténtelo de nuevo.
+
+Solicitud rechazada title:
+No se pudo aceptar esta solicitud.
+
+Solicitud rechazada message:
+Revise la información e inténtelo de nuevo desde esta página.
+
+Límite de frecuencia title:
+Espere antes de intentarlo de nuevo.
+
+Límite de frecuencia message:
+Se recibieron demasiados intentos en poco tiempo.
+
+Error inesperado title:
+No pudimos completar esta solicitud.
+
+Error inesperado message:
+Sus datos siguen en el formulario. Inténtelo de nuevo.
+
+Success state:
+- ✓
+- Gracias. Recibimos su consulta.
+- Revisaremos el contexto y le responderemos con un siguiente paso concreto.
+- Enviar otra consulta
+
+Accessibility behavior:
+Submission status uses aria-live and aria-atomic. Validation uses role=alert; other result states use role=status.
+
+==================================================
+NAV 07 — PORTAL
+==================================================
+
+Current routes:
+EN: /portal
+ES: /es/portal
+
+--------------------------------------------------
+PAGE LEVEL — EN
+--------------------------------------------------
+
+Browser title:
+Brunova Client Portal — Brunova
+
+Metadata description:
+A dedicated workspace for active client systems, delivery context and operational access.
+
+Indexing directive:
+noindex; not visible in page content
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Brunova
+- Portal
+
+Section label:
+Client systems boundary
+
+Page title:
+Brunova Client Portal
+
+Description:
+A dedicated workspace for active client systems, delivery context and operational access.
+
+Access state:
+Portal access is available to active clients.
+
+Conditional external CTA:
+Open client portal
+
+CTA condition:
+Rendered only when a portal URL is configured.
+
+--------------------------------------------------
+PAGE LEVEL — ES
+--------------------------------------------------
+
+Browser title:
+Portal de Clientes Brunova — Brunova
+
+Metadata description:
+Un espacio dedicado para sistemas de clientes activos, contexto de entrega y acceso operativo.
+
+Indexing directive:
+noindex; not visible in page content
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Brunova
+- Portal
+
+Section label:
+Límite de sistemas de clientes
+
+Page title:
+Portal de Clientes Brunova
+
+Description:
+Un espacio dedicado para sistemas de clientes activos, contexto de entrega y acceso operativo.
+
+Access state:
+El acceso al portal está disponible para clientes activos.
+
+Conditional external CTA:
+Abrir portal de clientes
+
+CTA condition:
+Se renderiza únicamente cuando existe una URL de portal configurada.
+
+==================================================
+NAV 08 — PRIVACY
+==================================================
+
+Current routes:
+EN: /privacy
+ES: /es/privacy
+
+--------------------------------------------------
+PRIVACY DOCUMENT — EN
+--------------------------------------------------
+
+Browser title:
+Privacy — Brunova
+
+Metadata description:
+How the Brunova website handles contact information, first-touch attribution, analytics and operational follow-up.
+
+Page-context accessible label:
+Page context
+
+Page-context labels:
+- Brunova
+- Privacy
+
+Document label:
+Privacy notice
+
+Page title:
+Privacy
+
+Introduction:
+This notice describes how the Brunova website handles contact information, first-touch attribution and the current analytics configuration.
+
+Document-index accessible label:
+Privacy sections
+
+Document-index label:
+On this page
+
+Document-index links:
+1. Contact information
+2. First-touch attribution
+3. Contact processing boundary
+4. Analytics and advertising
+
+Section 1 heading:
+Contact information
+
+Section 1 paragraph 1:
+The contact form collects your name, work email, company, role, problem category and the description you provide about an operational problem.
+
+Section 1 paragraph 2:
+Brunova uses this information to review the context, determine an appropriate next step and follow up on the conversation.
+
+Section 2 heading:
+First-touch attribution
+
+Section 2 paragraph 1:
+If a landing URL contains UTM parameters, the website stores the first source, medium, campaign, term and content values in browser sessionStorage together with the landing path, capture time and available referrer.
+
+Section 2 paragraph 2:
+That first-touch record remains in the current browser session. The UTM source, medium, campaign, term and content values are included with a contact submission when available.
+
+Section 3 heading:
+Contact processing boundary
+
+Section 3 paragraph 1:
+The browser sends the contact form to Brunova’s server. The server validates and limits the submission before forwarding only the accepted contact fields and first-touch UTM values to Brunova’s private server-side operational workflow.
+
+Section 3 paragraph 2:
+That workflow supports internal review and operational follow-up. The website does not send the honeypot field, form timing information, raw network address or browser fingerprint into that workflow.
+
+Section 4 heading:
+Analytics and advertising
+
+Section 4 paragraph 1:
+The current website uses a no-operation analytics adapter. No analytics provider or analytics cookie is active.
+
+Section 4 paragraph 2:
+The current website does not include advertising trackers. Because no cookie-based analytics is active, no cookie banner is shown.
+
+--------------------------------------------------
+PRIVACY DOCUMENT — ES
+--------------------------------------------------
+
+Browser title:
+Privacidad — Brunova
+
+Metadata description:
+Cómo el sitio web de Brunova maneja la información de contacto, la atribución de primer contacto, la analítica y el seguimiento operativo.
+
+Page-context accessible label:
+Contexto de página
+
+Page-context labels:
+- Brunova
+- Privacidad
+
+Document label:
+Aviso de privacidad
+
+Page title:
+Privacidad
+
+Introduction:
+Este aviso describe cómo el sitio web de Brunova maneja la información de contacto, la atribución de primer contacto y la configuración actual de analítica.
+
+Document-index accessible label:
+Secciones de privacidad
+
+Document-index label:
+En esta página
+
+Document-index links:
+1. Información de contacto
+2. Atribución de primer contacto
+3. Límite de procesamiento del contacto
+4. Analítica y publicidad
+
+Section 1 heading:
+Información de contacto
+
+Section 1 paragraph 1:
+El formulario de contacto recopila su nombre, correo electrónico de trabajo, empresa, puesto, categoría del problema y la descripción que proporcione sobre un problema operativo.
+
+Section 1 paragraph 2:
+Brunova usa esta información para revisar el contexto, determinar un siguiente paso adecuado y dar seguimiento a la conversación.
+
+Section 2 heading:
+Atribución de primer contacto
+
+Section 2 paragraph 1:
+Si una URL de llegada contiene parámetros UTM, el sitio almacena los primeros valores de fuente, medio, campaña, término y contenido en sessionStorage del navegador, junto con la ruta de llegada, la hora de captura y el referente disponible.
+
+Section 2 paragraph 2:
+Ese registro de primer contacto permanece durante la sesión actual del navegador. Los valores UTM de fuente, medio, campaña, término y contenido se incluyen con el envío del formulario cuando están disponibles.
+
+Section 3 heading:
+Límite de procesamiento del contacto
+
+Section 3 paragraph 1:
+El navegador envía el formulario al servidor de Brunova. El servidor valida y limita el envío antes de reenviar únicamente los campos de contacto aceptados y los valores UTM de primer contacto al flujo operativo privado de Brunova en el servidor.
+
+Section 3 paragraph 2:
+Ese flujo apoya la revisión interna y el seguimiento operativo. El sitio no envía al flujo el campo señuelo, la información de tiempo del formulario, la dirección de red sin procesar ni una huella del navegador.
+
+Section 4 heading:
+Analítica y publicidad
+
+Section 4 paragraph 1:
+El sitio actual utiliza un adaptador de analítica sin operación. No hay proveedor de analítica ni cookie de analítica activos.
+
+Section 4 paragraph 2:
+El sitio actual no incluye rastreadores publicitarios. Como no hay analítica basada en cookies activa, no se muestra un aviso de cookies.
+
+==================================================
+ADDITIONAL ANALYSIS
+==================================================
+
+==================================================
+1. GLOBAL BRUNOVA TERMINOLOGY INVENTORY
+==================================================
+
+Group:
+Systems
+
+EN variants:
+- system
+- systems
+- operational system
+- operating model
+- system boundary
+- operating boundary
+- service model
+- system states
+- production system
+- system class
+- internal platform
+- shared layer
+
+ES variants:
+- sistema
+- sistemas
+- sistema operacional
+- modelo operativo
+- límites del sistema
+- marco operativo
+- estado del sistema
+- sistema en producción
+- plataforma interna
+- capa compartida
+- sistema gestionado
+
+Group:
+Operations
+
+EN variants:
+- operation
+- operations
+- operational problem
+- operational boundary
+- operational flow
+- operational access
+- operational context
+- operational follow-up
+- operable
+
+ES variants:
+- operación
+- operaciones
+- problema operativo
+- límite operativo
+- flujo operativo
+- acceso operativo
+- contexto operativo
+- seguimiento operativo
+- operable
+
+Group:
+Architecture
+
+EN variants:
+- architecture
+- systems architecture
+- architecture blueprint
+- defined architecture
+- system direction
+- architecture / system boundary
+
+ES variants:
+- arquitectura
+- arquitectura de sistemas
+- diseño de arquitectura
+- arquitectura definida
+- decisiones de arquitectura
+- arquitectura y límites del sistema
+
+Group:
+Data
+
+EN variants:
+- data
+- operational data
+- data engineering
+- data pipeline
+- reporting pipeline
+- data warehouse
+- source systems
+- reference resolution
+- shared reporting foundation
+
+ES variants:
+- datos
+- datos operativos
+- ingeniería de datos
+- pipeline
+- pipeline de reportes
+- almacén de datos
+- sistemas de origen
+- resolución de referencias
+- base compartida para reportes
+
+Group:
+Automation
+
+EN variants:
+- automation
+- automations
+- financial automation
+- fragile automation
+- automation modernization
+- automation estate
+- controlled automation
+
+ES variants:
+- automatización
+- automatizaciones
+- automatización financiera
+- automatización frágil
+- modernización
+- conjunto de automatizaciones
+- automatizaciones controladas
+
+Group:
+AI
+
+EN variants:
+- AI
+- AI-assisted
+- AI-enabled systems
+- document intelligence
+- human-in-the-loop
+- human review
+
+ES variants:
+- IA
+- asistido por IA
+- IA aplicada con control
+- inteligencia documental
+- revisión humana
+- criterio humano
+
+Group:
+Process
+
+EN variants:
+- process
+- workflow
+- workflow engineering
+- handoff
+- exception path
+- approval
+- escalation
+- Discovery
+- Blueprint
+- Implementation
+- Managed Evolution
+
+ES variants:
+- proceso
+- flujo
+- ingeniería de flujos y procesos
+- relevo
+- ruta de excepción
+- aprobación
+- escalamiento
+- Diagnóstico
+- Diseño
+- Implementación
+- Evolución continua
+
+Group:
+Capability
+
+EN variants:
+- capability
+- capabilities
+- production capability
+- system outcomes
+- engineering responsibilities
+- service lines
+
+ES variants:
+- capacidad
+- capacidades
+- capacidad en producción
+- resultados
+- responsabilidades conectadas
+- servicios aislados
+
+Group:
+Delivery
+
+EN variants:
+- delivery
+- implementation
+- implementation sprint
+- build-ready
+- production
+- handoff
+- continuing improvement
+
+ES variants:
+- ejecución
+- implementación
+- sprint de implementación
+- listo para implementar
+- producción
+- transferencia
+- mejora continua
+
+Group:
+Governance
+
+EN variants:
+- ownership
+- accountability
+- accountable
+- responsibilities
+- service ownership
+- operational ownership
+- governed
+
+ES variants:
+- gobernanza
+- responsabilidad
+- responsables
+- quienes responden
+- responsables operativos
+- capacidades gobernadas
+- control
+
+Group:
+Transformation
+
+EN variants:
+- fragmented
+- disconnected
+- defined boundary
+- reliable
+- controlled
+- operable
+- scalable
+- modernization
+- evolve
+- continuing improvement
+
+ES variants:
+- fragmentado
+- desconectado
+- límite definido
+- confiable
+- controlado
+- operable
+- escalable
+- modernización
+- evolucionar
+- mejora continua
+
+==================================================
+2. TERMINOLOGY INCONSISTENCIES
+==================================================
+
+Systems concept:
+- EN: system, operational system, operating model, operating boundary, system boundary, system class and internal platform.
+- ES: sistema, sistema operacional, modelo operativo, marco operativo, límite del sistema, capa and plataforma interna.
+
+Ownership and governance concept:
+- EN: ownership, accountability, accountable, responsibilities and governed.
+- ES: gobernanza on Home assets; responsables, responsabilidad, quienes responden and control on Capabilities, Process, Work and About.
+
+Capabilities concept:
+- EN: capabilities, engineering responsibilities and service lines.
+- ES: capacidades, disciplinas, responsabilidades conectadas and servicios aislados.
+
+Work navigation concept:
+- EN: Work, Selected Work, selected systems, portfolio and system records.
+- ES: Sistemas, sistemas seleccionados, sistemas desarrollados and selección anonimizada.
+
+Delivery concept:
+- EN: delivery, implementation, build, sprint, production and handoff.
+- ES: ejecución, implementación, construcción, sprint, producción and transferencia.
+
+Process-stage naming:
+- EN metadata uses Discovery, Blueprint, Implementation and Managed Evolution; page details use Systems Discovery, Architecture Blueprint, Implementation Sprint and Managed Evolution.
+- ES metadata uses Diagnóstico, diseño de arquitectura, implementación and evolución continua; page details use Diagnóstico del sistema, Diseño de arquitectura, Sprint de implementación and Evolución continua.
+
+Data-flow naming:
+- EN uses pipeline, reporting pipeline and extraction pipeline.
+- ES uses pipeline, pipeline de reportes, pipeline de extracción and flujos automatizados de extracción y reporte.
+
+Role field naming:
+- The Spanish contact form uses Cargo; the Spanish privacy notice describes the collected field as puesto.
+
+About navigation naming:
+- EN navigation uses About; ES navigation uses Brunova while metadata uses Sobre Brunova.
+
+==================================================
+3. DENSITY OBSERVATIONS
+==================================================
+
+Route classifications:
+- HOME — MEDIUM: eight narrative sections, three diagrams and compact supporting copy.
+- CAPABILITIES — HIGH: five disclosures, each with problem, approach, outcomes, operational concerns and related systems.
+- PROCESS — HIGH: lateral-entry model, four state summaries and four full stage disclosures.
+- WORK / SYSTEMS INDEX — MEDIUM: four records with summaries, capability links and actions.
+- EACH SYSTEM DETAIL — HIGH: context, problem, approach, boundary diagram, decisions, optional safeguards, outcome, capabilities, related systems and CTA.
+- ABOUT / BRUNOVA — MEDIUM: two-part narrative, company-model statement and four operating facets.
+- CONTACT — HIGH when all states are counted: introductory guidance, three expectations, form copy, seven categories, six validations, six error states and success state.
+- PORTAL — LOW: one identity block, one access state and one conditional action.
+- PRIVACY — HIGH: introduction, four indexed legal/operational sections and eight body paragraphs.
+
+==================================================
+4. ENGLISH/SPANISH PARITY REVIEW
+==================================================
+
+Route parity:
+- English routes use /capabilities, /process, /work, /about and /contact.
+- Spanish routes retain the same English path segments under /es rather than /es/capacidades, /es/proceso, /es/sistemas, /es/brunova and /es/contacto.
+
+Capabilities parity:
+- EN introduction names one operating boundary and connected responsibilities; ES names one marco operativo and connected responsibilities.
+- Capability names, problems, approaches, concerns and outcomes are present in both locales; several Spanish entries adapt rather than mirror sentence structure.
+
+Process parity:
+- EN describes Discovery as optional when a defensible boundary exists; ES says work can begin later when límites bien definidos already exist.
+- Lateral-entry labels Blueprint / Implementation / Managed Evolution appear as Diseño / Implementación / Evolución continua.
+- All four stage fields and outputs are present in both locales.
+
+Work-index parity:
+- EN introduction refers to system classes, client proof, metrics and product interfaces.
+- ES introduction refers to systems built for real problems, architecture, engineering decisions, clients and metrics; product interfaces are not mentioned.
+- All four records and detail routes exist in both locales.
+
+System-detail parity:
+- All four systems contain context, operational problem, approach, boundary steps, decisions, outcome and capabilities in both locales.
+- Safeguards are present for Document Intelligence Workflow and Fragile Automation Modernization in both locales.
+- Spanish summaries and outcomes frequently compress or reframe the English wording while retaining the same system sequence.
+
+About parity:
+- EN uses founder-led architecture, team-based delivery, close to operations and operational intelligence.
+- ES uses arquitectura liderada por el fundador, equipos según las necesidades del sistema, vinculados a la operación and inteligencia operativa.
+- The EN company statement uses accountable; ES expands this into cada decisión responde a la operación.
+
+Contact parity:
+- Both locales expose the same six fields, seven categories, validation ranges, six error states and success flow.
+- EN uses note / information / context across submission states; ES uses consulta / datos / contexto.
+
+Portal and Privacy parity:
+- Portal identity, description, active-client state, conditional CTA and noindex directive are present in both locales.
+- Privacy contains the same four sections and operational facts in both locales.
+
+==================================================
+5. VISUAL ASSET TEXT INVENTORY
+==================================================
+
+--------------------------------------------------
+ASSET — hero-operating-model.svg
+--------------------------------------------------
+
+SVG accessible title:
+From fragmented operation to reliable operation
+
+SVG accessible description:
+Work, data, and systems converge through a defined architectural boundary where state, decisions, and ownership form a governed operating model, producing controlled, operable, and scalable outcomes.
+
+SVG text nodes in document order:
+1. FRAGMENTED OPERATION
+2. DEFINED BOUNDARY
+3. RELIABLE OPERATION
+4. Work
+5. Data
+6. Systems
+7. Operating model
+8. State
+9. Decisions
+10. Ownership
+11. Controlled
+12. Operable
+13. Scalable
+
+--------------------------------------------------
+ASSET — hero-operating-model-es.svg
+--------------------------------------------------
+
+SVG accessible title:
+De una operación fragmentada a una operación confiable
+
+SVG accessible description:
+Trabajo, datos y sistemas se integran dentro de un límite claro. Estado, decisiones y gobernanza forman un modelo operativo gobernado que produce resultados controlados, operables y escalables.
+
+SVG text nodes in document order:
+1. OPERACIÓN FRAGMENTADA
+2. LÍMITE DEFINIDO
+3. OPERACIÓN CONFIABLE
+4. Trabajo
+5. Datos
+6. Sistemas
+7. Modelo operativo
+8. Estado
+9. Decisiones
+10. Gobernanza
+11. Controlada
+12. Operable
+13. Escalable
+
+--------------------------------------------------
+ASSET — operational-intelligence-loop.svg
+--------------------------------------------------
+
+SVG accessible title:
+Operational intelligence control loop
+
+SVG accessible description:
+Observe operational signals, decide with boundaries and ownership, and act through governed automation, software, and AI.
+
+SVG text nodes in document order:
+1. Operational
+2. intelligence
+3. Observe
+4. Operations · Data · Systems
+5. Decide
+6. Meaning · Boundaries · Ownership
+7. Act
+8. Automation · Software · AI
+9. Operational state returns
+10. to the model
+
+--------------------------------------------------
+ASSET — operational-intelligence-loop-es.svg
+--------------------------------------------------
+
+SVG accessible title:
+Ciclo de control de inteligencia operativa
+
+SVG accessible description:
+Observar señales operativas, decidir con límites y gobernanza, y actuar mediante automatización, software e IA gobernados.
+
+SVG text nodes in document order:
+1. Inteligencia
+2. operativa
+3. Observar
+4. Operaciones · Datos · Sistemas
+5. Decidir
+6. Significado · Límites · Gobernanza
+7. Actuar
+8. Automatización · Software · IA
+9. El estado operativo vuelve
+10. al modelo
+
+--------------------------------------------------
+ASSET — architecture-boundary.svg
+--------------------------------------------------
+
+SVG accessible title:
+Architecture before tools
+
+SVG accessible description:
+Fragmented operational context is resolved into a defined operating model. Process, data and decisions work under ownership to enable operational capability through automation, software and AI.
+
+SVG text nodes in document order:
+1. OPERATIONAL CONTEXT
+2. Fragmented inputs · Unclear state
+3. DEFINED OPERATING MODEL
+4. Process
+5. Data
+6. Decisions
+7. Ownership
+8. Operational capability
+9. ENABLED BY THE OPERATING MODEL
+10. Automation
+11. Software
+12. AI
+
+--------------------------------------------------
+ASSET — architecture-boundary-es.svg
+--------------------------------------------------
+
+SVG accessible title:
+Arquitectura antes que herramientas
+
+SVG accessible description:
+El contexto operativo fragmentado se convierte en un modelo operativo definido. Proceso, datos y decisiones funcionan bajo gobernanza para habilitar capacidad operativa mediante automatización, software e IA.
+
+SVG text nodes in document order:
+1. CONTEXTO OPERATIVO
+2. Entradas fragmentadas · Estado poco claro
+3. MODELO OPERATIVO DEFINIDO
+4. Proceso
+5. Datos
+6. Decisiones
+7. Gobernanza
+8. Capacidad operativa
+9. HABILITADA POR EL MODELO OPERATIVO
+10. Automatización
+11. Software
+12. IA
+
+--------------------------------------------------
+ASSET — BRUNOVA WORDMARKS
+--------------------------------------------------
+
+Files:
+brunova-wordmark-dark.svg
+brunova-wordmark-light.svg
+
+Visible wordmark:
+Brunova
+
+SVG text elements:
+None. Both wordmarks are composed of vector paths.
+
+--------------------------------------------------
+DIAGRAMS — SYSTEM DETAIL SYSTEM FLOWS
+--------------------------------------------------
+
+These diagrams are rendered as semantic HTML figures, not standalone SVG/image files.
+
+EN diagram — multi-tenant-financial-integration-platform caption:
+Operating entities enter one controlled integration boundary before financial operations and reporting become available downstream.
+
+EN diagram — multi-tenant-financial-integration-platform steps:
+1. Operating entities — Multiple entities requiring consistent accounting access
+2. Connection lifecycle — Centralized OAuth and reference resolution
+3. Financial operations — Reads, writes and recurring reporting
+4. Operational access — Reusable downstream access to the shared layer
+
+EN diagram — operational-finance-data-infrastructure caption:
+Source data moves through a shared reporting boundary before it reaches the business-facing spreadsheet layer.
+
+EN diagram — operational-finance-data-infrastructure steps:
+1. Source systems — Accounting and operational information
+2. Extraction pipeline — Automated movement from operational sources
+3. Data warehouse — Shared reporting foundation
+4. Business access — Consistent information in familiar spreadsheets
+
+EN diagram — document-intelligence-workflow caption:
+Automation prepares structured information, while validation and human review remain explicit gates before downstream use.
+
+EN diagram — document-intelligence-workflow steps:
+1. Document intake — Operationally sensitive source documents
+2. Classification + extraction — AI-assisted structured processing
+3. Validation + review — Control boundary with human judgment
+4. Downstream workflow — Reviewed information enters the operating process
+
+EN diagram — fragile-automation-modernization caption:
+The useful automation remains, while an explicit operating boundary is added around failure, recovery, deployment and ownership.
+
+EN diagram — fragile-automation-modernization steps:
+1. Working behavior — Existing automation worth preserving
+2. Clear boundaries — Defined responsibilities and ownership
+3. Operability controls — Observability, recovery and idempotency
+4. Managed system — Disciplined deployment and operational documentation
+
+ES diagram — multi-tenant-financial-integration-platform caption:
+Cada entidad se conecta mediante una capa de integración controlada que pone las operaciones financieras y los reportes a disposición de otros sistemas.
+
+ES diagram — multi-tenant-financial-integration-platform steps:
+1. Entidades operativas — Entidades que requieren un acceso contable consistente
+2. Ciclo de conexión — OAuth y referencias administrados de forma central
+3. Operaciones financieras — Lecturas, escrituras y reportes recurrentes
+4. Acceso operativo — Servicios compartidos disponibles para otros sistemas
+
+ES diagram — operational-finance-data-infrastructure caption:
+Los datos de origen pasan por una capa compartida de extracción y reporte antes de llegar a las hojas de cálculo de los equipos.
+
+ES diagram — operational-finance-data-infrastructure steps:
+1. Sistemas de origen — Información contable y operativa
+2. Pipeline de extracción — Movimiento automatizado desde fuentes operativas
+3. Almacén de datos — Base compartida para reportes
+4. Acceso del negocio — Información consistente en herramientas conocidas por los equipos
+
+ES diagram — document-intelligence-workflow caption:
+La automatización prepara la información; la validación y la revisión humana conservan el control antes de que avance al siguiente proceso.
+
+ES diagram — document-intelligence-workflow steps:
+1. Ingreso de documentos — Documentos fuente sensibles para la operación
+2. Clasificación y extracción — Procesamiento estructurado asistido por IA
+3. Validación y revisión — Control explícito basado en criterio humano
+4. Proceso siguiente — La información validada avanza al proceso operativo
+
+ES diagram — fragile-automation-modernization caption:
+La automatización útil se conserva y se incorpora un marco operativo explícito para fallas, recuperación, despliegue y responsables.
+
+ES diagram — fragile-automation-modernization steps:
+1. Comportamiento funcional — Automatización existente que vale la pena conservar
+2. Límites claros — Alcance y responsables definidos
+3. Controles de operabilidad — Observabilidad, recuperación e idempotencia
+4. Sistema gestionado — Despliegues disciplinados y documentación operativa

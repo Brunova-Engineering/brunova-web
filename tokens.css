@@ -1,0 +1,147 @@
+/* Hallmark · genre: custom/bespoke · macrostructure: Architectural Narrative · nav: N6 adapted · footer: Ft2
+ * tone: architectural restraint, warm bone, operational precision · palette anchor: warm bone
+ * pre-emit critique: P5 H5 E4 S5 R5 V4 · idea: "brand plate, route ledger, utility boundary"
+ * paper: oklch(97.3% 0.008 75) · accent: oklch(20% 0.008 70)
+ * display: Manrope · body: IBM Plex Sans · axes: light / geometric-sans / neutral
+ * studied: no · context: explicit · shell: Phase 2
+ */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --color-background: oklch(97.3% 0.008 75);
+  --color-surface: oklch(99% 0.004 75);
+  --color-surface-raised: oklch(94.8% 0.009 75);
+  --color-foreground: oklch(18% 0.008 70);
+  --color-muted: oklch(91% 0.01 75);
+  --color-muted-foreground: oklch(42% 0.01 70);
+  --color-border: oklch(81.5% 0.01 75);
+  --color-accent: oklch(20% 0.008 70);
+  --color-accent-foreground: oklch(96% 0.008 75);
+  --color-inverse-muted: oklch(74% 0.009 75);
+  --color-focus: oklch(20% 0.008 70);
+  --color-danger: oklch(48% 0.14 25);
+  --color-success: oklch(43% 0.09 145);
+  --color-logo-field: oklch(6% 0.003 70);
+  --overlay-dialog: oklch(8% 0.004 70 / 0.62);
+  --shadow-raised: 0 1.5rem 4rem oklch(18% 0.008 70 / 0.08);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background: oklch(14.5% 0.006 70);
+  --color-surface: oklch(18% 0.007 70);
+  --color-surface-raised: oklch(22.5% 0.008 70);
+  --color-foreground: oklch(94% 0.008 75);
+  --color-muted: oklch(27% 0.008 70);
+  --color-muted-foreground: oklch(70% 0.009 75);
+  --color-border: oklch(33% 0.009 70);
+  --color-accent: oklch(92% 0.008 75);
+  --color-accent-foreground: oklch(16% 0.008 70);
+  --color-inverse-muted: oklch(40% 0.01 70);
+  --color-focus: oklch(94% 0.008 75);
+  --color-danger: oklch(72% 0.12 25);
+  --color-success: oklch(72% 0.08 145);
+  --color-logo-field: oklch(6% 0.003 70);
+  --overlay-dialog: oklch(4% 0.002 70 / 0.72);
+  --shadow-raised: 0 1.5rem 4rem oklch(4% 0.002 70 / 0.32);
+}
+
+:root {
+  --color-model-surface: oklch(10% 0.006 70);
+  --color-model-foreground: oklch(96% 0.008 75);
+  --color-model-muted: oklch(74% 0.009 75);
+  --color-model-border: oklch(32% 0.008 70);
+
+  --font-display: var(
+    --font-manrope,
+    "Manrope",
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+  --font-body: var(
+    --font-ibm-plex-sans,
+    "IBM Plex Sans",
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --space-5xl: 8rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.953125rem;
+  --text-2xl: 2.44140625rem;
+  --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
+  --text-display-home: clamp(2.75rem, 4.2vw, 4.5rem);
+  --text-display-depth: clamp(2.5rem, 4.5vw, 4.5rem);
+  --text-display-contact: clamp(var(--text-2xl), 5vw, 4rem);
+
+  --leading-display: 1.05;
+  --leading-body: 1.6;
+
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-round: 999rem;
+
+  --rule-hair: 1px;
+  --rule-focus: 2px;
+  --focus-offset: 3px;
+  --focus-gap: 2px;
+
+  --dur-fast: 100ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
+  --dur-reduced: 0.01ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --page-gutter: clamp(1rem, 4vw, 4rem);
+  --page-max: 88rem;
+  --page-max-copy: 72rem;
+  --measure: 65ch;
+  --control-height: 2.75rem;
+  --site-header-height: calc(var(--control-height) + var(--space-xl));
+  --header-logo-width: 10.75rem;
+  --header-logo-width-mobile: 8.25rem;
+  --footer-logo-width: 10.75rem;
+  --dialog-max: 30rem;
+
+  --z-content: 1;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-dialog: 500;
+}
+
+@media (min-width: 72rem) {
+  :root {
+    --site-header-height: calc(
+      var(--control-height) + var(--space-xl) + var(--space-xs)
+    );
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--color-background);
+  --color-ink: var(--color-foreground);
+  --color-panel: var(--color-surface);
+  --color-subtle: var(--color-muted);
+  --font-display-ui: var(--font-display);
+  --font-body-ui: var(--font-body);
+}

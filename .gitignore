@@ -13,9 +13,12 @@ coverage/
 playwright-report/
 test-results/
 .lighthouseci/
+.qa-artifacts/
+/artifacts/
 
 # Logs and local tooling
 *.log
+*.tsbuildinfo
 .DS_Store
 .idea/
 .vscode/
@@ -25,3 +28,5 @@ test-results/
 
 # Private project inputs retained locally but never published
 /docs/BRUNOVA_WEBSITE_V1_BUILD_SPECIFICATION.md
+/docs/BRUNOVA_HANDOFF_PRIVATE.md
+/public/sketches/
