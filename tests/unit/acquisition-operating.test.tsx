@@ -5,11 +5,124 @@ import {
   CycleAttention,
   OpportunityPool,
 } from "@/components/acquisition/operating-overview"
-import { CandidateOpportunities } from "@/components/acquisition/candidate-opportunities"
+import {
+  CandidateOpportunities,
+  ConversationPreparation,
+} from "@/components/acquisition/candidate-opportunities"
 import { ManagementOverview } from "@/components/acquisition/management-overview"
 import { acquisitionApi as api } from "@/lib/acquisition-api"
 import type { DiscoveryTruth } from "@/lib/acquisition-management-truth"
 afterEach(() => vi.restoreAllMocks())
+it("keeps Jorge feedback optional and non-authorizing", async () => {
+  const command = vi.spyOn(api, "conversationFeedback").mockResolvedValue({
+    status: "accepted",
+    proposalId: "proposal-1",
+    candidateId: "candidate-1",
+    effectCreated: false,
+    wakeRequired: false,
+    blocking: false,
+  })
+  const changed = vi.fn()
+  render(
+    <ConversationPreparation
+      locale="es"
+      preparation={{
+        id: "proposal-1",
+        cycle_id: "cycle-1",
+        candidate_id: "candidate-1",
+        version: 1,
+        evidence_snapshot: [],
+        body_hash: "hash",
+        created_at: "2026-10-07T00:00:00Z",
+        authority_state: "PREPARATION_ONLY",
+        effect_authorized: false,
+        feedback: [],
+        body: {
+          signalKind: "OTHER",
+          hypothesis: "Hipótesis sintética basada en evidencia",
+          unknowns: ["Necesidad interna"],
+          question: "¿Quién coordina esta relación?",
+          subject: "Pregunta",
+          message: "Mensaje sintético de exploración.",
+          positions: [],
+          chosenPosition: 1,
+          claims: [],
+        },
+      }}
+      crmObservation={{
+        cycle_id: "cycle-1",
+        candidate_id: "candidate-1",
+        proposal_id: "proposal-1",
+        account_id: null,
+        bound_message_id: null,
+        crm_intent_id: "synthetic-crm-1",
+        crm_state: "SYNCED",
+        crm_message_matches: true,
+        company_mapped: true,
+        contact_mapped: true,
+        association_evidence_origin: "CONTROLLED_SIMULATION",
+        association_observed: true,
+        review_gate: "CANDIDATE_IDENTITY_REQUIRED",
+        authority_state: "OBSERVATION_ONLY",
+        executable: false,
+        effect_authorized: false,
+      }}
+      session={{
+        authenticated: true,
+        actor: { email: "jorge@brunova.mx", capabilities: ["MANAGE_CYCLE"] },
+        csrfToken: "csrf",
+        expiresAt: "2099-01-01T00:00:00Z",
+      }}
+      onChanged={changed}
+    />,
+  )
+  expect(screen.getByText(/Tu comentario es opcional/)).toBeVisible()
+  expect(screen.getByText(/No autoriza contacto/)).toBeVisible()
+  expect(screen.getByText(/Company y contacto asociados sólo en simulación/)).toBeVisible()
+  fireEvent.click(screen.getByText("Dejar comentario opcional"))
+  fireEvent.change(screen.getByLabelText("Comentario"), {
+    target: { value: "Aclarar la evidencia de la relación." },
+  })
+  fireEvent.click(screen.getByRole("button", { name: "Guardar comentario" }))
+  await waitFor(() =>
+    expect(command).toHaveBeenCalledWith(
+      expect.any(String),
+      "proposal-1",
+      "COMMENT",
+      "GENERAL",
+      "Aclarar la evidencia de la relación.",
+      "csrf",
+    ),
+  )
+  expect(changed).toHaveBeenCalledOnce()
+})
+it("labels an old CRM association as historical when the Candidate message changes", () => {
+  render(
+    <ConversationPreparation
+      locale="en"
+      preparation={{
+        id: "proposal-current", cycle_id: "cycle-1", candidate_id: "candidate-1",
+        version: 2, evidence_snapshot: [], body_hash: "hash-2",
+        created_at: "2026-10-07T00:00:00Z", authority_state: "PREPARATION_ONLY",
+        effect_authorized: false, feedback: [],
+        body: {signalKind: "OTHER", hypothesis: "A question remains", unknowns: ["Buyer"],
+          question: "Who owns this work?", subject: "Question", message: "Question about work",
+          positions: [], chosenPosition: 1, claims: []},
+      }}
+      crmObservation={{
+        cycle_id: "cycle-1", candidate_id: "candidate-1", proposal_id: "proposal-current",
+        account_id: "account-1", bound_message_id: "message-old",
+        crm_intent_id: "crm-old", crm_state: "SYNCED", crm_message_matches: false,
+        company_mapped: true, contact_mapped: true,
+        association_evidence_origin: "CONTROLLED_SIMULATION", association_observed: true,
+        review_gate: "CURRENT_MESSAGE_BINDING_REQUIRED", authority_state: "OBSERVATION_ONLY",
+        executable: false, effect_authorized: false,
+      }}
+    />,
+  )
+  expect(screen.getByText(/historical CRM observation does not match the current message/)).toBeVisible()
+  expect(screen.queryByText(/Company and contact associated in simulation only/)).not.toBeInTheDocument()
+})
 it.each(["en", "es"] as const)(
   "%s preflight is read-only and missing evidence is not healthy",
   async (locale) => {

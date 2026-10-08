@@ -19,6 +19,13 @@ function Opportunity({
   candidate,
   locale,
   record,
+  preparations,
+  messageBinding,
+  route,
+  preview,
+  contactEvidence,
+  roleClaimInventory,
+  crmObservation,
   session,
   onChanged,
   archiveEligible = false,
@@ -26,6 +33,13 @@ function Opportunity({
   candidate: CandidateView
   locale: Locale
   record?: string
+  preparations?: DiscoveryTruth["conversationPreparations"]
+  messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
+  route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
+  preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
+  contactEvidence?: NonNullable<DiscoveryTruth["contactEvidencePreviews"]>[number]
+  roleClaimInventory?: NonNullable<DiscoveryTruth["roleClaimInventories"]>[number]
+  crmObservation?: NonNullable<DiscoveryTruth["candidateCrmObservations"]>[number]
   session?: PortalSession
   onChanged?: () => void
   archiveEligible?: boolean
@@ -58,6 +72,81 @@ function Opportunity({
           </span>
         </div>
       </div>
+      {preparations?.[0] && (
+        <ConversationPreparation
+          preparation={preparations[0]}
+          messageBinding={messageBinding}
+          route={route}
+          preview={preview}
+          crmObservation={crmObservation}
+          locale={locale}
+          session={session}
+          onChanged={onChanged}
+        />
+      )}
+      {contactEvidence && (
+        <p className="acq-muted">
+          <strong>{es ? "Evidencia de contacto" : "Contact evidence"}:</strong>{" "}
+          {(
+            {
+              CANDIDATE_IDENTITY_REQUIRED: es
+                ? "resolver identidad de la organización"
+                : "resolve organization identity",
+              ACCOUNT_ADMISSION_REQUIRED: es
+                ? "admitir la cuenta con evidencia"
+                : "admit the Account with evidence",
+              CANDIDATE_ACCOUNT_IDENTITY_MISMATCH: es
+                ? "resolver diferencia de identidad"
+                : "resolve identity mismatch",
+              ACCOUNT_QUALIFICATION_REQUIRED: es
+                ? "evaluar la cuenta"
+                : "evaluate the Account",
+              PERSON_EVIDENCE_REQUIRED: es
+                ? "identificar una persona"
+                : "identify a person",
+              PERSON_EVIDENCE_STALE: es
+                ? "actualizar evidencia de la persona"
+                : "refresh person evidence",
+              CONTACT_EVIDENCE_CONFLICT: es
+                ? "resolver conflicto del correo"
+                : "resolve email evidence conflict",
+              EMAIL_EVIDENCE_STALE: es
+                ? "actualizar evidencia del correo"
+                : "refresh email evidence",
+              SUPPORTED_EMAIL_REQUIRED: es
+                ? "verificar un correo de trabajo"
+                : "verify a business email",
+              BUYER_ROLE_EVIDENCE_REQUIRED: es
+                ? "corroborar quién decide; el correo no prueba el rol"
+                : "corroborate who decides; an email does not prove the role",
+              SUPPRESSED: es ? "contacto suprimido" : "contact suppressed",
+              ARCHIVED_CANDIDATE: es
+                ? "candidata archivada"
+                : "archived Candidate",
+              EXTERNAL_EFFECTS_MODE_UNSAFE: es
+                ? "revisar configuración de efectos"
+                : "review effect settings",
+            } as Record<string, string>
+          )[contactEvidence.next_gate] ??
+            (es ? "revisión pendiente" : "review pending")}
+          . {es ? "No autoriza CRM ni contacto." : "This does not authorize CRM or contact."}
+        </p>
+      )}
+      {roleClaimInventory &&
+        (roleClaimInventory.raw_role_claim_people > 0 ||
+          roleClaimInventory.contact_gate === "BUYER_ROLE_EVIDENCE_REQUIRED") && (
+          <p className="acq-muted">
+            <strong>{es ? "Indicios de rol" : "Role claims"}:</strong>{" "}
+            {roleClaimInventory.current_first_party_role_claim_people}{" "}
+            {es ? "persona(s) con indicios atribuibles actuales" : "person(s) with current attributable claims"};{" "}
+            {roleClaimInventory.explicit_conflict_people +
+              roleClaimInventory.conflicting_role_people}{" "}
+            {es ? "señal(es) de conflicto" : "conflict signal(s)"}.{" "}
+            {es
+              ? "Panky debe interpretar el rol y el mandato antes de decidir. Esto no autoriza CRM ni contacto."
+              : "Panky must interpret role and mandate before deciding. This does not authorize CRM or contact."}
+          </p>
+        )}
       <div className="acq-memo-grid">
         <section>
           <h4>{es ? "Por qué importa" : "Why it matters"}</h4>
@@ -236,6 +325,326 @@ function Opportunity({
   )
 }
 
+export function ConversationPreparation({
+  preparation,
+  messageBinding,
+  route,
+  preview,
+  crmObservation,
+  locale,
+  session,
+  onChanged,
+}: {
+  preparation: NonNullable<DiscoveryTruth["conversationPreparations"]>[number]
+  messageBinding?: NonNullable<DiscoveryTruth["candidateMessageBindings"]>[number]
+  route?: NonNullable<DiscoveryTruth["commercialRoutes"]>[number]
+  preview?: NonNullable<DiscoveryTruth["buyerMessagePreviews"]>[number]
+  crmObservation?: NonNullable<DiscoveryTruth["candidateCrmObservations"]>[number]
+  locale: Locale
+  session?: PortalSession
+  onChanged?: () => void
+}) {
+  const es = locale === "es"
+  const [decision, setDecision] = useState<"APPROVE" | "COMMENT" | "CORRECT">(
+    "COMMENT",
+  )
+  const [target, setTarget] = useState<
+    "PATTERN" | "POSITION" | "EVIDENCE" | "QUESTION" | "MESSAGE" | "GENERAL"
+  >("GENERAL")
+  const [comment, setComment] = useState("")
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState(false)
+  const [saved, setSaved] = useState(false)
+  return (
+    <section
+      className="acq-route"
+      aria-label={
+        es ? "Preparación de conversación" : "Conversation preparation"
+      }
+    >
+      <p className="acq-eyebrow">
+        {es ? "Preparación de Pancracio" : "Pancracio preparation"} · v
+        {preparation.version}
+      </p>
+      <p className="acq-muted">
+        {es
+          ? "Borrador basado en evidencia. Tu comentario es opcional; Pancracio decide el siguiente paso dentro del mandato. No autoriza contacto."
+          : "Evidence-based draft. Your feedback is optional; Pancracio decides the next step within its mandate. This does not authorize contact."}
+      </p>
+      {messageBinding?.proposal_id === preparation.id && (
+        <p className="acq-muted">
+          <strong>{es ? "Mensaje vinculado" : "Linked message"}:</strong> v
+          {messageBinding.message_version}.{" "}
+          {messageBinding.proposal_current &&
+          messageBinding.message_current &&
+          messageBinding.mandate_current
+            ? es
+              ? "Vigente sólo para ensayo; no autoriza CRM real ni contacto."
+              : "Current for rehearsal only; this does not authorize real CRM or contact."
+            : es
+              ? "Requiere nueva validación antes de CRM; no autoriza contacto."
+              : "Requires new validation before CRM; this does not authorize contact."}
+        </p>
+      )}
+      {preview?.proposal_id === preparation.id && (
+        <p className="acq-muted">
+          <strong>{es ? "Vista Buyer y mensaje" : "Buyer and message preview"}:</strong>{" "}
+          {preview.buyer_current &&
+          preview.buyer_messageability === "READY" &&
+          preview.buyer_state === "RESOLVED"
+            ? es
+              ? "Buyer vigente como evidencia."
+              : "Current Buyer evidence."
+            : es
+              ? "Buyer sin resolver o sin vigencia."
+              : "Buyer unresolved or not current."}{" "}
+          {preview.preview_gate === "CURRENT_MESSAGE_BINDING_REQUIRED"
+            ? es
+              ? "Falta vincular un mensaje vigente."
+              : "A current message binding is required."
+            : es
+              ? "La ruta conserva sus bloqueos actuales."
+              : "Current route blockers still apply."}{" "}
+          {es ? "No autoriza CRM ni contacto." : "This does not authorize CRM or contact."}
+        </p>
+      )}
+      {crmObservation?.proposal_id === preparation.id && (
+        <p className="acq-muted">
+          <strong>{es ? "Observación CRM" : "CRM observation"}:</strong>{" "}
+          {crmObservation.crm_intent_id
+            ? !crmObservation.crm_message_matches
+              ? es
+                ? "La observación CRM histórica no coincide con el mensaje vigente."
+                : "The historical CRM observation does not match the current message."
+              : crmObservation.association_observed
+              ? crmObservation.association_evidence_origin === "CONTROLLED_SIMULATION"
+                ? es
+                  ? "Company y contacto asociados sólo en simulación."
+                  : "Company and contact associated in simulation only."
+                : es
+                  ? "Asociación observada; requiere revisión de autoridad y vigencia."
+                  : "Association observed; authority and currency still need review."
+              : es
+                ? "Intención presente; falta confirmar Company, contacto y asociación."
+                : "Intent present; Company, contact, and association need confirmation."
+            : es
+              ? "Sin intención CRM para esta ruta."
+              : "No CRM intent for this route."}{" "}
+          {es ? "Sólo lectura; no autoriza envío." : "Read only; this does not authorize sending."}
+        </p>
+      )}
+      {route && (
+        <p className="acq-muted">
+          <strong>{es ? "Siguiente frontera" : "Next gate"}:</strong>{" "}
+          {(
+            {
+              EXTERNAL_EFFECTS_MODE_UNSAFE: es
+                ? "detener y revisar configuración de efectos"
+                : "stop and review effect settings",
+              ACTIVE_CYCLE_REQUIRED: es
+                ? "confirmar ciclo activo"
+                : "confirm the active cycle",
+              ARCHIVED_CANDIDATE: es
+                ? "revisar candidata archivada"
+                : "review archived Candidate",
+              UNCERTAIN_EFFECT_RECONCILIATION_REQUIRED: es
+                ? "conciliar un resultado incierto"
+                : "reconcile an uncertain outcome",
+              PRIOR_EFFECT_ATTEMPT_REVIEW_REQUIRED: es
+                ? "revisar intentos previos"
+                : "review prior attempts",
+              CANDIDATE_IDENTITY_REQUIRED: es
+                ? "resolver identidad de la organización"
+                : "resolve organization identity",
+              ACCOUNT_ADMISSION_REQUIRED: es
+                ? "confirmar identidad y admisión de cuenta"
+                : "confirm identity and Account admission",
+              CANDIDATE_ACCOUNT_IDENTITY_MISMATCH: es
+                ? "resolver diferencia de identidad entre Candidate y cuenta"
+                : "resolve Candidate and Account identity mismatch",
+              ACCOUNT_QUALIFICATION_REQUIRED: es
+                ? "completar evaluación de cuenta"
+                : "complete Account evaluation",
+              PERSON_EVIDENCE_REQUIRED: es
+                ? "identificar una persona con evidencia"
+                : "identify a person with evidence",
+              SUPPORTED_EMAIL_REQUIRED: es
+                ? "verificar un contacto de email"
+                : "verify an email contact",
+              CURRENT_BUYER_PACKAGE_REQUIRED: es
+                ? "obtener un paquete Buyer vigente"
+                : "obtain a current Buyer package",
+              SUPPRESSED: es ? "contacto suprimido" : "contact suppressed",
+              GENERIC_CRM_BOUNDARY_REQUIRED: es
+                ? "validar el límite genérico de CRM"
+                : "validate the generic CRM boundary",
+            } as Record<string, string>
+          )[route.next_gate] ?? (es ? "revisión pendiente" : "review pending")}
+          .{" "}
+          {es
+            ? "La ruta a CRM y email no es ejecutable."
+            : "The CRM and email route is not executable."}
+        </p>
+      )}
+      <p>
+        <strong>{es ? "Hipótesis" : "Hypothesis"}:</strong>{" "}
+        {preparation.body.hypothesis}
+      </p>
+      <p>
+        <strong>{es ? "Pregunta" : "Question"}:</strong>{" "}
+        {preparation.body.question}
+      </p>
+      <details>
+        <summary>
+          {es
+            ? "Borrador, posiciones y fuentes"
+            : "Draft, positions and sources"}
+        </summary>
+        <p>
+          <strong>{es ? "Asunto" : "Subject"}:</strong>{" "}
+          {preparation.body.subject}
+        </p>
+        <p>{preparation.body.message}</p>
+        <ol>
+          {preparation.body.positions.map((position, index) => (
+            <li key={index}>
+              {position.role}:{" "}
+              {position.actor ?? (es ? "sin identificar" : "unidentified")} —{" "}
+              {position.epistemicStatus}. {position.reason}
+              {index + 1 === preparation.body.chosenPosition
+                ? ` (${es ? "posición elegida" : "chosen position"})`
+                : ""}
+            </li>
+          ))}
+        </ol>
+        <ul>
+          {preparation.body.claims.map((claim, index) => (
+            <li key={index}>
+              {claim.text} ({claim.observationId})
+            </li>
+          ))}
+        </ul>
+      </details>
+      {preparation.feedback.length > 0 && (
+        <details>
+          <summary>
+            {es ? "Comentarios registrados" : "Recorded feedback"} (
+            {preparation.feedback.length})
+          </summary>
+          <ul>
+            {preparation.feedback.map((item) => (
+              <li key={item.id}>
+                {item.decision} · {item.target}: {item.comment}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      {session && onChanged && (
+        <details>
+          <summary>
+            {es ? "Dejar comentario opcional" : "Leave optional feedback"}
+          </summary>
+          <label>
+            {es ? "Opinión" : "Response"}
+            <select
+              value={decision}
+              onChange={(event) =>
+                setDecision(event.target.value as typeof decision)
+              }
+            >
+              <option value="COMMENT">{es ? "Comentar" : "Comment"}</option>
+              <option value="CORRECT">{es ? "Corregir" : "Correct"}</option>
+              <option value="APPROVE">
+                {es ? "Estoy de acuerdo" : "Agree"}
+              </option>
+            </select>
+          </label>
+          <label>
+            {es ? "Sobre" : "About"}
+            <select
+              value={target}
+              onChange={(event) =>
+                setTarget(event.target.value as typeof target)
+              }
+            >
+              {(
+                [
+                  "GENERAL",
+                  "PATTERN",
+                  "POSITION",
+                  "EVIDENCE",
+                  "QUESTION",
+                  "MESSAGE",
+                ] as const
+              ).map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {es ? "Comentario" : "Comment"}
+            <textarea
+              maxLength={2000}
+              value={comment}
+              onChange={(event) => setComment(event.target.value)}
+            />
+          </label>
+          <button
+            disabled={
+              pending || (decision !== "APPROVE" && comment.trim().length < 3)
+            }
+            onClick={async () => {
+              setPending(true)
+              setError(false)
+              setSaved(false)
+              try {
+                await api.conversationFeedback(
+                  crypto.randomUUID(),
+                  preparation.id,
+                  decision,
+                  target,
+                  comment.trim(),
+                  session.csrfToken,
+                )
+                setComment("")
+                setSaved(true)
+                onChanged()
+              } catch {
+                setError(true)
+              } finally {
+                setPending(false)
+              }
+            }}
+          >
+            {pending
+              ? es
+                ? "Guardando…"
+                : "Saving…"
+              : es
+                ? "Guardar comentario"
+                : "Save feedback"}
+          </button>
+          {error && (
+            <p role="alert">
+              {es
+                ? "No se pudo guardar el comentario."
+                : "Feedback could not be saved."}
+            </p>
+          )}
+          {saved && (
+            <p role="status">
+              {es ? "Comentario registrado." : "Feedback recorded."}
+            </p>
+          )}
+        </details>
+      )}
+    </section>
+  )
+}
+
 export function CandidateOpportunities({
   data,
   locale,
@@ -315,6 +724,27 @@ export function CandidateOpportunities({
             <Opportunity
               key={group[0].id}
               candidate={group[0]}
+              preparations={data.conversationPreparations
+                ?.filter((item) => item.candidate_id === group[0].id)
+                .sort((a, b) => b.version - a.version)}
+              messageBinding={data.candidateMessageBindings?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
+              route={data.commercialRoutes?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
+              preview={data.buyerMessagePreviews?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
+              contactEvidence={data.contactEvidencePreviews?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
+              roleClaimInventory={data.roleClaimInventories?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
+              crmObservation={data.candidateCrmObservations?.find(
+                (item) => item.candidate_id === group[0].id,
+              )}
               locale={locale}
               session={session}
               onChanged={onChanged}
@@ -335,6 +765,27 @@ export function CandidateOpportunities({
                 <Opportunity
                   key={candidate.id}
                   candidate={candidate}
+                  preparations={data.conversationPreparations
+                    ?.filter((item) => item.candidate_id === candidate.id)
+                    .sort((a, b) => b.version - a.version)}
+                  messageBinding={data.candidateMessageBindings?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  route={data.commercialRoutes?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  preview={data.buyerMessagePreviews?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  contactEvidence={data.contactEvidencePreviews?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  roleClaimInventory={data.roleClaimInventories?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
+                  crmObservation={data.candidateCrmObservations?.find(
+                    (item) => item.candidate_id === candidate.id,
+                  )}
                   locale={locale}
                   session={session}
                   onChanged={onChanged}

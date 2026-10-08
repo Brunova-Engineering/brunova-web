@@ -439,6 +439,213 @@ export const acquisitionApi = {
               .passthrough(),
           )
           .optional(),
+        conversationPreparations: z
+          .array(
+            z.object({
+              id: z.string(),
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              version: z.number(),
+              evidence_snapshot: z.array(z.record(z.string(), z.unknown())),
+              body: z
+                .object({
+                  signalKind: z.enum([
+                    "RELATIONSHIP_CHANGE",
+                    "REGIONAL_IMPLEMENTATION",
+                    "OTHER",
+                  ]),
+                  hypothesis: z.string(),
+                  unknowns: z.array(z.string()),
+                  question: z.string(),
+                  subject: z.string(),
+                  message: z.string(),
+                  positions: z.array(
+                    z
+                      .object({
+                        role: z.string(),
+                        actor: z.string().nullable().optional(),
+                        epistemicStatus: z.string(),
+                        reason: z.string(),
+                        evidenceObservationId: z.string().nullable().optional(),
+                      })
+                      .passthrough(),
+                  ),
+                  chosenPosition: z.number(),
+                  claims: z.array(
+                    z.object({ text: z.string(), observationId: z.string() }),
+                  ),
+                  feedbackConsideration: z.string().nullable().optional(),
+                })
+                .passthrough(),
+              body_hash: z.string(),
+              created_at: z.string(),
+              authority_state: z.literal("PREPARATION_ONLY"),
+              effect_authorized: z.literal(false),
+              feedback: z.array(
+                z.object({
+                  id: z.string(),
+                  decision: z.string(),
+                  target: z.string(),
+                  comment: z.string().nullable(),
+                  actorId: z.string(),
+                  createdAt: z.string(),
+                }),
+              ),
+            }),
+          )
+          .optional(),
+        candidateMessageBindings: z
+          .array(
+            z.object({
+              candidate_id: z.string(),
+              cycle_id: z.string(),
+              account_id: z.string(),
+              proposal_id: z.string(),
+              proposal_hash: z.string(),
+              message_id: z.string(),
+              message_version: z.number(),
+              payload_hash: z.string(),
+              message_text: z.string(),
+              created_at: z.string(),
+              proposal_current: z.boolean(),
+              message_current: z.boolean(),
+              mandate_current: z.boolean(),
+              authority_state: z.literal("REHEARSAL_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
+        commercialRoutes: z
+          .array(
+            z.object({
+              proposal_id: z.string(),
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              proposal_version: z.number(),
+              proposal_hash: z.string(),
+              identity_state: z.string(),
+              archived: z.boolean(),
+              cycle_active: z.boolean(),
+              admission_state: z.string().nullable(),
+              account_id: z.string().nullable(),
+              account_stage: z.string().nullable(),
+              research_outcome: z.string().nullable(),
+              person_evidence_present: z.boolean(),
+              supported_email_present: z.boolean(),
+              suppressed: z.boolean(),
+              crm_observed_state: z.string().nullable(),
+              prior_effect_attempts: z.number(),
+              unresolved_effect: z.boolean(),
+              effects_disabled: z.boolean(),
+              authority_state: z.literal("READINESS_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+              next_gate: z.string(),
+              blockers: z.array(z.string()),
+            }),
+          )
+          .optional(),
+        buyerMessagePreviews: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              proposal_id: z.string(),
+              proposal_version: z.number(),
+              proposal_hash: z.string(),
+              account_id: z.string().nullable(),
+              identity_state: z.string(),
+              admission_state: z.string().nullable(),
+              next_gate: z.string(),
+              blockers: z.array(z.string()),
+              draft_subject: z.string(),
+              draft_message: z.string(),
+              draft_question: z.string(),
+              evidence_snapshot: z.array(z.unknown()),
+              buyer_result_id: z.string().nullable(),
+              buyer_current: z.boolean(),
+              buyer_messageability: z.string(),
+              buyer_state: z.string().nullable(),
+              contact_state: z.string().nullable(),
+              message_id: z.string().nullable(),
+              message_version: z.number().nullable(),
+              proposal_current: z.boolean().nullable(),
+              message_current: z.boolean().nullable(),
+              mandate_current: z.boolean().nullable(),
+              preview_gate: z.string(),
+              authority_state: z.literal("READ_ONLY_UNVALIDATED_DRAFT"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
+        contactEvidencePreviews: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              identity_state: z.string(),
+              archived: z.boolean(),
+              admission_state: z.string().nullable(),
+              account_id: z.string().nullable(),
+              research_outcome: z.string().nullable(),
+              canonical_identity_match: z.boolean().nullable(),
+              person_count: z.number(),
+              current_person_count: z.number(),
+              supported_email_count: z.number(),
+              stale_email_count: z.number(),
+              conflicted_email_count: z.number(),
+              suppressed: z.boolean(),
+              crm_observed_state: z.string().nullable(),
+              effects_disabled: z.boolean(),
+              next_gate: z.string(),
+              authority_state: z.literal("EVIDENCE_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
+        candidateCrmObservations: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              proposal_id: z.string(),
+              account_id: z.string().nullable(),
+              bound_message_id: z.string().nullable(),
+              crm_intent_id: z.string().nullable(),
+              crm_state: z.string().nullable(),
+              crm_message_matches: z.boolean(),
+              company_mapped: z.boolean(),
+              contact_mapped: z.boolean(),
+              association_evidence_origin: z.string().nullable(),
+              association_observed: z.boolean(),
+              review_gate: z.string(),
+              authority_state: z.literal("OBSERVATION_ONLY"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
+        roleClaimInventories: z
+          .array(
+            z.object({
+              cycle_id: z.string(),
+              candidate_id: z.string(),
+              account_id: z.string().nullable(),
+              contact_gate: z.string(),
+              raw_role_claim_people: z.number(),
+              current_first_party_role_claim_people: z.number(),
+              explicit_conflict_people: z.number(),
+              conflicting_role_people: z.number(),
+              review_gate: z.string(),
+              authority_state: z.literal("UNINTERPRETED_ROLE_CLAIMS"),
+              executable: z.literal(false),
+              effect_authorized: z.literal(false),
+            }),
+          )
+          .optional(),
         workAllocation: z
           .array(
             z.object({
@@ -896,6 +1103,14 @@ export const acquisitionApi = {
                 }),
               ),
               decisions: z.array(z.unknown()),
+              historyOmissions: z
+                .object({
+                  origins: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  investigations: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  decisions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  executions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                })
+                .optional(),
             }),
           )
           .optional(),
@@ -991,7 +1206,22 @@ export const acquisitionApi = {
           missions: z.number(),
           candidates: z.number(),
           planning: z.number(),
+          allocationComparisons: z.number().optional(),
+          learningWaves: z.number().optional(),
+          routineOperatingSessions: z.number().optional(),
         }),
+        historyOmissions: z
+          .object({
+            allocationComparisons: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+            learningWaves: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+            routineOperatingSessions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+            candidateJourneyEvents: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }).optional(),
+          })
+          .optional(),
+        historicalCollections: z.record(z.string(), z.object({
+          fetched: z.number(), shown: z.number(), omittedFromFetched: z.number(),
+          sourceReadLimit: z.number(), mayHaveMoreAtSource: z.boolean(),
+        })).optional(),
       }),
     ),
   activationPreflight: () =>
@@ -1097,6 +1327,40 @@ export const acquisitionApi = {
         body: JSON.stringify({
           commandId,
           request: { operation: action, candidateId, reason },
+        }),
+      },
+    ),
+  conversationFeedback: (
+    commandId: string,
+    proposalId: string,
+    decision: "APPROVE" | "COMMENT" | "CORRECT",
+    target:
+      "PATTERN" | "POSITION" | "EVIDENCE" | "QUESTION" | "MESSAGE" | "GENERAL",
+    comment: string,
+    csrf: string,
+  ) =>
+    request(
+      "/commands/discovery",
+      z.object({
+        status: z.string(),
+        proposalId: z.string(),
+        candidateId: z.string(),
+        effectCreated: z.literal(false),
+        wakeRequired: z.literal(false),
+        blocking: z.literal(false),
+      }),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({
+          commandId,
+          request: {
+            operation: "RECORD_CONVERSATION_FEEDBACK",
+            proposalId,
+            decision,
+            target,
+            comment,
+          },
         }),
       },
     ),

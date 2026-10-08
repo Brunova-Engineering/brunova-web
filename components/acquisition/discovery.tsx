@@ -269,9 +269,24 @@ export function DiscoverySection({
                 </ul>
               </details>
             )}
+            {data.historicalCollections && Object.values(data.historicalCollections).some((entry) => entry.omittedFromFetched > 0 || entry.mayHaveMoreAtSource) && (
+              <p className="acq-muted">
+                {es
+                  ? `La vista omite ${Object.values(data.historicalCollections).reduce((sum, entry) => sum + entry.omittedFromFetched, 0)} filas históricas leídas; algunas colecciones pueden tener filas anteriores fuera del límite de lectura. Consulta el Engine para el historial completo.`
+                  : `This view omits ${Object.values(data.historicalCollections).reduce((sum, entry) => sum + entry.omittedFromFetched, 0)} fetched historical rows; some collections may have older rows beyond the read limit. Consult the Engine for full history.`}
+              </p>
+            )}
             {routineSession && (
               <section aria-label={es ? "Última ventana" : "Latest window"}>
                 <h3>{es ? "Última ventana" : "Latest window"}</h3>
+                {data.historyOmissions &&
+                  Object.values(data.historyOmissions).some((entry) => (entry?.omitted ?? 0) > 0) && (
+                    <p className="acq-muted">
+                      {es
+                        ? `Vista reciente: ${data.historyOmissions.allocationComparisons.omitted} comparaciones, ${data.historyOmissions.learningWaves.omitted} olas, ${data.historyOmissions.routineOperatingSessions.omitted} sesiones y ${data.historyOmissions.candidateJourneyEvents?.omitted ?? 0} eventos de investigación anteriores omitidos. Los registros durables permanecen en el Engine.`
+                        : `Recent view: ${data.historyOmissions.allocationComparisons.omitted} comparisons, ${data.historyOmissions.learningWaves.omitted} waves, ${data.historyOmissions.routineOperatingSessions.omitted} sessions and ${data.historyOmissions.candidateJourneyEvents?.omitted ?? 0} older investigation events omitted. Durable records remain in the Engine.`}
+                    </p>
+                  )}
                 <p>
                   <strong>{routineSession.status.replaceAll("_", " ")}</strong>{" "}
                   · 17:00–19:00 America/Mexico_City ·{" "}
@@ -1080,6 +1095,14 @@ export function DiscoverySection({
                                 ? " Sin admisión a Account ni investigación posterior. Revisión de Management antes de decidir otro paso; no se ha descartado por falta de evidencia."
                                 : " No Account admission or downstream research. Management review precedes another step; missing evidence is not dismissal.")}
                           </p>
+                          {j.historyOmissions &&
+                            Object.values(j.historyOmissions).some((entry) => entry.omitted > 0) && (
+                              <p className="acq-muted">
+                                {es
+                                  ? "Este recorrido muestra evidencia reciente; el historial anterior permanece en el Engine."
+                                  : "This journey shows recent evidence; older history remains in the Engine."}
+                              </p>
+                            )}
                           {(j.executions ?? []).map((execution) => (
                             <section key={execution.workItemId}>
                               <h5>
