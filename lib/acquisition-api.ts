@@ -353,14 +353,23 @@ export const acquisitionApi = {
               z.object({ parentId: z.string(), relation: z.string() }),
             ),
             claims: z.array(
-              z.object({
-                statement: z.string(),
-                source_url: z.string().nullable(),
-                excerpt: z.string().nullable(),
-                searchQuery: z.string().nullable(),
-                status: z.enum(["OBSERVED", "INFERRED", "UNVERIFIED"]),
-                observedAt: z.string(),
-              }),
+              z
+                .object({
+                  statement: z.string(),
+                  // The Engine map stores claims as JSON with camelCase keys.
+                  // Older projections used source_url, so accept both at the
+                  // boundary and keep one shape for the view.
+                  source_url: z.string().nullable().optional(),
+                  sourceUrl: z.string().nullable().optional(),
+                  excerpt: z.string().nullable(),
+                  searchQuery: z.string().nullable(),
+                  status: z.enum(["OBSERVED", "INFERRED", "UNVERIFIED"]),
+                  observedAt: z.string(),
+                })
+                .transform(({ sourceUrl, ...claim }) => ({
+                  ...claim,
+                  source_url: claim.source_url ?? sourceUrl ?? null,
+                })),
             ),
             created_at: z.string(),
             updated_at: z.string(),
