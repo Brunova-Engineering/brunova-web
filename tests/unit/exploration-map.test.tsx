@@ -13,10 +13,11 @@ it("reveals every recorded branch one level at a time and keeps company context"
     label: string,
     parentId?: string,
     attributes: Record<string, string | string[]> = {},
+    market: "MX" | "US" = "MX",
   ) => ({
     id,
     cycle_id: "cycle-1",
-    market: "MX" as const,
+    market,
     kind,
     label,
     state: "PENDING",
@@ -27,7 +28,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
     claims: [
       {
         statement: label,
-        sourceUrl: `https://${id}.example/`,
+        source_url: `https://${id}.example/`,
         excerpt: null,
         searchQuery: null,
         status: "UNVERIFIED" as const,
@@ -48,6 +49,14 @@ it("reveals every recorded branch one level at a time and keeps company context"
         updated_at: now,
         focus_chain_id: null,
       },
+      {
+        cycle_id: "cycle-1",
+        market: "US" as const,
+        version: 4,
+        active_node_id: null,
+        updated_at: now,
+        focus_chain_id: null,
+      },
     ],
     nodes: [
       node("macro", "MACRO_INDUSTRY", "Alimentos"),
@@ -55,8 +64,10 @@ it("reveals every recorded branch one level at a time and keeps company context"
       node("specialty-2", "SPECIALTY", "Harinas", "macro"),
       node("activity", "ACTIVITY", "Molienda", "specialty"),
       node("chain", "SUPPLY_CHAIN", "Nixtamalización", "activity"),
+      node("chain-us", "SUPPLY_CHAIN", "Nixtamalization", "activity", {}, "US"),
       node("chain-2", "SUPPLY_CHAIN", "Abastecimiento", "activity"),
       node("link", "LINK", "Lavado", "chain"),
+      node("link-us", "LINK", "Grinding", "chain-us", {}, "US"),
       node("cintli", "COMPANY_LEAD", "Cintli", "link", {
         activity: "Muele maíz",
         scaleSignal: "Operación local",
@@ -69,6 +80,17 @@ it("reveals every recorded branch one level at a time and keeps company context"
         scaleSignal: "Molino local",
         chainRole: "PROSPECT",
       }),
+      node(
+        "mill-us",
+        "COMPANY_LEAD",
+        "Midwest Milling",
+        "link-us",
+        {
+          activity: "Corn milling",
+          chainRole: "PROSPECT",
+        },
+        "US",
+      ),
     ],
     directives: [],
     chainProgress: [
@@ -97,9 +119,84 @@ it("reveals every recorded branch one level at a time and keeps company context"
         delivery_status: "IN_PROGRESS" as const,
       },
     ],
+    governance: [
+      {
+        node_id: "macro",
+        decision: "REOPENED",
+        priority: 3,
+        reason: "Strategic fit",
+        actor_id: "actor-1",
+        updated_at: now,
+        history: [
+          {
+            operation: "PAUSE_BRANCH",
+            reason: "Earlier review",
+            actor_id: "actor-2",
+            recorded_at: now,
+          },
+        ],
+      },
+    ],
+    marketPresence: [
+      {
+        node_id: "link",
+        market: "US" as const,
+        status: "OBSERVED",
+        relation: "Equivalent function",
+        source_url: "https://evidence.example/us-function",
+      },
+    ],
+    chainEquivalences: [
+      {
+        chain_id: "chain",
+        counterpart_id: "chain-us",
+        reason: "Same transformation stage",
+      },
+      {
+        chain_id: "chain-us",
+        counterpart_id: "chain",
+        reason: "Same transformation stage",
+      },
+    ],
+    chainCoverage: [
+      {
+        chain_id: "chain",
+        market: "MX" as const,
+        status: "ATTEMPTED" as const,
+        summary: "Initial supplier search completed",
+        open_gaps: ["Regional processors", "Transport providers"],
+        directive_ids: ["directive-1"],
+        actor_id: "actor-1",
+        updated_at: now,
+      },
+      {
+        chain_id: "chain-us",
+        market: "US" as const,
+        status: "EXHAUSTED" as const,
+        summary: "Current research avenues exhausted",
+        open_gaps: ["Secondary processors"],
+        directive_ids: [],
+        actor_id: "actor-2",
+        updated_at: now,
+      },
+    ],
   }
   vi.spyOn(acquisitionApi, "explorationMap").mockResolvedValue(payload)
-  render(<ExplorationMap cycleId="cycle-1" locale="es" />)
+  const humanDecision = vi
+    .spyOn(acquisitionApi, "explorationHumanDecision")
+    .mockResolvedValue({ status: "RECORDED", mapVersion: 3 })
+  render(
+    <ExplorationMap
+      cycleId="cycle-1"
+      locale="es"
+      session={{
+        authenticated: true,
+        actor: { email: "manager@example.com", capabilities: ["MANAGE_CYCLE"] },
+        csrfToken: "synthetic-csrf",
+        expiresAt: now,
+      }}
+    />,
+  )
 
   const route = await screen.findByRole("list", {
     name: "Recorrido de industria a empresa",
@@ -108,6 +205,36 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(
     screen.getByRole("group", { name: "Opciones de Macroindustria" }),
   ).toHaveTextContent("Alimentos")
+  expect(screen.getByText("Strategic fit")).toBeVisible()
+  expect(screen.getByText(/Rama reabierta/)).toBeVisible()
+  expect(screen.getByText(/Anterior: PAUSE BRANCH/)).toBeVisible()
+  const decisionForm = screen
+    .getByText("Registrar decisión")
+    .closest("details")!
+  fireEvent.click(screen.getByText("Registrar decisión"))
+  fireEvent.change(within(decisionForm).getByLabelText("Acción"), {
+    target: { value: "PAUSE_BRANCH" },
+  })
+  fireEvent.change(within(decisionForm).getByLabelText("Motivo requerido"), {
+    target: { value: "Pause pending evidence" },
+  })
+  fireEvent.click(
+    within(decisionForm).getByRole("button", { name: "Guardar decisión" }),
+  )
+  await vi.waitFor(() =>
+    expect(humanDecision).toHaveBeenCalledWith(
+      expect.any(String),
+      {
+        cycleId: "cycle-1",
+        market: "MX",
+        nodeId: "macro",
+        operation: "PAUSE_BRANCH",
+        reason: "Pause pending evidence",
+        expectedVersion: 2,
+      },
+      "synthetic-csrf",
+    ),
+  )
   expect(
     screen.queryByRole("group", { name: "Opciones de Cadena de suministro" }),
   ).not.toBeInTheDocument()
@@ -135,20 +262,49 @@ it("reveals every recorded branch one level at a time and keeps company context"
   })
   expect(chains).toHaveTextContent("Nixtamalización")
   expect(chains).toHaveTextContent("Abastecimiento")
+  expect(chains).toHaveTextContent("US · Nixtamalization")
+  expect(
+    within(chains).getAllByText(/^Cadena equivalente explícita/),
+  ).toHaveLength(1)
   expect(chains).toHaveTextContent("cobertura sin confirmar")
+  expect(chains).toHaveTextContent("Búsqueda intentada")
+  expect(chains).toHaveTextContent("Investigación agotada")
+  expect(chains).toHaveTextContent("Regional processors")
+  expect(chains).toHaveTextContent(
+    "no confirma que se hayan encontrado todos los eslabones",
+  )
   fireEvent.click(
     within(chains).getByRole("button", { name: /Nixtamalización/ }),
   )
+  const links = screen.getByRole("group", {
+    name: "Opciones de Eslabón o función",
+  })
+  expect(links).toHaveTextContent("Lavado")
+  expect(links).toHaveTextContent("Grinding")
+  expect(links).toHaveTextContent("MX · México")
+  expect(links).toHaveTextContent("US · Estados Unidos")
+  expect(
+    screen.getByText(/Observado · evidencia/).closest("p"),
+  ).toHaveTextContent("Equivalent function")
+  expect(
+    screen.getByRole("link", { name: "Fuente: evidence.example" }),
+  ).toHaveAttribute("href", "https://evidence.example/us-function")
+  fireEvent.click(within(links).getByRole("button", { name: /Grinding/ }))
+  let companies = screen.getByRole("group", {
+    name: "Opciones de Empresa candidata",
+  })
+  expect(companies).toHaveTextContent("Midwest Milling")
+  expect(companies).toHaveTextContent("US · Estados Unidos")
   fireEvent.click(
-    within(
-      screen.getByRole("group", { name: "Opciones de Eslabón o función" }),
-    ).getByRole("button", { name: /Lavado/ }),
+    within(route).getByRole("button", { name: /5\. Eslabón o función/ }),
   )
-  const companies = screen.getByRole("group", {
+  fireEvent.click(within(links).getByRole("button", { name: /Lavado/ }))
+  companies = screen.getByRole("group", {
     name: "Opciones de Empresa candidata",
   })
   expect(companies).toHaveTextContent("Cintli")
   expect(companies).toHaveTextContent("Molino El Obrero")
+  expect(companies).toHaveTextContent("MX · México")
   fireEvent.click(within(companies).getByRole("button", { name: /Cintli/ }))
   expect(within(route).getByText("Cintli")).toBeVisible()
   expect(screen.getByText("Muele maíz")).toBeVisible()
