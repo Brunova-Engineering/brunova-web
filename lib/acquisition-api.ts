@@ -322,6 +322,21 @@ const poolItemSchema = z.object({
 })
 export type CyclePoolItem = z.infer<typeof poolItemSchema>
 export const acquisitionApi = {
+  explorationMap: (cycle: string) =>
+    request(`/exploration/map?cycleId=${id(cycle)}`, z.object({
+      cycleId: z.string(),
+      headers: z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),version:z.number(),
+        active_node_id:z.string().nullable(),updated_at:z.string()})),
+      nodes: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.enum(['MX','US']),
+        kind:z.string(),label:z.string(),state:z.string(),attributes:z.record(z.string(),z.string()),
+        parents:z.array(z.object({parentId:z.string(),relation:z.string()})),
+        claims:z.array(z.object({statement:z.string(),sourceUrl:z.string().nullable(),excerpt:z.string().nullable(),
+          searchQuery:z.string().nullable(),status:z.enum(['OBSERVED','INFERRED','UNVERIFIED']),observedAt:z.string()})),
+        created_at:z.string(),updated_at:z.string()})),
+      directives: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.string(),node_id:z.string().nullable(),
+        target_kind:z.string(),instruction:z.string(),status:z.string(),executed_session_id:z.string().nullable(),
+        result_count:z.number(),last_error_code:z.string().nullable(),created_at:z.string(),completed_at:z.string().nullable()}).passthrough()),
+    })),
   buyerPackage: (cycle: string, account: string) =>
     request(
       `/cycles/${id(cycle)}/accounts/${id(account)}/buyer-dry-run`,

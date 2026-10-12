@@ -10,6 +10,7 @@ import { OutreachState } from "./outreach-state"
 import { DiscoveryHealth } from "./discovery-health"
 import { OpportunityPool, CycleAttention } from "./operating-overview"
 import { ManagementOverview } from "./management-overview"
+import { ExplorationMap } from "./exploration-map"
 import { EvidenceDimensions } from "./evidence-dimensions"
 import { ProblemOwner } from "./problem-owner"
 import {
@@ -418,6 +419,7 @@ export function AcquisitionPortal({
       <nav className="acq-tabs" aria-label={t("Secciones de Adquisición")}>
         {[
           ["Overview", locale === "es" ? "Resumen" : "Overview"],
+          ["Exploration", locale === "es" ? "Exploración" : "Exploration"],
           [
             "Opportunities",
             locale === "es" ? "Oportunidades" : "Opportunities",
@@ -437,6 +439,7 @@ export function AcquisitionPortal({
         ))}
       </nav>
       <div id="acq-active-panel" aria-live="off">
+        {tab === "Exploration" && cycle && <ExplorationMap key={`${cycleId}:${projectionRevision}`} cycleId={cycleId} locale={locale} />}
         {tab === "SystemStatus" && (
           <section className="acq-section-heading">
             <div>
