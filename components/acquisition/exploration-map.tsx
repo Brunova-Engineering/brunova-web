@@ -240,7 +240,7 @@ export function ExplorationMap({
                 <strong>{chain.chain_label}</strong>
                 <small>
                   {locale === "es"
-                    ? `${chain.link_count} eslabones · ${chain.prospect_hint_count} empresas plausibles`
+                    ? `${chain.link_count} ${chain.link_count === 1 ? "eslabón" : "eslabones"} · ${chain.prospect_hint_count} ${chain.prospect_hint_count === 1 ? "empresa plausible" : "empresas plausibles"}`
                     : `${chain.link_count} links · ${chain.prospect_hint_count} plausible firms`}
                 </small>
               </button>
