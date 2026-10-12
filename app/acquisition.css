@@ -770,8 +770,8 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   align-self: start;
   background: var(--color-background);
   position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 2rem);
+  top: 5rem;
+  max-height: calc(100vh - 6rem);
   overflow: auto;
 }
 .acq-zoom-company h4 {

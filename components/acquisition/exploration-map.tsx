@@ -270,8 +270,8 @@ export function ExplorationMap({
                 </div>
                 <span className="acq-state">
                   {locale === "es"
-                    ? `${options.length} opciones registradas`
-                    : `${options.length} recorded`}
+                    ? `${options.length} ${options.length === 1 ? "opción registrada" : "opciones registradas"}`
+                    : `${options.length} recorded ${options.length === 1 ? "option" : "options"}`}
                 </span>
               </div>
               {parent && <p className="acq-muted">{parent.label}</p>}
