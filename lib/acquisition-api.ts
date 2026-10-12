@@ -339,7 +339,7 @@ export const acquisitionApi = {
       chainProgress:z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),chain_id:z.string(),
         chain_label:z.string(),link_count:z.coerce.number(),company_lead_count:z.coerce.number(),
         anchor_hint_count:z.coerce.number(),prospect_hint_count:z.coerce.number(),focused:z.boolean(),
-        delivery_status:z.enum(['IN_PROGRESS','READY_FOR_REVIEW'])})),
+        delivery_status:z.enum(['IN_PROGRESS','READY_FOR_REVIEW','DELIVERED'])})),
     })),
   buyerPackage: (cycle: string, account: string) =>
     request(

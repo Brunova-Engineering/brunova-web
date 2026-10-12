@@ -34,9 +34,11 @@ export function ExplorationMap({cycleId,locale}:{cycleId:string;locale:Locale}){
    <ul>{data.chainProgress.map(chain=><li key={chain.chain_id}>
     <strong>{chain.chain_label}</strong> · {chain.market}
     {chain.focused&&<> · {locale==="es"?"foco actual":"current focus"}</>}
-    {' · '}{chain.delivery_status==='READY_FOR_REVIEW'
-     ?locale==="es"?"lista para revisar":"ready for review"
-     :locale==="es"?"en investigación":"in progress"}
+    {' · '}{chain.delivery_status==='DELIVERED'
+     ?locale==="es"?"cadena investigada":"chain researched"
+     :chain.delivery_status==='READY_FOR_REVIEW'
+      ?locale==="es"?"lista para revisar":"ready for review"
+      :locale==="es"?"en investigación":"in progress"}
     <div className="acq-muted">{locale==="es"
      ?`${chain.link_count} eslabones · ${chain.anchor_hint_count} anclas posibles · ${chain.prospect_hint_count} empresas con señales de escala y acceso · ${chain.company_lead_count} pistas de empresas`
      :`${chain.link_count} links · ${chain.anchor_hint_count} possible anchors · ${chain.prospect_hint_count} firms with scale and access hints · ${chain.company_lead_count} company leads`}</div>
