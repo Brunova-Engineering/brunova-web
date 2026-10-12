@@ -112,6 +112,7 @@ export function ManagementOverview({
   )
   const contacted = candidates.filter((candidate) => candidate.contacted)
   const latest = discovery.routineOperatingSessions?.[0]
+  const timeOnly = latest?.capacity.dailyAdmissionLimitEnforced === false
   const interrupted = latest?.operational_status === "INTERRUPTED"
   const running = latest?.operational_status === "ACTIVE"
   const executed = latest ? countExecuted(latest) : 0
@@ -140,8 +141,9 @@ export function ManagementOverview({
   const semanticBypasses = semantic.filter(
     (entry) => entry.status === "BYPASSED_DETERMINISTIC_NO_YIELD",
   ).length
-  const closingBoundary =
-    unitBudget > 0 && unitsUsed >= unitBudget
+  const closingBoundary = timeOnly
+    ? latest?.early_stop_reason?.replaceAll("_", " ").toLocaleLowerCase() ?? null
+    : unitBudget > 0 && unitsUsed >= unitBudget
       ? es
         ? `límite de ${unitBudget} slots alcanzado`
         : `${unitBudget}-slot limit reached`
@@ -280,15 +282,16 @@ export function ManagementOverview({
                     : "Recorded execution and its limits are available in Opportunities."}
               </p>
               <div className="acq-inline-facts">
-                <span>
-                  {executed}{" "}
-                  {es
-                    ? "tareas de investigación ejecutadas"
-                    : "research tasks executed"}
-                </span>
-                <span>
-                  {requests} {es ? "consultas de fuente" : "source requests"}
-                </span>
+                {timeOnly ? (
+                  <span>{es
+                    ? "La actividad del mapa se registra en Exploración"
+                    : "Map activity is recorded in Exploration"}</span>
+                ) : (
+                  <>
+                    <span>{executed} {es ? "tareas de investigación ejecutadas" : "research tasks executed"}</span>
+                    <span>{requests} {es ? "consultas de fuente" : "source requests"}</span>
+                  </>
+                )}
                 {running ? (
                   <span>
                     {wallMinutes} {es ? "min de reloj" : "wall-clock min"}
@@ -323,11 +326,13 @@ export function ManagementOverview({
                     ? "Las decisiones comparativas consumen un slot de decisión, no una unidad de investigación ejecutada."
                     : "Comparative decisions consume a decision slot, not an executed research unit."}{" "}
                   {es ? "Slots registrados" : "Recorded slots"}:{" "}
-                  {unitBudget > 0 ? `${unitsUsed} / ${unitBudget}` : unitsUsed}.{" "}
-                  {requestBudget > 0 &&
-                    `${requests} / ${requestBudget} ${es ? "consultas" : "requests"}. `}
-                  {minuteBudget > 0 &&
-                    `${minutesUsed} / ${minuteBudget} ${es ? "minutos efectivos" : "effective minutes"}.`}
+                  {timeOnly
+                    ? es
+                      ? "Los contadores heredados no limitan esta ventana."
+                      : "Legacy counters do not limit this window."
+                    : <>{unitBudget > 0 ? `${unitsUsed} / ${unitBudget}` : unitsUsed}.{" "}
+                        {requestBudget > 0 && `${requests} / ${requestBudget} ${es ? "consultas" : "requests"}. `}
+                        {minuteBudget > 0 && `${minutesUsed} / ${minuteBudget} ${es ? "minutos efectivos" : "effective minutes"}.`}</>}
                 </p>
                 <p>
                   {es ? "Evaluación semántica" : "Semantic evaluation"}: {semanticSuccesses} {es ? "exitosas" : "successful"}, {semanticTimeouts} timeout, {semanticBypasses} {es ? "atajos deterministas sin yield" : "deterministic no-yield bypasses"}.
@@ -346,9 +351,13 @@ export function ManagementOverview({
                     ` · ${es ? "límite determinante" : "binding limit"}: ${closingBoundary}`}
                 </p>
                 <p className="acq-muted">
-                  {es
-                    ? "La ventana de 110 minutos es capacidad máxima, no una duración obligatoria; la sesión cierra cuando alcanza primero un límite o ya no existe trabajo autorizado con valor suficiente."
-                    : "The 110-minute window is maximum capacity, not a required duration; the session closes when it first reaches a limit or no sufficiently valuable authorized work remains."}
+                  {timeOnly
+                    ? es
+                      ? "La ventana dura hasta dos horas desde su inicio. Puede cancelarse manualmente; los topes diarios heredados no la cierran."
+                      : "The window lasts up to two hours from its start. It can be cancelled manually; legacy daily quotas do not close it."
+                    : es
+                      ? "La ventana de 110 minutos es capacidad máxima, no una duración obligatoria; la sesión cierra cuando alcanza primero un límite o ya no existe trabajo autorizado con valor suficiente."
+                      : "The 110-minute window is maximum capacity, not a required duration; the session closes when it first reaches a limit or no sufficiently valuable authorized work remains."}
                 </p>
               </details>
             </>
