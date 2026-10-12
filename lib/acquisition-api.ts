@@ -326,7 +326,7 @@ export const acquisitionApi = {
     request(`/exploration/map?cycleId=${id(cycle)}`, z.object({
       cycleId: z.string(),
       headers: z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),version:z.number(),
-        active_node_id:z.string().nullable(),updated_at:z.string()})),
+        active_node_id:z.string().nullable(),updated_at:z.string(),focus_chain_id:z.string().nullable()})),
       nodes: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.enum(['MX','US']),
         kind:z.string(),label:z.string(),state:z.string(),attributes:z.record(z.string(),z.string()),
         parents:z.array(z.object({parentId:z.string(),relation:z.string()})),
@@ -336,6 +336,10 @@ export const acquisitionApi = {
       directives: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.string(),node_id:z.string().nullable(),
         target_kind:z.string(),instruction:z.string(),status:z.string(),executed_session_id:z.string().nullable(),
         result_count:z.number(),last_error_code:z.string().nullable(),created_at:z.string(),completed_at:z.string().nullable()}).passthrough()),
+      chainProgress:z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),chain_id:z.string(),
+        chain_label:z.string(),link_count:z.coerce.number(),company_lead_count:z.coerce.number(),
+        anchor_hint_count:z.coerce.number(),prospect_hint_count:z.coerce.number(),focused:z.boolean(),
+        delivery_status:z.enum(['IN_PROGRESS','READY_FOR_REVIEW'])})),
     })),
   buyerPackage: (cycle: string, account: string) =>
     request(

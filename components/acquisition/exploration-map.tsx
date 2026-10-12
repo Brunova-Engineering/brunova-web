@@ -28,6 +28,19 @@ export function ExplorationMap({cycleId,locale}:{cycleId:string;locale:Locale}){
   {data&&!data.nodes.length&&<p className="acq-muted">{locale==="es"?"Todavía no hay una exploración dirigida registrada.":"No directed exploration has been recorded yet."}</p>}
   {data&&data.nodes.length>0&&<>
    <p className="acq-muted">{locale==="es"?"El mapa conserva pistas aunque una fuente no responda. Solo las relaciones corroboradas se muestran como observadas.":"The map retains leads when a source fails. Only corroborated relationships appear as observed."}</p>
+   <h3>{locale==="es"?"Entrega por cadena":"Delivery by chain"}</h3>
+   <p className="acq-muted">{locale==="es"?"Estos conteos son pistas preliminares. Listo para revisar no significa cliente verificado ni autoriza contacto.":"These counts are preliminary leads. Ready for review does not mean a verified customer or authorize contact."}</p>
+   {data.chainProgress.length===0&&<p className="acq-muted">{locale==="es"?"Aún no se ha descubierto una cadena.":"No supply chain has been discovered yet."}</p>}
+   <ul>{data.chainProgress.map(chain=><li key={chain.chain_id}>
+    <strong>{chain.chain_label}</strong> · {chain.market}
+    {chain.focused&&<> · {locale==="es"?"foco actual":"current focus"}</>}
+    {' · '}{chain.delivery_status==='READY_FOR_REVIEW'
+     ?locale==="es"?"lista para revisar":"ready for review"
+     :locale==="es"?"en investigación":"in progress"}
+    <div className="acq-muted">{locale==="es"
+     ?`${chain.link_count} eslabones · ${chain.anchor_hint_count} anclas posibles · ${chain.prospect_hint_count} empresas con señales de escala y acceso · ${chain.company_lead_count} pistas de empresas`
+     :`${chain.link_count} links · ${chain.anchor_hint_count} possible anchors · ${chain.prospect_hint_count} firms with scale and access hints · ${chain.company_lead_count} company leads`}</div>
+   </li>)}</ul>
    {data.headers.map(header=><section key={header.market}>
     <h3>{header.market==="MX"?locale==="es"?"México":"Mexico":locale==="es"?"Estados Unidos":"United States"}</h3>
     <ul>
