@@ -323,24 +323,165 @@ const poolItemSchema = z.object({
 export type CyclePoolItem = z.infer<typeof poolItemSchema>
 export const acquisitionApi = {
   explorationMap: (cycle: string) =>
-    request(`/exploration/map?cycleId=${id(cycle)}`, z.object({
-      cycleId: z.string(),
-      headers: z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),version:z.number(),
-        active_node_id:z.string().nullable(),updated_at:z.string(),focus_chain_id:z.string().nullable()})),
-      nodes: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.enum(['MX','US']),
-        kind:z.string(),label:z.string(),state:z.string(),attributes:z.record(z.string(),z.union([z.string(),z.array(z.string())])),
-        parents:z.array(z.object({parentId:z.string(),relation:z.string()})),
-        claims:z.array(z.object({statement:z.string(),sourceUrl:z.string().nullable(),excerpt:z.string().nullable(),
-          searchQuery:z.string().nullable(),status:z.enum(['OBSERVED','INFERRED','UNVERIFIED']),observedAt:z.string()})),
-        created_at:z.string(),updated_at:z.string()})),
-      directives: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.string(),node_id:z.string().nullable(),
-        target_kind:z.string(),instruction:z.string(),status:z.string(),executed_session_id:z.string().nullable(),
-        result_count:z.number(),last_error_code:z.string().nullable(),created_at:z.string(),completed_at:z.string().nullable()}).passthrough()),
-      chainProgress:z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),chain_id:z.string(),
-        chain_label:z.string(),link_count:z.coerce.number(),company_lead_count:z.coerce.number(),
-        anchor_hint_count:z.coerce.number(),prospect_hint_count:z.coerce.number(),focused:z.boolean(),
-        delivery_status:z.enum(['IN_PROGRESS','READY_FOR_REVIEW','DELIVERED'])})),
-    })),
+    request(
+      `/exploration/map?cycleId=${id(cycle)}`,
+      z.object({
+        cycleId: z.string(),
+        headers: z.array(
+          z.object({
+            cycle_id: z.string(),
+            market: z.enum(["MX", "US"]),
+            version: z.number(),
+            active_node_id: z.string().nullable(),
+            updated_at: z.string(),
+            focus_chain_id: z.string().nullable(),
+          }),
+        ),
+        nodes: z.array(
+          z.object({
+            id: z.string(),
+            cycle_id: z.string(),
+            market: z.enum(["MX", "US"]),
+            kind: z.string(),
+            label: z.string(),
+            state: z.string(),
+            attributes: z.record(
+              z.string(),
+              z.union([z.string(), z.array(z.string())]),
+            ),
+            parents: z.array(
+              z.object({ parentId: z.string(), relation: z.string() }),
+            ),
+            claims: z.array(
+              z.object({
+                statement: z.string(),
+                source_url: z.string().nullable(),
+                excerpt: z.string().nullable(),
+                searchQuery: z.string().nullable(),
+                status: z.enum(["OBSERVED", "INFERRED", "UNVERIFIED"]),
+                observedAt: z.string(),
+              }),
+            ),
+            created_at: z.string(),
+            updated_at: z.string(),
+          }),
+        ),
+        directives: z.array(
+          z
+            .object({
+              id: z.string(),
+              cycle_id: z.string(),
+              market: z.string(),
+              node_id: z.string().nullable(),
+              target_kind: z.string(),
+              instruction: z.string(),
+              status: z.string(),
+              executed_session_id: z.string().nullable(),
+              result_count: z.number(),
+              last_error_code: z.string().nullable(),
+              created_at: z.string(),
+              completed_at: z.string().nullable(),
+            })
+            .passthrough(),
+        ),
+        chainProgress: z.array(
+          z.object({
+            cycle_id: z.string(),
+            market: z.enum(["MX", "US"]),
+            chain_id: z.string(),
+            chain_label: z.string(),
+            link_count: z.coerce.number(),
+            company_lead_count: z.coerce.number(),
+            anchor_hint_count: z.coerce.number(),
+            prospect_hint_count: z.coerce.number(),
+            focused: z.boolean(),
+            delivery_status: z.enum([
+              "IN_PROGRESS",
+              "READY_FOR_REVIEW",
+              "DELIVERED",
+            ]),
+          }),
+        ),
+        governance: z
+          .array(
+            z.object({
+              node_id: z.string(),
+              decision: z.string(),
+              priority: z.number().nullable().optional(),
+              reason: z.string().nullable(),
+              actor_id: z.string().nullable(),
+              updated_at: z.string(),
+              history: z
+                .array(
+                  z.object({
+                    operation: z.string(),
+                    reason: z.string().nullable(),
+                    actor_id: z.string().nullable(),
+                    recorded_at: z.string(),
+                  }),
+                )
+                .optional(),
+            }),
+          )
+          .default([]),
+        marketPresence: z
+          .array(
+            z.object({
+              node_id: z.string(),
+              market: z.enum(["MX", "US"]),
+              status: z.string(),
+              relation: z.string(),
+              source_url: z.string().nullable().optional(),
+            }),
+          )
+          .default([]),
+        chainEquivalences: z
+          .array(
+            z.object({
+              chain_id: z.string(),
+              counterpart_id: z.string(),
+              reason: z.string(),
+            }),
+          )
+          .default([]),
+        chainCoverage: z
+          .array(
+            z.object({
+              chain_id: z.string(),
+              market: z.enum(["MX", "US"]),
+              status: z.enum(["ATTEMPTED", "EXHAUSTED"]),
+              summary: z.string(),
+              open_gaps: z.unknown(),
+              directive_ids: z.unknown(),
+              actor_id: z.string().nullable(),
+              updated_at: z.string(),
+            }),
+          )
+          .default([]),
+      }),
+    ),
+  explorationHumanDecision: (
+    commandId: string,
+    body: {
+      cycleId: string
+      market: "MX" | "US"
+      nodeId: string
+      operation:
+        "PRIORITIZE" | "PAUSE_BRANCH" | "DISCARD_BRANCH" | "REOPEN_BRANCH"
+      reason: string
+      expectedVersion: number
+    },
+    csrf: string,
+  ) =>
+    request(
+      "/exploration/human-decisions",
+      z.object({ status: z.string(), mapVersion: z.number() }),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({ commandId, request: body }),
+      },
+    ),
   buyerPackage: (cycle: string, account: string) =>
     request(
       `/cycles/${id(cycle)}/accounts/${id(account)}/buyer-dry-run`,
@@ -1124,10 +1265,26 @@ export const acquisitionApi = {
               decisions: z.array(z.unknown()),
               historyOmissions: z
                 .object({
-                  origins: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
-                  investigations: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
-                  decisions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
-                  executions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
+                  origins: z.object({
+                    available: z.number(),
+                    shown: z.number(),
+                    omitted: z.number(),
+                  }),
+                  investigations: z.object({
+                    available: z.number(),
+                    shown: z.number(),
+                    omitted: z.number(),
+                  }),
+                  decisions: z.object({
+                    available: z.number(),
+                    shown: z.number(),
+                    omitted: z.number(),
+                  }),
+                  executions: z.object({
+                    available: z.number(),
+                    shown: z.number(),
+                    omitted: z.number(),
+                  }),
                 })
                 .optional(),
             }),
@@ -1231,16 +1388,42 @@ export const acquisitionApi = {
         }),
         historyOmissions: z
           .object({
-            allocationComparisons: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
-            learningWaves: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
-            routineOperatingSessions: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }),
-            candidateJourneyEvents: z.object({ available: z.number(), shown: z.number(), omitted: z.number() }).optional(),
+            allocationComparisons: z.object({
+              available: z.number(),
+              shown: z.number(),
+              omitted: z.number(),
+            }),
+            learningWaves: z.object({
+              available: z.number(),
+              shown: z.number(),
+              omitted: z.number(),
+            }),
+            routineOperatingSessions: z.object({
+              available: z.number(),
+              shown: z.number(),
+              omitted: z.number(),
+            }),
+            candidateJourneyEvents: z
+              .object({
+                available: z.number(),
+                shown: z.number(),
+                omitted: z.number(),
+              })
+              .optional(),
           })
           .optional(),
-        historicalCollections: z.record(z.string(), z.object({
-          fetched: z.number(), shown: z.number(), omittedFromFetched: z.number(),
-          sourceReadLimit: z.number(), mayHaveMoreAtSource: z.boolean(),
-        })).optional(),
+        historicalCollections: z
+          .record(
+            z.string(),
+            z.object({
+              fetched: z.number(),
+              shown: z.number(),
+              omittedFromFetched: z.number(),
+              sourceReadLimit: z.number(),
+              mayHaveMoreAtSource: z.boolean(),
+            }),
+          )
+          .optional(),
       }),
     ),
   activationPreflight: () =>

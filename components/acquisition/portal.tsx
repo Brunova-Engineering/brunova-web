@@ -313,7 +313,12 @@ export function AcquisitionPortal({
     }
   }
   return (
-    <main id="main-content" className="acq" data-authenticated="true" lang={locale}>
+    <main
+      id="main-content"
+      className="acq"
+      data-authenticated="true"
+      lang={locale}
+    >
       <header className="acq-heading">
         <div>
           <p className="acq-kicker">{t("Portal / Adquisición")}</p>
@@ -439,7 +444,14 @@ export function AcquisitionPortal({
         ))}
       </nav>
       <div id="acq-active-panel" aria-live="off">
-        {tab === "Exploration" && cycle && <ExplorationMap key={`${cycleId}:${projectionRevision}`} cycleId={cycleId} locale={locale} />}
+        {tab === "Exploration" && cycle && (
+          <ExplorationMap
+            key={`${cycleId}:${projectionRevision}`}
+            cycleId={cycleId}
+            locale={locale}
+            session={session}
+          />
+        )}
         {tab === "SystemStatus" && (
           <section className="acq-section-heading">
             <div>
