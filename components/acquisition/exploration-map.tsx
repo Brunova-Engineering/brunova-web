@@ -53,7 +53,7 @@ export function ExplorationMap({cycleId,locale}:{cycleId:string;locale:Locale}){
        {uncertain&&<> · {locale==="es"?"Pista por verificar":"Lead to verify"}</>}
        <div className="acq-muted">{path(node)}</div>
        {node.kind==="COMPANY_LEAD"&&<div className="acq-muted">
-        {[node.attributes.activity,node.attributes.scaleSignal,node.attributes.accessRoute].filter(Boolean).join(" · ")}
+        {[node.attributes.activity,node.attributes.scaleSignal,node.attributes.accessRoute].filter((value):value is string=>typeof value==="string"&&Boolean(value)).join(" · ")}
        </div>}
       </li>
      })}

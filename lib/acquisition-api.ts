@@ -328,7 +328,7 @@ export const acquisitionApi = {
       headers: z.array(z.object({cycle_id:z.string(),market:z.enum(['MX','US']),version:z.number(),
         active_node_id:z.string().nullable(),updated_at:z.string(),focus_chain_id:z.string().nullable()})),
       nodes: z.array(z.object({id:z.string(),cycle_id:z.string(),market:z.enum(['MX','US']),
-        kind:z.string(),label:z.string(),state:z.string(),attributes:z.record(z.string(),z.string()),
+        kind:z.string(),label:z.string(),state:z.string(),attributes:z.record(z.string(),z.union([z.string(),z.array(z.string())])),
         parents:z.array(z.object({parentId:z.string(),relation:z.string()})),
         claims:z.array(z.object({statement:z.string(),sourceUrl:z.string().nullable(),excerpt:z.string().nullable(),
           searchQuery:z.string().nullable(),status:z.enum(['OBSERVED','INFERRED','UNVERIFIED']),observedAt:z.string()})),
