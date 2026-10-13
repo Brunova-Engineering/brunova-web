@@ -61,6 +61,10 @@ function cleanExplorationText(
     return locale === "es"
       ? "Registro heredado de descubrimiento; presencia pendiente de verificación."
       : "Legacy discovery record; market presence still requires verification."
+  if (/discovered in this market; operating presence remains/i.test(value))
+    return locale === "es"
+      ? "Pista encontrada en este mercado; falta confirmar su operación."
+      : "Lead found in this market; operating presence remains unconfirmed."
   const replacements: Record<string, string> = {
     UNVERIFIED: "",
     PROSPECT: locale === "es" ? "Empresa candidata" : "Candidate company",
@@ -1330,96 +1334,103 @@ export function ExplorationMap({
                     </p>
                   )}
                   {canManage && companyProfile && (
-                    <div className="acq-company-disposition">
-                      <label>
+                    <details className="acq-company-disposition">
+                      <summary>
                         {locale === "es"
-                          ? "¿Dónde aplicar este cambio?"
-                          : "Where should this change apply?"}
-                        <select
-                          value={dispositionScope}
-                          onChange={(event) =>
-                            setDispositionScopeSelection({
-                              contextKey: dispositionContextKey,
-                              scope: event.target
-                                .value as typeof dispositionScope,
-                            })
+                          ? "Tomar una decisión sobre esta empresa"
+                          : "Decide on this company"}
+                      </summary>
+                      <div className="acq-company-disposition-content">
+                        <label>
+                          {locale === "es"
+                            ? "¿Dónde aplicar este cambio?"
+                            : "Where should this change apply?"}
+                          <select
+                            value={dispositionScope}
+                            onChange={(event) =>
+                              setDispositionScopeSelection({
+                                contextKey: dispositionContextKey,
+                                scope: event.target
+                                  .value as typeof dispositionScope,
+                              })
+                            }
+                            disabled={dispositionPending}
+                          >
+                            <option value="LINK">
+                              {locale === "es" ? "Eslabón" : "Link"} ·{" "}
+                              {selected[4]?.label}
+                            </option>
+                            <option value="CHAIN">
+                              {locale === "es" ? "Cadena" : "Chain"} ·{" "}
+                              {selected[3]?.label}
+                            </option>
+                            <option value="GLOBAL">
+                              {locale === "es"
+                                ? "Empresa completa"
+                                : "Whole company"}{" "}
+                              · {companyProfile.displayName}
+                            </option>
+                          </select>
+                        </label>
+                        <p className="acq-company-disposition-impact">
+                          {scopedDisposition
+                            ? dispositionScope === "LINK"
+                              ? locale === "es"
+                                ? "Al reabrir, este eslabón volverá a estar disponible; el estado de la empresa en otras apariciones no cambia."
+                                : "Reopening makes this link available again; the company’s status in other appearances does not change."
+                              : dispositionScope === "CHAIN"
+                                ? locale === "es"
+                                  ? "Al reabrir, esta empresa volverá a estar disponible en todos los eslabones de esta cadena."
+                                  : "Reopening makes this company available again in every link in this chain."
+                                : locale === "es"
+                                  ? "Al reabrir, esta empresa volverá a estar disponible en todas sus apariciones del mapa."
+                                  : "Reopening makes this company available again in all its map appearances."
+                            : dispositionScope === "LINK"
+                              ? locale === "es"
+                                ? "Solo se descartará este eslabón; las demás apariciones de la empresa seguirán disponibles."
+                                : "Only this link will be discarded; the company remains available in its other appearances."
+                              : dispositionScope === "CHAIN"
+                                ? locale === "es"
+                                  ? "Se descartarán todos los eslabones de esta cadena para esta empresa; otras cadenas seguirán disponibles."
+                                  : "All links for this company in this chain will be discarded; other chains remain available."
+                                : locale === "es"
+                                  ? "Se descartarán todas las apariciones de esta empresa en el mapa."
+                                  : "All appearances of this company in the map will be discarded."}
+                        </p>
+                        <label>
+                          {locale === "es"
+                            ? "Motivo (8 caracteres mínimo)"
+                            : "Reason (at least 8 characters)"}
+                          <textarea
+                            value={dispositionReason}
+                            onChange={(event) =>
+                              setDispositionReason(event.target.value)
+                            }
+                            minLength={8}
+                            maxLength={500}
+                            rows={2}
+                            disabled={dispositionPending}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={saveCompanyDisposition}
+                          disabled={
+                            dispositionPending ||
+                            dispositionReason.trim().length < 8
                           }
-                          disabled={dispositionPending}
                         >
-                          <option value="LINK">
-                            {locale === "es" ? "Eslabón" : "Link"} ·{" "}
-                            {selected[4]?.label}
-                          </option>
-                          <option value="CHAIN">
-                            {locale === "es" ? "Cadena" : "Chain"} ·{" "}
-                            {selected[3]?.label}
-                          </option>
-                          <option value="GLOBAL">
-                            {locale === "es"
-                              ? "Empresa completa"
-                              : "Whole company"}{" "}
-                            · {companyProfile.displayName}
-                          </option>
-                        </select>
-                      </label>
-                      <p className="acq-company-disposition-impact">
-                        {scopedDisposition
-                          ? dispositionScope === "LINK"
+                          {dispositionPending
                             ? locale === "es"
-                              ? "Al reabrir, este eslabón volverá a estar disponible; el estado de la empresa en otras apariciones no cambia."
-                              : "Reopening makes this link available again; the company’s status in other appearances does not change."
-                            : dispositionScope === "CHAIN"
-                              ? locale === "es"
-                                ? "Al reabrir, esta empresa volverá a estar disponible en todos los eslabones de esta cadena."
-                                : "Reopening makes this company available again in every link in this chain."
-                              : locale === "es"
-                                ? "Al reabrir, esta empresa volverá a estar disponible en todas sus apariciones del mapa."
-                                : "Reopening makes this company available again in all its map appearances."
-                          : dispositionScope === "LINK"
-                            ? locale === "es"
-                              ? "Solo se descartará este eslabón; las demás apariciones de la empresa seguirán disponibles."
-                              : "Only this link will be discarded; the company remains available in its other appearances."
-                            : dispositionScope === "CHAIN"
-                              ? locale === "es"
-                                ? "Se descartarán todos los eslabones de esta cadena para esta empresa; otras cadenas seguirán disponibles."
-                                : "All links for this company in this chain will be discarded; other chains remain available."
-                              : locale === "es"
-                                ? "Se descartarán todas las apariciones de esta empresa en el mapa."
-                                : "All appearances of this company in the map will be discarded."}
-                      </p>
-                      <label>
-                        {locale === "es"
-                          ? "Motivo (8 caracteres mínimo)"
-                          : "Reason (at least 8 characters)"}
-                        <textarea
-                          value={dispositionReason}
-                          onChange={(event) =>
-                            setDispositionReason(event.target.value)
-                          }
-                          minLength={8}
-                          maxLength={500}
-                          rows={2}
-                          disabled={dispositionPending}
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={saveCompanyDisposition}
-                        disabled={
-                          dispositionPending ||
-                          dispositionReason.trim().length < 8
-                        }
-                      >
-                        {dispositionPending
-                          ? locale === "es"
-                            ? "Registrando…"
-                            : "Recording…"
-                          : `${scopedDisposition ? (locale === "es" ? "Reabrir" : "Reopen") : locale === "es" ? "Descartar" : "Discard"} ${dispositionScopeLabel(dispositionScope, locale).toLowerCase()}`}
-                      </button>
-                      {dispositionNotice && (
-                        <p role="status">{dispositionNotice}</p>
-                      )}
-                    </div>
+                              ? "Registrando…"
+                              : "Recording…"
+                            : `${scopedDisposition ? (locale === "es" ? "Reabrir" : "Reopen") : locale === "es" ? "Descartar" : "Discard"} ${dispositionScopeLabel(dispositionScope, locale).toLowerCase()}`}
+                        </button>
+                        {dispositionNotice && (
+                          <p role="status">{dispositionNotice}</p>
+                        )}
+                      </div>
+                    </details>
                   )}
                   {data.marketPresence
                     .filter((item) => item.node_id === company.id)
@@ -1452,6 +1463,53 @@ export function ExplorationMap({
                       ? "Datos de identidad y empresa consolidados; no confirman por sí solos su función en el eslabón seleccionado."
                       : "Consolidated identity and company research; these fields alone do not confirm its role in the selected link."}
                   </p>
+                  {companyProfile && (
+                    <div
+                      className="acq-company-profile-summary"
+                      aria-label={
+                        locale === "es"
+                          ? "Estado de las cinco dimensiones"
+                          : "Five dimension status"
+                      }
+                    >
+                      <span>
+                        <strong>
+                          {
+                            companyProfile.fields.filter(
+                              (item) =>
+                                item.status === "KNOWN" && !item.conflict,
+                            ).length
+                          }
+                        </strong>{" "}
+                        {locale === "es"
+                          ? "datos registrados"
+                          : "recorded fields"}
+                      </span>
+                      <span>
+                        <strong>
+                          {
+                            companyProfile.fields.filter(
+                              (item) =>
+                                item.status === "HYPOTHESIS" || item.conflict,
+                            ).length
+                          }
+                        </strong>{" "}
+                        {locale === "es"
+                          ? "hipótesis o conflictos"
+                          : "hypotheses or conflicts"}
+                      </span>
+                      <span>
+                        <strong>
+                          {
+                            companyProfile.fields.filter(
+                              (item) => item.status === "PENDING",
+                            ).length
+                          }
+                        </strong>{" "}
+                        {locale === "es" ? "pendientes" : "pending"}
+                      </span>
+                    </div>
+                  )}
                   <div className="acq-company-profile">
                     {(
                       [
@@ -1528,7 +1586,7 @@ export function ExplorationMap({
                                   {cleanExplorationText(item.value, locale) ||
                                     (locale === "es" ? "Pendiente" : "Pending")}
                                 </p>
-                                <small>
+                                <small className="acq-company-field-state">
                                   {item.conflict
                                     ? locale === "es"
                                       ? "En conflicto · provisional"
@@ -1603,22 +1661,31 @@ export function ExplorationMap({
                                     </ul>
                                   </details>
                                 )}
-                                <small>
-                                  {observedDate(item.observedAt, locale)}
-                                  {safeHttpUrl(item.sourceUrl) && (
-                                    <>
-                                      {" "}
-                                      ·{" "}
-                                      <a
-                                        href={safeHttpUrl(item.sourceUrl)!.href}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                      >
-                                        {locale === "es" ? "Fuente" : "Source"}
-                                      </a>
-                                    </>
-                                  )}
-                                </small>
+                                {(item.observedAt ||
+                                  safeHttpUrl(item.sourceUrl)) && (
+                                  <small className="acq-company-field-source">
+                                    {item.observedAt
+                                      ? observedDate(item.observedAt, locale)
+                                      : null}
+                                    {safeHttpUrl(item.sourceUrl) && (
+                                      <>
+                                        {" "}
+                                        ·{" "}
+                                        <a
+                                          href={
+                                            safeHttpUrl(item.sourceUrl)!.href
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          {locale === "es"
+                                            ? "Fuente"
+                                            : "Source"}
+                                        </a>
+                                      </>
+                                    )}
+                                  </small>
+                                )}
                                 <p className="acq-record-next">
                                   {locale === "es"
                                     ? "Siguiente pregunta"
