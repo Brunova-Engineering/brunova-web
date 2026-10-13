@@ -11,6 +11,67 @@ import { ExplorationMap } from "@/components/acquisition/exploration-map"
 
 afterEach(() => vi.restoreAllMocks())
 
+it("shows one conceptual route with separate market observations and company contexts", async () => {
+  const now = "2026-10-13T12:00:00Z"
+  const make = (id: string, market: "MX" | "US", kind: string,
+    label: string, concept: string | null, canonical: string | null,
+    parentId?: string) => ({
+    id,cycle_id:"cycle-shared",market,kind,label,state:"PENDING",attributes:{},
+    concept_id:concept,concept_label:canonical,concept_status:concept?"PROVISIONAL":null,
+    parents:parentId?[{parentId,relation:"Possible role"}]:[],
+    claims:[],created_at:now,updated_at:now,
+  })
+  const nodes = [
+    make("mx-root","MX","MACRO_INDUSTRY","MX — Alimentos","root","Alimentos"),
+    make("us-root","US","MACRO_INDUSTRY","US — Foods","root","Alimentos"),
+    make("mx-specialty","MX","SPECIALTY","MX — Refrigerados","specialty","Almacenamiento refrigerado","mx-root"),
+    make("us-specialty","US","SPECIALTY","US — Cold storage","specialty","Almacenamiento refrigerado","us-root"),
+    make("mx-activity","MX","ACTIVITY","MX — Congelación","activity","Congelación rápida","mx-specialty"),
+    make("us-activity","US","ACTIVITY","US — Blast freezing","activity","Congelación rápida","us-specialty"),
+    make("mx-chain","MX","SUPPLY_CHAIN","MX — Cadena fría","chain","Cadena de frío","mx-activity"),
+    make("us-chain","US","SUPPLY_CHAIN","US — Cold chain","chain","Cadena de frío","us-activity"),
+    make("mx-link","MX","LINK","MX — Recepción","link","Recepción y preparación","mx-chain"),
+    make("us-link","US","LINK","US — Receiving","link","Recepción y preparación","us-chain"),
+    make("mx-lead","MX","COMPANY_LEAD","Operador México",null,null,"mx-link"),
+    make("us-lead","US","COMPANY_LEAD","US Operator",null,null,"us-link"),
+  ]
+  vi.spyOn(acquisitionApi,"explorationMap").mockResolvedValue({
+    cycleId:"cycle-shared",headers:[],nodes,directives:[],chainProgress:[],
+    governance:[],marketPresence:[],chainEquivalences:[],chainCoverage:[],
+    companyProfiles:[],
+  } as unknown as Awaited<ReturnType<typeof acquisitionApi.explorationMap>>)
+  render(<ExplorationMap cycleId="cycle-shared" locale="es" session={{
+    authenticated:true,actor:{email:"viewer@example.com",capabilities:[]},
+    csrfToken:"synthetic-csrf",expiresAt:now,
+  }}/>)
+  const roots = await screen.findByRole("group",{name:"Opciones de Macroindustria"})
+  expect(within(roots).getAllByRole("button")).toHaveLength(1)
+  expect(roots).toHaveTextContent("Alimentos")
+  expect(roots).toHaveTextContent("MX · US")
+  expect(roots).not.toHaveTextContent("US — Foods")
+  fireEvent.click(screen.getByRole("button",{name:"México"}))
+  expect(screen.getByRole("group",{name:"Opciones de Macroindustria"})).toHaveTextContent("MX")
+  expect(screen.getByRole("group",{name:"Opciones de Macroindustria"})).not.toHaveTextContent("US")
+  fireEvent.click(screen.getByRole("button",{name:"Todos"}))
+  for(const [stage,name] of ([
+    ["Macroindustria","Alimentos"],["Especialidad","Almacenamiento refrigerado"],
+    ["Actividad o mercado","Congelación rápida"],["Cadena de suministro","Cadena de frío"],
+    ["Eslabón o función","Recepción y preparación"],
+  ] as const)) {
+    fireEvent.click(within(screen.getByRole("group",{name:`Opciones de ${stage}`}))
+      .getByRole("button",{name:new RegExp(name)}))
+  }
+  const companies = screen.getByRole("group",{name:"Opciones de Empresa candidata"})
+  expect(companies).toHaveTextContent("Operador México")
+  expect(companies).toHaveTextContent("US Operator")
+  fireEvent.click(within(companies).getByRole("button",{name:/US Operator/}))
+  expect(screen.getByRole("heading",{name:"US Operator",level:4})).toBeVisible()
+  expect(screen.getByLabelText("Contexto del eslabón seleccionado"))
+    .toHaveTextContent("Cadena de frío › Recepción y preparación")
+  expect(screen.getByRole("heading",{name:"US Operator",level:4}).closest("aside"))
+    .toHaveTextContent("US · Estados Unidos")
+})
+
 it("reveals every recorded branch one level at a time and keeps company context", async () => {
   const now = "2026-10-12T17:05:40Z"
   const node = (
@@ -500,7 +561,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(chains).toHaveTextContent("Nixtamalización")
   expect(chains).toHaveTextContent("Abastecimiento")
   expect(chains).toHaveTextContent(
-    "2 rutas de eslabón registradas · 2 pistas de empresas · cobertura sin confirmar",
+    "2 funciones registradas · 2 pistas de empresas · cobertura sin confirmar",
   )
   expect(chains).toHaveTextContent("US · Nixtamalization")
   expect(
@@ -521,8 +582,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
   })
   expect(links).toHaveTextContent("Lavado")
   expect(links).toHaveTextContent("Grinding")
-  expect(links).toHaveTextContent("MX · México")
-  expect(links).toHaveTextContent("US · Estados Unidos")
+  expect(links).toHaveTextContent("MX")
+  expect(links).toHaveTextContent("US")
   expect(
     screen.getByText(/Observado · evidencia/).closest("p"),
   ).toHaveTextContent("Equivalent function")
