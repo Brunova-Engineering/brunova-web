@@ -1,5 +1,11 @@
 import { afterEach, expect, it, vi } from "vitest"
-import { fireEvent, render, screen, within } from "@testing-library/react"
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import { acquisitionApi } from "@/lib/acquisition-api"
 import { ExplorationMap } from "@/components/acquisition/exploration-map"
 
@@ -67,6 +73,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
       node("chain-us", "SUPPLY_CHAIN", "Nixtamalization", "activity", {}, "US"),
       node("chain-2", "SUPPLY_CHAIN", "Abastecimiento", "activity"),
       node("link", "LINK", "Lavado", "chain"),
+      node("link-2", "LINK", "Secado", "chain"),
+      node("link-3", "LINK", "Recepción", "chain-2"),
       node("link-us", "LINK", "Grinding", "chain-us", {}, "US"),
       node("cintli", "COMPANY_LEAD", "Cintli", "link", {
         activity: "Muele maíz",
@@ -92,6 +100,135 @@ it("reveals every recorded branch one level at a time and keeps company context"
         "US",
       ),
     ],
+    companyProfiles: [
+      {
+        companyId: "cintli",
+        cycleId: "cycle-1",
+        displayName: "Cintli",
+        identityStatus: "PROVISIONAL",
+        aliases: ["Cintli CDMX"],
+        leadNodeIds: ["cintli"],
+        fields: [
+          {
+            key: "activity",
+            dimension: "activity",
+            value: "Muele maíz",
+            status: "HYPOTHESIS" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: "¿Qué procesos ofrece?",
+          },
+        ],
+        tags: ["nixtamal"],
+        links: [
+          {
+            linkId: "link",
+            market: "MX" as const,
+            function: "Molienda",
+            evidenceStatus: "UNVERIFIED" as const,
+            contexts: [
+              {
+                statement: "Corn milling appears in this link",
+                sourceUrl: "https://milling.example/evidence",
+                observedAt: now,
+                status: "INFERRED" as const,
+              },
+            ],
+          },
+          {
+            linkId: "link-2",
+            market: "MX" as const,
+            function: null,
+            functions: ["Secado", "Tratamiento"],
+            roleConflict: true,
+            evidenceStatus: "UNVERIFIED" as const,
+            contexts: [
+              {
+                statement: "Drying capacity appears in this link",
+                sourceUrl: "https://drying.example/evidence",
+                observedAt: now,
+                status: "OBSERVED" as const,
+              },
+            ],
+          },
+          {
+            linkId: "link-3",
+            market: "MX" as const,
+            function: "Recepción en frío",
+            evidenceStatus: "OBSERVED" as const,
+            contexts: [
+              {
+                statement: "Receives refrigerated shipments",
+                sourceUrl: "https://receiving.example/evidence",
+                observedAt: now,
+                status: "OBSERVED" as const,
+              },
+            ],
+          },
+        ],
+        disposition: [
+          {
+            scope: "GLOBAL" as const,
+            branchId: null,
+            status: "DISCARDED" as const,
+            reason: "Review before resuming",
+            actorId: "manager",
+            updatedAt: now,
+          },
+        ],
+      },
+      {
+        companyId: "molino",
+        cycleId: "cycle-1",
+        displayName: "Molino El Obrero",
+        identityStatus: "PROVISIONAL",
+        aliases: [],
+        leadNodeIds: ["molino"],
+        fields: [
+          {
+            key: "activity",
+            dimension: "activity",
+            value: "Produce masa",
+            status: "HYPOTHESIS" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: null,
+            conflict: true,
+            conflictValues: [
+              {
+                companyId: "molino",
+                value: "Produce masa",
+                status: "HYPOTHESIS" as const,
+                sourceUrl: "https://mill.example/source",
+                observedAt: now,
+              },
+              {
+                companyId: "mill-alias",
+                value: "Produce harina",
+                status: "KNOWN" as const,
+                sourceUrl: null,
+                observedAt: now,
+              },
+            ],
+          },
+        ],
+        tags: [],
+        links: [
+          {
+            linkId: "link",
+            market: "MX" as const,
+            function: "Molienda",
+            evidenceStatus: "UNVERIFIED" as const,
+          },
+          {
+            linkId: "link",
+            market: "MX" as const,
+            function: "Molienda",
+            evidenceStatus: "UNVERIFIED" as const,
+          },
+        ],
+      },
+    ],
     directives: [],
     chainProgress: [
       {
@@ -111,8 +248,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
         market: "MX" as const,
         chain_id: "chain-2",
         chain_label: "Abastecimiento",
-        link_count: 0,
-        company_lead_count: 0,
+        link_count: 1,
+        company_lead_count: 1,
         anchor_hint_count: 0,
         prospect_hint_count: 0,
         focused: false,
@@ -181,10 +318,29 @@ it("reveals every recorded branch one level at a time and keeps company context"
       },
     ],
   }
+  payload.nodes
+    .find((item) => item.id === "cintli")!
+    .parents.push({
+      parentId: "link-2",
+      relation: "Possible second link",
+    })
+  payload.nodes
+    .find((item) => item.id === "cintli")!
+    .parents.push({
+      parentId: "link-3",
+      relation: "Possible role in another chain",
+    })
   vi.spyOn(acquisitionApi, "explorationMap").mockResolvedValue(payload)
   const humanDecision = vi
     .spyOn(acquisitionApi, "explorationHumanDecision")
     .mockResolvedValue({ status: "RECORDED", mapVersion: 3 })
+  const companyDisposition = vi
+    .spyOn(acquisitionApi, "explorationCompanyDisposition")
+    .mockResolvedValue({
+      status: "accepted",
+      companyId: "cintli",
+      externalEffect: false,
+    })
   render(
     <ExplorationMap
       cycleId="cycle-1"
@@ -308,6 +464,84 @@ it("reveals every recorded branch one level at a time and keeps company context"
   fireEvent.click(within(companies).getByRole("button", { name: /Cintli/ }))
   expect(within(route).getByText("Cintli")).toBeVisible()
   expect(screen.getByText("Muele maíz")).toBeVisible()
+  expect(screen.getByText(/Qué procesos ofrece/)).toBeVisible()
+  expect(screen.getByText(/Descartada · Empresa completa/)).toBeVisible()
+  const scopeControl = screen.getByLabelText("¿Dónde aplicar este cambio?")
+  const dispositionReason = screen.getByLabelText(
+    "Motivo (8 caracteres mínimo)",
+  )
+  fireEvent.change(scopeControl, { target: { value: "LINK" } })
+  fireEvent.change(dispositionReason, {
+    target: { value: "Outside this link" },
+  })
+  fireEvent.click(screen.getByRole("button", { name: "Descartar eslabón" }))
+  await waitFor(() => expect(companyDisposition).toHaveBeenCalledTimes(1))
+  expect(companyDisposition.mock.calls[0]?.[1]).toMatchObject({
+    companyId: "cintli",
+    scope: "LINK",
+    branchId: "link",
+    operation: "DISCARD",
+    expectedVersions: { MX: 2 },
+  })
+  expect(companyDisposition.mock.calls[0]?.[2]).toBe("synthetic-csrf")
+  fireEvent.change(scopeControl, { target: { value: "CHAIN" } })
+  fireEvent.change(dispositionReason, {
+    target: { value: "Outside this chain" },
+  })
+  fireEvent.click(screen.getByRole("button", { name: "Descartar cadena" }))
+  await waitFor(() => expect(companyDisposition).toHaveBeenCalledTimes(2))
+  expect(companyDisposition.mock.calls[1]?.[1]).toMatchObject({
+    companyId: "cintli",
+    scope: "CHAIN",
+    branchId: "chain",
+    operation: "DISCARD",
+    expectedVersions: { MX: 2 },
+  })
+  fireEvent.change(scopeControl, { target: { value: "GLOBAL" } })
+  fireEvent.change(dispositionReason, {
+    target: { value: "Outside this company" },
+  })
+  fireEvent.click(
+    screen.getByRole("button", { name: "Reabrir empresa completa" }),
+  )
+  await waitFor(() => expect(companyDisposition).toHaveBeenCalledTimes(3))
+  expect(companyDisposition.mock.calls[2]?.[1]).toMatchObject({
+    companyId: "cintli",
+    scope: "GLOBAL",
+    operation: "REOPEN",
+    expectedVersions: { MX: 2 },
+  })
+  expect(companyDisposition.mock.calls[2]?.[1]).not.toHaveProperty("branchId")
+  expect(
+    screen.getByRole("group", { name: "Opciones de Empresa candidata" }),
+  ).toHaveTextContent("Molino El Obrero")
+  expect(
+    screen.getByRole("heading", { name: "Referencias en otros eslabones" }),
+  ).toBeVisible()
+  expect(screen.getByText("Nixtamalización › Lavado")).toBeVisible()
+  expect(
+    screen.getByLabelText("Contexto del eslabón seleccionado"),
+  ).toHaveTextContent("Corn milling appears in this link")
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: /MX · México · Nixtamalización · Secado · Secado \/ Tratamiento/,
+    }),
+  )
+  expect(within(route).getByText("Secado")).toBeVisible()
+  expect(within(route).getByText("Cintli")).toBeVisible()
+  expect(
+    screen.getByLabelText("Contexto del eslabón seleccionado"),
+  ).toHaveTextContent("Drying capacity appears in this link")
+  expect(screen.getByText("Nixtamalización › Secado")).toBeVisible()
+  expect(
+    screen.getByText(/Funciones en conflicto para este eslabón/),
+  ).toBeVisible()
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: /MX · México · Nixtamalización · Lavado · Molienda/,
+    }),
+  )
+  expect(within(route).getByText("Lavado")).toBeVisible()
   expect(screen.getByRole("link", { name: "cintli.example" })).toHaveAttribute(
     "href",
     "https://cintli.example/",
@@ -315,10 +549,64 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(screen.getByText(/no se ha probado un contrato/)).toBeVisible()
 
   fireEvent.click(
+    within(route).getByRole("button", { name: /4\. Cadena de suministro/ }),
+  )
+  fireEvent.click(
+    within(
+      screen.getByRole("group", { name: "Opciones de Cadena de suministro" }),
+    ).getByRole("button", { name: /Abastecimiento/ }),
+  )
+  fireEvent.click(
+    within(
+      screen.getByRole("group", { name: "Opciones de Eslabón o función" }),
+    ).getByRole("button", { name: /Recepción/ }),
+  )
+  companies = screen.getByRole("group", {
+    name: "Opciones de Empresa candidata",
+  })
+  fireEvent.click(within(companies).getByRole("button", { name: /Cintli/ }))
+  expect(screen.getByText("Abastecimiento › Recepción")).toBeVisible()
+  expect(
+    screen.getByLabelText("Contexto del eslabón seleccionado"),
+  ).toHaveTextContent("Receives refrigerated shipments")
+  expect(
+    screen.getByRole("heading", { name: "Referencias en otros eslabones" }),
+  ).toBeVisible()
+  expect(
+    screen.getByRole("button", { name: /Nixtamalización · Lavado · Molienda/ }),
+  ).toBeVisible()
+  fireEvent.click(
+    within(route).getByRole("button", { name: /4\. Cadena de suministro/ }),
+  )
+  fireEvent.click(
+    within(
+      screen.getByRole("group", { name: "Opciones de Cadena de suministro" }),
+    ).getByRole("button", { name: /Nixtamalización/ }),
+  )
+  fireEvent.click(
+    within(
+      screen.getByRole("group", { name: "Opciones de Eslabón o función" }),
+    ).getByRole("button", { name: /Lavado/ }),
+  )
+  companies = screen.getByRole("group", {
+    name: "Opciones de Empresa candidata",
+  })
+
+  fireEvent.click(
     within(companies).getByRole("button", { name: /Molino El Obrero/ }),
   )
   expect(within(route).getByText("Molino El Obrero")).toBeVisible()
-  expect(screen.getByText("Produce masa")).toBeVisible()
+  expect(screen.getAllByText("Produce masa")).toHaveLength(2)
+  expect(screen.getByText("En conflicto · provisional")).toBeVisible()
+  fireEvent.click(screen.getByText("Datos en conflicto"))
+  expect(screen.getByText("Produce harina")).toBeVisible()
+  expect(screen.getByRole("link", { name: "Fuente" })).toHaveAttribute(
+    "href",
+    "https://mill.example/source",
+  )
+  expect(
+    screen.queryByRole("heading", { name: "Referencias en otros eslabones" }),
+  ).not.toBeInTheDocument()
   expect(screen.queryByText("Muele maíz")).not.toBeInTheDocument()
 
   fireEvent.click(
@@ -331,5 +619,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   )
   expect(within(route).getByText("Abastecimiento")).toBeVisible()
   expect(within(route).queryByText("Molino El Obrero")).not.toBeInTheDocument()
-  expect(screen.getByText(/no demuestra que esté agotada/)).toBeVisible()
+  expect(
+    screen.getByRole("group", { name: "Opciones de Eslabón o función" }),
+  ).toHaveTextContent("Recepción")
 })
