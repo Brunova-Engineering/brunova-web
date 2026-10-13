@@ -322,8 +322,12 @@ export function AcquisitionPortal({
       <header className="acq-heading">
         <div>
           <p className="acq-kicker">{t("Portal / Adquisición")}</p>
-          <h1>Acquisition</h1>
-          <p>{t("Brunova Acquisition Engine · Observa, revisa y decide.")}</p>
+          <h1>{locale === "es" ? "Adquisición" : "Acquisition"}</h1>
+          <p>
+            {locale === "es"
+              ? "Motor de adquisición de Brunova · Observa, revisa y decide."
+              : "Brunova Acquisition Engine · Observe, review, and decide."}
+          </p>
         </div>
         <div className="acq-actions">
           <button

@@ -110,13 +110,49 @@ it("reveals every recorded branch one level at a time and keeps company context"
         leadNodeIds: ["cintli"],
         fields: [
           {
+            key: "canonicalName",
+            dimension: "identity",
+            value: "Cintli Alimentos",
+            status: "KNOWN" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: "What legal name can be confirmed?",
+          },
+          {
             key: "activity",
             dimension: "activity",
             value: "Muele maíz",
             status: "HYPOTHESIS" as const,
             sourceUrl: null,
             observedAt: now,
-            nextQuestion: "¿Qué procesos ofrece?",
+            nextQuestion: "What processes does it offer?",
+          },
+          {
+            key: "markets",
+            dimension: "presence",
+            value: "México",
+            status: "HYPOTHESIS" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: "Which markets does it operate in directly?",
+          },
+          {
+            key: "fitProcess",
+            dimension: "fit",
+            value: "Molienda",
+            status: "PENDING" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: "Which process could it support?",
+          },
+          {
+            key: "channel",
+            dimension: "outreach",
+            value: "Correo público",
+            status: "PENDING" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: "What public channel is appropriate?",
           },
         ],
         tags: ["nixtamal"],
@@ -133,6 +169,31 @@ it("reveals every recorded branch one level at a time and keeps company context"
                 observedAt: now,
                 status: "INFERRED" as const,
               },
+              {
+                statement: "Molienda",
+                sourceUrl: "https://milling.example/role-one",
+                observedAt: now,
+                status: "INFERRED" as const,
+              },
+              {
+                statement: "Molienda",
+                sourceUrl: "https://milling.example/role-two",
+                observedAt: now,
+                status: "INFERRED" as const,
+              },
+              {
+                statement:
+                  "Cold storage PROSPECT UNVERIFIED READY_FOR_REVIEW TRAVERSED",
+                sourceUrl: "https://milling.example/markers",
+                observedAt: now,
+                status: "INFERRED" as const,
+              },
+              {
+                statement: "Possible relationship pending research",
+                sourceUrl: "https://milling.example/generic",
+                observedAt: now,
+                status: "UNVERIFIED" as const,
+              },
             ],
           },
           {
@@ -143,6 +204,12 @@ it("reveals every recorded branch one level at a time and keeps company context"
             roleConflict: true,
             evidenceStatus: "UNVERIFIED" as const,
             contexts: [
+              {
+                statement: "Secado",
+                sourceUrl: "https://drying.example/role",
+                observedAt: now,
+                status: "OBSERVED" as const,
+              },
               {
                 statement: "Drying capacity appears in this link",
                 sourceUrl: "https://drying.example/evidence",
@@ -282,6 +349,20 @@ it("reveals every recorded branch one level at a time and keeps company context"
         relation: "Equivalent function",
         source_url: "https://evidence.example/us-function",
       },
+      {
+        node_id: "cintli",
+        market: "MX" as const,
+        status: "UNVERIFIED",
+        relation: "Legacy discovery market: MX",
+        source_url: "https://evidence.example/legacy-market",
+      },
+      {
+        node_id: "cintli",
+        market: "MX" as const,
+        status: "UNVERIFIED",
+        relation: "Possible relationship pending research",
+        source_url: null,
+      },
     ],
     chainEquivalences: [
       {
@@ -418,6 +499,9 @@ it("reveals every recorded branch one level at a time and keeps company context"
   })
   expect(chains).toHaveTextContent("Nixtamalización")
   expect(chains).toHaveTextContent("Abastecimiento")
+  expect(chains).toHaveTextContent(
+    "2 rutas de eslabón registradas · 2 pistas de empresas · cobertura sin confirmar",
+  )
   expect(chains).toHaveTextContent("US · Nixtamalization")
   expect(
     within(chains).getAllByText(/^Cadena equivalente explícita/),
@@ -461,11 +545,74 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(companies).toHaveTextContent("Cintli")
   expect(companies).toHaveTextContent("Molino El Obrero")
   expect(companies).toHaveTextContent("MX · México")
+  expect(companies).toHaveTextContent(
+    "Registro heredado de descubrimiento; presencia pendiente de verificación.",
+  )
+  expect(companies).not.toHaveTextContent("Legacy discovery market")
+  expect(companies).not.toHaveTextContent(
+    "Possible relationship pending research",
+  )
   fireEvent.click(within(companies).getByRole("button", { name: /Cintli/ }))
   expect(within(route).getByText("Cintli")).toBeVisible()
   expect(screen.getByText("Muele maíz")).toBeVisible()
-  expect(screen.getByText(/Qué procesos ofrece/)).toBeVisible()
+  expect(
+    screen.getByText(/¿Qué procesos o servicios ofrece exactamente\?/),
+  ).toBeVisible()
+  expect(
+    screen.getByText(/¿Cuál es el nombre legal o comercial confirmado\?/),
+  ).toBeVisible()
+  expect(
+    screen.getByText(/¿En qué mercados opera directamente\?/),
+  ).toBeVisible()
+  expect(
+    screen.getByText(/¿Qué proceso específico podría atender\?/),
+  ).toBeVisible()
+  expect(
+    screen.getByText(/¿Cuál es el canal público apropiado para contactarla\?/),
+  ).toBeVisible()
   expect(screen.getByText(/Descartada · Empresa completa/)).toBeVisible()
+  const companyCard = screen
+    .getByRole("heading", { name: "Cintli", level: 4 })
+    .closest("aside")!
+  expect(
+    within(companyCard).getByText(/Registro heredado de descubrimiento/),
+  ).toBeVisible()
+  const crosslinkCards = companyCard.querySelectorAll(
+    ".acq-company-crosslinks button",
+  )
+  const dryingReference = [...crosslinkCards].find((button) =>
+    button.textContent?.includes("Secado"),
+  )
+  expect(dryingReference).toBeDefined()
+  expect(dryingReference?.querySelector("small")).toBeNull()
+  expect(companyCard).not.toHaveTextContent("Legacy discovery market")
+  expect(companyCard).not.toHaveTextContent(
+    "Possible relationship pending research",
+  )
+  const linkEvidence = within(
+    screen.getByLabelText("Contexto del eslabón seleccionado"),
+  ).getByText("Observaciones y fuentes (4)")
+  expect(linkEvidence.closest("details")).not.toHaveAttribute("open")
+  fireEvent.click(linkEvidence)
+  const selectedLink = screen.getByLabelText(
+    "Contexto del eslabón seleccionado",
+  )
+  expect(selectedLink).toHaveTextContent("Cold storage Empresa candidata")
+  expect(selectedLink).toHaveTextContent("Sin verificar")
+  expect(selectedLink).not.toHaveTextContent("PROSPECT")
+  expect(selectedLink).not.toHaveTextContent("UNVERIFIED")
+  expect(selectedLink).not.toHaveTextContent("READY_FOR_REVIEW")
+  expect(selectedLink).not.toHaveTextContent("TRAVERSED")
+  expect(selectedLink).not.toHaveTextContent(
+    "Possible relationship pending research",
+  )
+  expect(selectedLink).toHaveTextContent(
+    "La función indicada también aparece en estas fuentes.",
+  )
+  expect(selectedLink.textContent?.match(/Molienda/g)).toHaveLength(1)
+  expect(
+    within(selectedLink).getAllByRole("link", { name: "Abrir fuente" }),
+  ).toHaveLength(4)
   const scopeControl = screen.getByLabelText("¿Dónde aplicar este cambio?")
   const dispositionReason = screen.getByLabelText(
     "Motivo (8 caracteres mínimo)",
