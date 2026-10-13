@@ -226,8 +226,14 @@ function populated() {
   })
 }
 it("shows intentional empty state and disabled gates, no fake accounts", async () => {
-  const { container } = render(<AcquisitionPortal session={session} locale="es" />)
-  expect(container.querySelector("main.acq")).toHaveAttribute("data-authenticated", "true")
+  const { container } = render(
+    <AcquisitionPortal session={session} locale="es" />,
+  )
+  expect(container.querySelector("main.acq")).toHaveAttribute(
+    "data-authenticated",
+    "true",
+  )
+  expect(screen.getByRole("heading", { name: "Adquisición" })).toBeVisible()
   expect(
     await screen.findByText("Aún no hay un ciclo de Adquisición."),
   ).toBeVisible()
