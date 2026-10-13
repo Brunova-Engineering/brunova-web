@@ -1198,7 +1198,8 @@ export function ExplorationMap({
                           marketFilter,
                         )}
                       </small>
-                      {activeStage < 5 && (
+                      {activeStage < 5 && (marketFilter !== "ALL" ||
+                        (conceptMembers.get(conceptKey(node))?.length ?? 1) === 1) && (
                         <small>{mapState(node, locale)}</small>
                       )}
                     </button>
@@ -1267,10 +1268,9 @@ export function ExplorationMap({
                         )
                       })}
                     {activeStage === 3 && coverageForChain(node)}
-                    {nodeDecision(node)}
                     {(marketFilter !== "ALL" ||
                       (conceptMembers.get(conceptKey(node))?.length ?? 1) === 1)
-                      ? decisionControls(node)
+                      ? <>{nodeDecision(node)}{decisionControls(node)}</>
                       : <p className="acq-muted">
                           {locale === "es"
                             ? "Elige México o Estados Unidos para decidir sobre esa rama en un mercado."
