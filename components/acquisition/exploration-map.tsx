@@ -1027,8 +1027,10 @@ export function ExplorationMap({
           <button key={market} type="button" aria-pressed={marketFilter === market}
             onClick={() => {
               setMarketFilter(market)
-              setSelectedIds(stages.map(() => null))
-              setActiveStage(0)
+              setSelectedIds((current) => current.map((id, index) => {
+                if (index !== stages.length - 1 || market === "ALL") return id
+                return byId.get(id ?? "")?.market === market ? id : null
+              }))
             }}>
             {market === "ALL"
               ? locale === "es" ? "Todos" : "All"
