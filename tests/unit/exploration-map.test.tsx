@@ -32,8 +32,10 @@ it("shows one conceptual route with separate market observations and company con
     make("us-chain","US","SUPPLY_CHAIN","US — Cold chain","chain","Cadena de frío","us-activity"),
     make("mx-link","MX","LINK","MX — Recepción","link","Recepción y preparación","mx-chain"),
     make("us-link","US","LINK","US — Receiving","link","Recepción y preparación","us-chain"),
+    make("us-dispatch","US","LINK","US — Dispatch","dispatch","Despacho en frío","us-chain"),
     make("mx-lead","MX","COMPANY_LEAD","Operador México",null,null,"mx-link"),
     make("us-lead","US","COMPANY_LEAD","US Operator",null,null,"us-link"),
+    make("us-lead-dispatch","US","COMPANY_LEAD","US Operator",null,null,"us-dispatch"),
   ]
   vi.spyOn(acquisitionApi,"explorationMap").mockResolvedValue({
     cycleId:"cycle-shared",headers:[],nodes,directives:[],chainProgress:[],
@@ -49,10 +51,17 @@ it("shows one conceptual route with separate market observations and company con
   expect(roots).toHaveTextContent("Alimentos")
   expect(roots).toHaveTextContent("MX · US")
   expect(roots).not.toHaveTextContent("US — Foods")
+  const globalSearch = screen.getByRole("searchbox",{name:"Buscar empresa en todo el mapa"})
+  fireEvent.change(globalSearch,{target:{value:"US Operator"}})
+  expect(within(screen.getByRole("group",{name:"Resultados de búsqueda global"}))
+    .getAllByRole("button")).toHaveLength(2)
   fireEvent.click(screen.getByRole("button",{name:"México"}))
+  expect(screen.getByRole("group",{name:"Resultados de búsqueda global"}))
+    .toHaveTextContent("0 ubicaciones encontradas")
   expect(screen.getByRole("group",{name:"Opciones de Macroindustria"})).toHaveTextContent("MX")
   expect(screen.getByRole("group",{name:"Opciones de Macroindustria"})).not.toHaveTextContent("US")
   fireEvent.click(screen.getByRole("button",{name:"Todos"}))
+  fireEvent.change(globalSearch,{target:{value:""}})
   for(const [stage,name] of ([
     ["Macroindustria","Alimentos"],["Especialidad","Almacenamiento refrigerado"],
     ["Actividad o mercado","Congelación rápida"],["Cadena de suministro","Cadena de frío"],
@@ -90,6 +99,19 @@ it("shows one conceptual route with separate market observations and company con
   expect(screen.getByRole("group",{name:"Opciones de Empresa candidata"}))
     .toHaveTextContent("US Operator")
   expect(screen.getByText("Nivel 6 de 6")).toBeVisible()
+  fireEvent.change(screen.getByRole("searchbox",{name:"Buscar empresa en todo el mapa"}),
+    {target:{value:"US Operator"}})
+  const globalResults = screen.getByRole("group",{name:"Resultados de búsqueda global"})
+  expect(within(globalResults).getAllByRole("button")).toHaveLength(2)
+  fireEvent.click(within(globalResults).getByRole("button",{name:/US Operator.*Despacho en frío/}))
+  expect(screen.getByRole("button",{name:/5\. Eslabón o función/}))
+    .toHaveTextContent("Despacho en frío")
+  expect(screen.getByRole("heading",{name:"US Operator",level:4})).toBeVisible()
+  fireEvent.click(screen.getByRole("button",{name:"Volver a resultados"}))
+  fireEvent.click(within(screen.getByRole("group",{name:"Resultados de búsqueda global"}))
+    .getByRole("button",{name:/US Operator.*Recepción y preparación/}))
+  expect(screen.getByRole("button",{name:/5\. Eslabón o función/}))
+    .toHaveTextContent("Recepción y preparación")
 })
 
 it("reveals every recorded branch one level at a time and keeps company context", async () => {
@@ -520,6 +542,12 @@ it("reveals every recorded branch one level at a time and keeps company context"
     name: "Recorrido de industria a empresa",
   })
   expect(within(route).getAllByRole("listitem")).toHaveLength(6)
+  fireEvent.change(screen.getByRole("searchbox",{name:"Buscar empresa en todo el mapa"}),
+    {target:{value:"Cintli CDMX"}})
+  expect(screen.getByRole("group",{name:"Resultados de búsqueda global"}))
+    .toHaveTextContent("Cintli")
+  fireEvent.change(screen.getByRole("searchbox",{name:"Buscar empresa en todo el mapa"}),
+    {target:{value:""}})
   expect(
     screen.getByRole("group", { name: "Opciones de Macroindustria" }),
   ).toHaveTextContent("Alimentos")
