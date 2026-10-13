@@ -923,8 +923,8 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 }
 .acq-company-profile {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
 }
 .acq-company-profile-summary {
   display: flex;
@@ -942,19 +942,57 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 .acq-company-profile-summary strong {
   color: var(--color-foreground);
 }
-.acq-company-profile section {
+.acq-company-dimension {
+  border: 1px solid var(--color-border);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--color-foreground) 2%, var(--color-surface));
+}
+.acq-company-dimension > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  cursor: pointer;
+  list-style-position: inside;
+}
+.acq-company-dimension > summary:hover,
+.acq-company-dimension > summary:focus-visible {
+  background: color-mix(in srgb, var(--color-foreground) 5%, var(--color-surface));
+}
+.acq-company-dimension-title {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.acq-company-dimension-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.73rem;
+}
+.acq-company-dimension-status span {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.15rem 0.4rem;
+}
+.acq-company-dimension-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem 1rem;
   border-top: 1px solid var(--color-border);
-  padding-top: 0.65rem;
+  padding: 0.85rem;
 }
 .acq-company-profile h5,
 .acq-company-crosslinks h5 {
   font-size: 0.86rem;
   margin: 0 0 0.45rem;
 }
-.acq-company-profile article + article {
-  border-top: 1px dashed var(--color-border);
-  margin-top: 0.55rem;
-  padding-top: 0.55rem;
+.acq-company-profile article {
+  min-width: 0;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.65rem;
 }
 .acq-company-profile article p {
   margin: 0.25rem 0;
@@ -1194,9 +1232,6 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   .acq-zoom-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .acq-company-profile {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .acq-zoom-company {
     position: static;
     max-height: none;
@@ -1233,8 +1268,12 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   }
 }
 @media (max-width: 600px) {
-  .acq-company-profile {
+  .acq-company-dimension-fields {
     grid-template-columns: 1fr;
+  }
+  .acq-company-dimension > summary {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .acq-zoom-other-list {
     grid-template-columns: 1fr;

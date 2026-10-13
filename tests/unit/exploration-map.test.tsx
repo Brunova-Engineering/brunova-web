@@ -554,6 +554,16 @@ it("reveals every recorded branch one level at a time and keeps company context"
   )
   fireEvent.click(within(companies).getByRole("button", { name: /Cintli/ }))
   expect(within(route).getByText("Cintli")).toBeVisible()
+  const companyCard = screen
+    .getByRole("heading", { name: "Cintli", level: 4 })
+    .closest("aside")!
+  const dimensionCards = [
+    ...companyCard.querySelectorAll("details.acq-company-dimension"),
+  ]
+  expect(dimensionCards).toHaveLength(5)
+  for (const card of dimensionCards) {
+    if (!card.hasAttribute("open")) fireEvent.click(card.querySelector("summary")!)
+  }
   expect(screen.getByText("Muele maíz")).toBeVisible()
   expect(
     screen.getByText(/¿Qué procesos o servicios ofrece exactamente\?/),
@@ -571,9 +581,6 @@ it("reveals every recorded branch one level at a time and keeps company context"
     screen.getByText(/¿Cuál es el canal público apropiado para contactarla\?/),
   ).toBeVisible()
   expect(screen.getByText(/Descartada · Empresa completa/)).toBeVisible()
-  const companyCard = screen
-    .getByRole("heading", { name: "Cintli", level: 4 })
-    .closest("aside")!
   expect(
     within(companyCard).getByText(/Registro heredado de descubrimiento/),
   ).toBeVisible()
