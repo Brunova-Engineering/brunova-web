@@ -41,6 +41,126 @@ function field(node: MapNode, key: string): string | null {
   return typeof value === "string" && value.trim() ? value : null
 }
 
+function normalizeText(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+}
+
+function cleanExplorationText(
+  value: string | null | undefined,
+  locale: Locale,
+) {
+  if (!value) return ""
+  if (normalizeText(value) === "possible relationship pending research")
+    return ""
+  if (/legacy discovery market/i.test(value))
+    return locale === "es"
+      ? "Registro heredado de descubrimiento; presencia pendiente de verificación."
+      : "Legacy discovery record; market presence still requires verification."
+  const replacements: Record<string, string> = {
+    UNVERIFIED: "",
+    PROSPECT: locale === "es" ? "Empresa candidata" : "Candidate company",
+    READY_FOR_REVIEW: "",
+    TRAVERSED: "",
+  }
+  return value
+    .replace(
+      /\b(UNVERIFIED|PROSPECT|READY_FOR_REVIEW|TRAVERSED)\b/gi,
+      (token) => replacements[token.toUpperCase()] ?? "",
+    )
+    .replace(/[|·•]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .replace(/^[\s:;,.-]+|[\s:;,.-]+$/g, "")
+    .trim()
+}
+
+function nextQuestionForField(
+  key: string,
+  storedQuestion: string | null,
+  locale: Locale,
+) {
+  const questions: Record<string, [string, string]> = {
+    canonicalName: [
+      "¿Cuál es el nombre legal o comercial confirmado?",
+      "What legal or trade name can be confirmed?",
+    ],
+    alternateNames: [
+      "¿Qué otros nombres comerciales o razones sociales utiliza?",
+      "What other trade names or legal names does it use?",
+    ],
+    websiteOrRegistry: [
+      "¿Qué sitio oficial o registro confirma su identidad?",
+      "Which official website or registry confirms its identity?",
+    ],
+    disambiguation: [
+      "¿Qué evidencia la distingue de otras empresas con nombre similar?",
+      "What evidence distinguishes it from similarly named companies?",
+    ],
+    activity: [
+      "¿Qué procesos o servicios ofrece exactamente?",
+      "Which processes or services does it offer?",
+    ],
+    function: [
+      "¿Qué función desempeña en este eslabón?",
+      "What role does it perform in this link?",
+    ],
+    markets: [
+      "¿En qué mercados opera directamente?",
+      "Which markets does it operate in directly?",
+    ],
+    locations: [
+      "¿Qué ubicaciones operativas pueden verificarse?",
+      "Which operating locations can be verified?",
+    ],
+    scaleSignal: [
+      "¿Qué señal verificable permite estimar su escala?",
+      "What verifiable signal indicates its scale?",
+    ],
+    fitProcess: [
+      "¿Qué proceso específico podría atender?",
+      "Which specific process could it support?",
+    ],
+    fitHypothesis: [
+      "¿Qué evidencia conecta a la empresa con esta necesidad?",
+      "What evidence connects the company to this need?",
+    ],
+    channel: [
+      "¿Cuál es el canal público apropiado para contactarla?",
+      "What public channel is appropriate for contacting it?",
+    ],
+    interlocutorRole: [
+      "¿Qué cargo suele evaluar esta solución?",
+      "Which role typically evaluates this solution?",
+    ],
+    priorContact: [
+      "¿Hay algún contacto previo registrado?",
+      "Is any prior contact recorded?",
+    ],
+    restrictions: [
+      "¿Qué restricciones aplican antes de contactarla?",
+      "Which restrictions apply before contacting it?",
+    ],
+    accessRoute: [
+      "¿Cuál es la vía pública adecuada para iniciar contacto?",
+      "What public route is appropriate for initial contact?",
+    ],
+  }
+  const mapped = questions[key]
+  if (mapped) return mapped[locale === "es" ? 0 : 1]
+  return (
+    cleanExplorationText(storedQuestion, locale) ||
+    (locale === "es" ? "Por definir" : "To be defined")
+  )
+}
+
+function marketPresenceNote(relation: string, locale: Locale) {
+  return cleanExplorationText(relation, locale)
+}
+
 function sourceLinks(node: MapNode) {
   const urls = new Set<string>()
   for (const claim of node.claims) {
@@ -72,6 +192,12 @@ function presenceStatus(status: string, locale: Locale) {
   if (status === "INFERRED") return locale === "es" ? "Inferido" : "Inferred"
   if (status === "UNVERIFIED")
     return locale === "es" ? "Sin verificar" : "Unverified"
+  if (status === "READY_FOR_REVIEW")
+    return locale === "es" ? "Lista para revisión" : "Ready for review"
+  if (status === "TRAVERSED")
+    return locale === "es"
+      ? "Recorrida · cobertura sin confirmar"
+      : "Reviewed · coverage unconfirmed"
   return status.replaceAll("_", " ")
 }
 
@@ -180,8 +306,8 @@ function optionDetail(
   if (stage === 3) {
     const chain = progress.get(node.id)
     return locale === "es"
-      ? `${count} ${count === 1 ? "eslabón registrado" : "eslabones registrados"} · ${chain?.company_lead_count ?? 0} pistas de empresas · cobertura sin confirmar`
-      : `${count} recorded ${count === 1 ? "link" : "links"} · ${chain?.company_lead_count ?? 0} company leads · coverage unconfirmed`
+      ? `${count} ${count === 1 ? "ruta de eslabón registrada" : "rutas de eslabón registradas"} · ${chain?.company_lead_count ?? 0} pistas de empresas · cobertura sin confirmar`
+      : `${count} recorded ${count === 1 ? "link route" : "link routes"} · ${chain?.company_lead_count ?? 0} company leads · coverage unconfirmed`
   }
   const nextName = (stageNames[locale][stage + 1] ?? "").toLowerCase()
   return locale === "es"
@@ -353,6 +479,31 @@ export function ExplorationMap({
   const selectedLinkProfile = companyProfile?.links.find(
     (link) => link.linkId === selected[4]?.id,
   )
+  const selectedLinkObservations = (() => {
+    const contexts = selectedLinkProfile?.contexts ?? []
+    const roleTexts = [
+      selectedLinkProfile?.function,
+      ...(selectedLinkProfile?.functions ?? []),
+    ]
+      .filter((item): item is string => !!item)
+      .map(normalizeText)
+    const grouped = new Map<
+      string,
+      { statement: string; sources: typeof contexts }
+    >()
+    for (const context of contexts) {
+      const statement = cleanExplorationText(context.statement, locale)
+      if (!statement) continue
+      const key = normalizeText(statement)
+      const group = grouped.get(key) ?? { statement, sources: [] }
+      group.sources.push(context)
+      grouped.set(key, group)
+    }
+    return [...grouped.values()].map((group) => ({
+      ...group,
+      repeatsRole: roleTexts.includes(normalizeText(group.statement)),
+    }))
+  })()
   const companyCrossLinks = companyProfile
     ? [
         ...new Map(
@@ -982,7 +1133,12 @@ export function ExplorationMap({
                           >
                             {presenceStatus(presence.status, locale)}
                           </span>{" "}
-                          · {presence.relation}
+                          {marketPresenceNote(presence.relation, locale) && (
+                            <>
+                              {" "}
+                              · {marketPresenceNote(presence.relation, locale)}
+                            </>
+                          )}
                           {safeHttpUrl(presence.source_url) && (
                             <>
                               {" "}
@@ -1049,7 +1205,12 @@ export function ExplorationMap({
                           {identityLabel(companyProfile.identityStatus, locale)}
                         </span>{" "}
                         {companyProfile.aliases.length > 0
-                          ? `${locale === "es" ? "También conocida como" : "Also known as"}: ${companyProfile.aliases.join(", ")}`
+                          ? `${locale === "es" ? "También conocida como" : "Also known as"}: ${companyProfile.aliases
+                              .map((alias) =>
+                                cleanExplorationText(alias, locale),
+                              )
+                              .filter(Boolean)
+                              .join(", ")}`
                           : ""}
                       </p>
                     )}
@@ -1081,8 +1242,11 @@ export function ExplorationMap({
                             <strong>
                               {locale === "es" ? "Función" : "Function"}
                             </strong>{" "}
-                            {selectedLinkProfile.function ??
-                              selectedLinkProfile.functions?.join(" / ") ??
+                            {cleanExplorationText(
+                              selectedLinkProfile.function ??
+                                selectedLinkProfile.functions?.join(" / "),
+                              locale,
+                            ) ||
                               (locale === "es" ? "Por confirmar" : "Pending")}
                             <span className="acq-status-chip">
                               {evidenceLabel(
@@ -1098,33 +1262,56 @@ export function ExplorationMap({
                                 : "Conflicting roles for this link; review the sources."}
                             </p>
                           )}
-                          {(selectedLinkProfile.contexts ?? []).map(
-                            (context, index) => (
-                              <p key={`${context.statement}:${index}`}>
-                                {context.statement}{" "}
-                                <span className="acq-status-chip acq-status-chip--subtle">
-                                  {evidenceLabel(context.status, locale)}
-                                </span>
-                                {safeHttpUrl(context.sourceUrl) && (
-                                  <>
-                                    {" "}
-                                    ·{" "}
-                                    <a
-                                      href={
-                                        safeHttpUrl(context.sourceUrl)!.href
-                                      }
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                          {selectedLinkObservations.length > 0 && (
+                            <details className="acq-company-link-evidence">
+                              <summary>
+                                {locale === "es"
+                                  ? `Observaciones y fuentes (${selectedLinkObservations.reduce((count, item) => count + item.sources.length, 0)})`
+                                  : `Observations and sources (${selectedLinkObservations.reduce((count, item) => count + item.sources.length, 0)})`}
+                              </summary>
+                              {selectedLinkObservations.map((observation) => (
+                                <div
+                                  className="acq-company-link-observation"
+                                  key={normalizeText(observation.statement)}
+                                >
+                                  <p>
+                                    {observation.repeatsRole
+                                      ? locale === "es"
+                                        ? "La función indicada también aparece en estas fuentes."
+                                        : "The stated function also appears in these sources."
+                                      : cleanExplorationText(
+                                          observation.statement,
+                                          locale,
+                                        )}
+                                  </p>
+                                  {observation.sources.map((context, index) => (
+                                    <small
+                                      key={`${context.sourceUrl ?? "source"}:${index}`}
                                     >
-                                      {locale === "es" ? "Fuente" : "Source"}
-                                    </a>
-                                  </>
-                                )}
-                                {context.observedAt
-                                  ? ` · ${observedDate(context.observedAt, locale)}`
-                                  : ""}
-                              </p>
-                            ),
+                                      <span className="acq-status-chip acq-status-chip--subtle">
+                                        {evidenceLabel(context.status, locale)}
+                                      </span>{" "}
+                                      {safeHttpUrl(context.sourceUrl) ? (
+                                        <a
+                                          href={
+                                            safeHttpUrl(context.sourceUrl)!.href
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          {locale === "es"
+                                            ? "Abrir fuente"
+                                            : "Open source"}
+                                        </a>
+                                      ) : null}
+                                      {context.observedAt
+                                        ? ` · ${observedDate(context.observedAt, locale)}`
+                                        : ""}
+                                    </small>
+                                  ))}
+                                </div>
+                              ))}
+                            </details>
                           )}
                         </>
                       )}
@@ -1246,8 +1433,13 @@ export function ExplorationMap({
                             ? "MX · México"
                             : "US · Estados Unidos"}
                         </strong>{" "}
-                        · {presenceStatus(presence.status, locale)} ·{" "}
-                        {presence.relation}
+                        · {presenceStatus(presence.status, locale)}
+                        {marketPresenceNote(presence.relation, locale) && (
+                          <>
+                            {" "}
+                            · {marketPresenceNote(presence.relation, locale)}
+                          </>
+                        )}
                       </p>
                     ))}
                   <p className="acq-company-profile-scope">
@@ -1333,7 +1525,7 @@ export function ExplorationMap({
                                   {companyFieldLabel(item.key, locale)}
                                 </strong>
                                 <p>
-                                  {item.value ||
+                                  {cleanExplorationText(item.value, locale) ||
                                     (locale === "es" ? "Pendiente" : "Pending")}
                                 </p>
                                 <small>
@@ -1367,7 +1559,10 @@ export function ExplorationMap({
                                             key={`${candidate.companyId}:${index}`}
                                           >
                                             <span>
-                                              {candidate.value ||
+                                              {cleanExplorationText(
+                                                candidate.value,
+                                                locale,
+                                              ) ||
                                                 (locale === "es"
                                                   ? "Valor pendiente"
                                                   : "Pending value")}
@@ -1429,10 +1624,11 @@ export function ExplorationMap({
                                     ? "Siguiente pregunta"
                                     : "Next question"}
                                   :{" "}
-                                  {item.nextQuestion ||
-                                    (locale === "es"
-                                      ? "Por definir"
-                                      : "To be defined")}
+                                  {nextQuestionForField(
+                                    item.key,
+                                    item.nextQuestion,
+                                    locale,
+                                  )}
                                 </p>
                               </article>
                             ))
@@ -1461,6 +1657,22 @@ export function ExplorationMap({
                           .find(
                             (parentNode) => parentNode?.kind === "SUPPLY_CHAIN",
                           )
+                        const linkFunction =
+                          cleanExplorationText(link.function, locale) ||
+                          cleanExplorationText(
+                            link.functions?.join(" / "),
+                            locale,
+                          )
+                        const contextSummary = cleanExplorationText(
+                          link.contexts?.[0]?.statement,
+                          locale,
+                        )
+                        const roleNames = [
+                          link.function,
+                          ...(link.functions ?? []),
+                        ]
+                          .filter((value): value is string => !!value)
+                          .map(normalizeText)
                         return (
                           <button
                             type="button"
@@ -1477,19 +1689,16 @@ export function ExplorationMap({
                                 ? "MX · México"
                                 : "US · Estados Unidos"}{" "}
                               · {chain?.label ?? ""} · {node.label} ·{" "}
-                              {link.function ??
-                                link.functions?.join(" / ") ??
+                              {linkFunction ||
                                 (locale === "es"
                                   ? "Por confirmar"
                                   : "Pending")}{" "}
                               · {evidenceLabel(link.evidenceStatus, locale)}
                             </span>
-                            <small>
-                              {link.contexts?.[0]?.statement ??
-                                link.function ??
-                                link.functions?.join(" / ") ??
-                                ""}
-                            </small>
+                            {contextSummary &&
+                              !roleNames.includes(
+                                normalizeText(contextSummary),
+                              ) && <small>{contextSummary}</small>}
                           </button>
                         )
                       })}
