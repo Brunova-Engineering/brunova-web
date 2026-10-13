@@ -465,8 +465,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(within(route).getByText("Cintli")).toBeVisible()
   expect(screen.getByText("Muele maíz")).toBeVisible()
   expect(screen.getByText(/Qué procesos ofrece/)).toBeVisible()
-  expect(screen.getByText(/Disposición efectiva: GLOBAL/)).toBeVisible()
-  const scopeControl = screen.getByLabelText("Alcance de disposición")
+  expect(screen.getByText(/Descartada · Empresa completa/)).toBeVisible()
+  const scopeControl = screen.getByLabelText("¿Dónde aplicar este cambio?")
   const dispositionReason = screen.getByLabelText(
     "Motivo (8 caracteres mínimo)",
   )
@@ -474,7 +474,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   fireEvent.change(dispositionReason, {
     target: { value: "Outside this link" },
   })
-  fireEvent.click(screen.getByRole("button", { name: "Descartar alcance" }))
+  fireEvent.click(screen.getByRole("button", { name: "Descartar eslabón" }))
   await waitFor(() => expect(companyDisposition).toHaveBeenCalledTimes(1))
   expect(companyDisposition.mock.calls[0]?.[1]).toMatchObject({
     companyId: "cintli",
@@ -488,7 +488,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   fireEvent.change(dispositionReason, {
     target: { value: "Outside this chain" },
   })
-  fireEvent.click(screen.getByRole("button", { name: "Descartar alcance" }))
+  fireEvent.click(screen.getByRole("button", { name: "Descartar cadena" }))
   await waitFor(() => expect(companyDisposition).toHaveBeenCalledTimes(2))
   expect(companyDisposition.mock.calls[1]?.[1]).toMatchObject({
     companyId: "cintli",
@@ -501,7 +501,9 @@ it("reveals every recorded branch one level at a time and keeps company context"
   fireEvent.change(dispositionReason, {
     target: { value: "Outside this company" },
   })
-  fireEvent.click(screen.getByRole("button", { name: "Reabrir alcance" }))
+  fireEvent.click(
+    screen.getByRole("button", { name: "Reabrir empresa completa" }),
+  )
   await waitFor(() => expect(companyDisposition).toHaveBeenCalledTimes(3))
   expect(companyDisposition.mock.calls[2]?.[1]).toMatchObject({
     companyId: "cintli",
@@ -522,7 +524,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   ).toHaveTextContent("Corn milling appears in this link")
   fireEvent.click(
     screen.getByRole("button", {
-      name: /MX · Nixtamalización · Secado · Secado \/ Tratamiento/,
+      name: /MX · México · Nixtamalización · Secado · Secado \/ Tratamiento/,
     }),
   )
   expect(within(route).getByText("Secado")).toBeVisible()
@@ -531,10 +533,12 @@ it("reveals every recorded branch one level at a time and keeps company context"
     screen.getByLabelText("Contexto del eslabón seleccionado"),
   ).toHaveTextContent("Drying capacity appears in this link")
   expect(screen.getByText("Nixtamalización › Secado")).toBeVisible()
-  expect(screen.getByText(/Funciones en conflicto para este eslabón/)).toBeVisible()
+  expect(
+    screen.getByText(/Funciones en conflicto para este eslabón/),
+  ).toBeVisible()
   fireEvent.click(
     screen.getByRole("button", {
-      name: /MX · Nixtamalización · Lavado · Molienda/,
+      name: /MX · México · Nixtamalización · Lavado · Molienda/,
     }),
   )
   expect(within(route).getByText("Lavado")).toBeVisible()

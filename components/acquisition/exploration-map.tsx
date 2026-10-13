@@ -75,6 +75,40 @@ function presenceStatus(status: string, locale: Locale) {
   return status.replaceAll("_", " ")
 }
 
+function evidenceLabel(status: string, locale: Locale) {
+  const labels: Record<string, [string, string]> = {
+    OBSERVED: ["Observada", "Observed"],
+    INFERRED: ["Inferida", "Inferred"],
+    UNVERIFIED: ["Sin verificar", "Unverified"],
+    KNOWN: ["Registrada", "Recorded"],
+    HYPOTHESIS: ["Hipótesis", "Hypothesis"],
+    PENDING: ["Pendiente", "Pending"],
+  }
+  const label = labels[status]
+  return label ? label[locale === "es" ? 0 : 1] : status.replaceAll("_", " ")
+}
+
+function identityLabel(status: string, locale: Locale) {
+  const labels: Record<string, [string, string]> = {
+    RESOLVED: ["Identidad conciliada", "Identity resolved"],
+    PROVISIONAL: ["Identidad provisional", "Provisional identity"],
+    AMBIGUOUS: ["Identidad por conciliar", "Identity needs review"],
+    UNRESOLVED: ["Identidad por resolver", "Unresolved identity"],
+  }
+  const label = labels[status]
+  return label ? label[locale === "es" ? 0 : 1] : status.replaceAll("_", " ")
+}
+
+function dispositionScopeLabel(scope: string, locale: Locale) {
+  const labels: Record<string, [string, string]> = {
+    LINK: ["Eslabón", "Link"],
+    CHAIN: ["Cadena", "Chain"],
+    GLOBAL: ["Empresa completa", "Whole company"],
+  }
+  const label = labels[scope]
+  return label ? label[locale === "es" ? 0 : 1] : scope
+}
+
 function observedDate(value: string | null, locale: Locale) {
   if (!value) return locale === "es" ? "Sin fecha" : "No date"
   const parsed = new Date(value)
@@ -464,8 +498,8 @@ export function ExplorationMap({
       ...companyProfile.links.map((link) => link.market),
       ...companyProfile.leadNodeIds
         .map((leadId) => byId.get(leadId)?.market)
-        .filter((market): market is "MX" | "US" =>
-          market === "MX" || market === "US",
+        .filter(
+          (market): market is "MX" | "US" => market === "MX" || market === "US",
         ),
     ])
     const expectedVersions = Object.fromEntries(
@@ -473,7 +507,10 @@ export function ExplorationMap({
         .filter((header) => markets.has(header.market))
         .map((header) => [header.market, header.version]),
     ) as Partial<Record<"MX" | "US", number>>
-    if (markets.size === 0 || Object.keys(expectedVersions).length !== markets.size) {
+    if (
+      markets.size === 0 ||
+      Object.keys(expectedVersions).length !== markets.size
+    ) {
       setDispositionNotice(
         locale === "es"
           ? "No hay versiones vigentes para esta empresa."
@@ -1007,13 +1044,12 @@ export function ExplorationMap({
                   <h4>{companyProfile?.displayName ?? company.label}</h4>
                   {companyProfile &&
                     companyProfile.identityStatus !== "RESOLVED" && (
-                      <p className="acq-muted">
-                        {locale === "es" ? "Identidad" : "Identity"}:{" "}
-                        {companyProfile.identityStatus
-                          .replaceAll("_", " ")
-                          .toLowerCase()}
+                      <p className="acq-company-identity-state">
+                        <span className="acq-status-chip">
+                          {identityLabel(companyProfile.identityStatus, locale)}
+                        </span>{" "}
                         {companyProfile.aliases.length > 0
-                          ? ` · ${companyProfile.aliases.join(", ")}`
+                          ? `${locale === "es" ? "También conocida como" : "Also known as"}: ${companyProfile.aliases.join(", ")}`
                           : ""}
                       </p>
                     )}
@@ -1033,21 +1069,27 @@ export function ExplorationMap({
                     >
                       <span className="acq-eyebrow">
                         {locale === "es"
-                          ? "Eslabón seleccionado"
-                          : "Selected supply chain link"}
+                          ? "En este eslabón"
+                          : "In this supply chain link"}
                       </span>
                       <strong>
                         {selected[3].label} › {selected[4].label}
                       </strong>
                       {selectedLinkProfile && (
                         <>
-                          <p>
-                            {locale === "es" ? "Función" : "Function"}:{" "}
+                          <p className="acq-company-current-function">
+                            <strong>
+                              {locale === "es" ? "Función" : "Function"}
+                            </strong>{" "}
                             {selectedLinkProfile.function ??
                               selectedLinkProfile.functions?.join(" / ") ??
-                              (locale === "es" ? "Por confirmar" : "Pending")} ·{" "}
-                            {locale === "es" ? "Evidencia" : "Evidence"}:{" "}
-                            {selectedLinkProfile.evidenceStatus.toLowerCase()}
+                              (locale === "es" ? "Por confirmar" : "Pending")}
+                            <span className="acq-status-chip">
+                              {evidenceLabel(
+                                selectedLinkProfile.evidenceStatus,
+                                locale,
+                              )}
+                            </span>
                           </p>
                           {selectedLinkProfile.roleConflict && (
                             <p>
@@ -1059,8 +1101,10 @@ export function ExplorationMap({
                           {(selectedLinkProfile.contexts ?? []).map(
                             (context, index) => (
                               <p key={`${context.statement}:${index}`}>
-                                {context.statement} ·{" "}
-                                {context.status.toLowerCase()}
+                                {context.statement}{" "}
+                                <span className="acq-status-chip acq-status-chip--subtle">
+                                  {evidenceLabel(context.status, locale)}
+                                </span>
                                 {safeHttpUrl(context.sourceUrl) && (
                                   <>
                                     {" "}
@@ -1088,11 +1132,13 @@ export function ExplorationMap({
                   )}
                   {effectiveDisposition && (
                     <p className="acq-company-disposition-state" role="status">
-                      {locale === "es"
-                        ? "Disposición efectiva"
-                        : "Effective disposition"}
-                      : {effectiveDisposition.scope} ·{" "}
-                      {locale === "es" ? "Descartada" : "Discarded"} ·{" "}
+                      <span className="acq-status-chip">
+                        {locale === "es" ? "Descartada" : "Discarded"} ·{" "}
+                        {dispositionScopeLabel(
+                          effectiveDisposition.scope,
+                          locale,
+                        )}
+                      </span>{" "}
                       {effectiveDisposition.reason}
                     </p>
                   )}
@@ -1100,8 +1146,8 @@ export function ExplorationMap({
                     <div className="acq-company-disposition">
                       <label>
                         {locale === "es"
-                          ? "Alcance de disposición"
-                          : "Disposition scope"}
+                          ? "¿Dónde aplicar este cambio?"
+                          : "Where should this change apply?"}
                         <select
                           value={dispositionScope}
                           onChange={(event) =>
@@ -1129,6 +1175,31 @@ export function ExplorationMap({
                           </option>
                         </select>
                       </label>
+                      <p className="acq-company-disposition-impact">
+                        {scopedDisposition
+                          ? dispositionScope === "LINK"
+                            ? locale === "es"
+                              ? "Al reabrir, este eslabón volverá a estar disponible; el estado de la empresa en otras apariciones no cambia."
+                              : "Reopening makes this link available again; the company’s status in other appearances does not change."
+                            : dispositionScope === "CHAIN"
+                              ? locale === "es"
+                                ? "Al reabrir, esta empresa volverá a estar disponible en todos los eslabones de esta cadena."
+                                : "Reopening makes this company available again in every link in this chain."
+                              : locale === "es"
+                                ? "Al reabrir, esta empresa volverá a estar disponible en todas sus apariciones del mapa."
+                                : "Reopening makes this company available again in all its map appearances."
+                          : dispositionScope === "LINK"
+                            ? locale === "es"
+                              ? "Solo se descartará este eslabón; las demás apariciones de la empresa seguirán disponibles."
+                              : "Only this link will be discarded; the company remains available in its other appearances."
+                            : dispositionScope === "CHAIN"
+                              ? locale === "es"
+                                ? "Se descartarán todos los eslabones de esta cadena para esta empresa; otras cadenas seguirán disponibles."
+                                : "All links for this company in this chain will be discarded; other chains remain available."
+                              : locale === "es"
+                                ? "Se descartarán todas las apariciones de esta empresa en el mapa."
+                                : "All appearances of this company in the map will be discarded."}
+                      </p>
                       <label>
                         {locale === "es"
                           ? "Motivo (8 caracteres mínimo)"
@@ -1156,13 +1227,7 @@ export function ExplorationMap({
                           ? locale === "es"
                             ? "Registrando…"
                             : "Recording…"
-                          : scopedDisposition
-                            ? locale === "es"
-                              ? "Reabrir alcance"
-                              : "Reopen scope"
-                            : locale === "es"
-                              ? "Descartar alcance"
-                              : "Discard scope"}
+                          : `${scopedDisposition ? (locale === "es" ? "Reabrir" : "Reopen") : locale === "es" ? "Descartar" : "Discard"} ${dispositionScopeLabel(dispositionScope, locale).toLowerCase()}`}
                       </button>
                       {dispositionNotice && (
                         <p role="status">{dispositionNotice}</p>
@@ -1176,12 +1241,21 @@ export function ExplorationMap({
                         className="acq-exploration-market-presence"
                         key={`${presence.market}:${index}`}
                       >
-                        <strong>{presence.market}</strong> ·{" "}
-                        {presence.status.replaceAll("_", " ")} ·{" "}
+                        <strong>
+                          {presence.market === "MX"
+                            ? "MX · México"
+                            : "US · Estados Unidos"}
+                        </strong>{" "}
+                        · {presenceStatus(presence.status, locale)} ·{" "}
                         {presence.relation}
                       </p>
                     ))}
                   <p className="acq-company-profile-scope">
+                    <strong>
+                      {locale === "es"
+                        ? "Datos de la empresa"
+                        : "Company information"}
+                    </strong>{" "}
                     {locale === "es"
                       ? "Datos de identidad y empresa consolidados; no confirman por sí solos su función en el eslabón seleccionado."
                       : "Consolidated identity and company research; these fields alone do not confirm its role in the selected link."}
@@ -1399,12 +1473,22 @@ export function ExplorationMap({
                             }
                           >
                             <span>
-                              {node.market} · {chain?.label ?? ""} ·{" "}
-                              {node.label} · {link.function ?? link.functions?.join(" / ") ?? (locale === "es" ? "Por confirmar" : "Pending")} ·{" "}
-                              {link.evidenceStatus.toLowerCase()}
+                              {node.market === "MX"
+                                ? "MX · México"
+                                : "US · Estados Unidos"}{" "}
+                              · {chain?.label ?? ""} · {node.label} ·{" "}
+                              {link.function ??
+                                link.functions?.join(" / ") ??
+                                (locale === "es"
+                                  ? "Por confirmar"
+                                  : "Pending")}{" "}
+                              · {evidenceLabel(link.evidenceStatus, locale)}
                             </span>
                             <small>
-                              {link.contexts?.[0]?.statement ?? link.function ?? link.functions?.join(" / ") ?? ""}
+                              {link.contexts?.[0]?.statement ??
+                                link.function ??
+                                link.functions?.join(" / ") ??
+                                ""}
                             </small>
                           </button>
                         )
