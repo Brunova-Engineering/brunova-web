@@ -668,6 +668,52 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   background: var(--color-foreground);
   color: var(--color-background);
 }
+.acq-global-search {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+  max-width: 52rem;
+}
+.acq-global-search label {
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.acq-global-search input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  padding: 0.7rem 0.85rem;
+  color: var(--color-foreground);
+  background: var(--color-background);
+}
+.acq-global-results {
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid var(--color-border);
+  padding: 0.75rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.acq-global-results > p { margin: 0 0 0.25rem; }
+.acq .acq-global-results > button {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  background: var(--color-surface);
+}
+.acq .acq-global-results > button:hover,
+.acq .acq-global-results > button:focus-visible {
+  border-color: var(--color-foreground);
+}
+.acq-global-results small,
+.acq-global-results span { color: var(--color-muted-foreground); }
+.acq .acq-global-search-return {
+  justify-self: start;
+  text-decoration: underline;
+  text-underline-offset: 0.15rem;
+}
 .acq .acq-zoom-options button[aria-pressed="true"] {
   border-color: var(--color-foreground);
   box-shadow: inset 3px 0 var(--color-foreground);

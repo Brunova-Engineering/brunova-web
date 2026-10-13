@@ -378,6 +378,8 @@ export function ExplorationMap({
   const [decisionPending, setDecisionPending] = useState<string | null>(null)
   const [decisionNotice, setDecisionNotice] = useState("")
   const [companyQuery, setCompanyQuery] = useState("")
+  const [globalQuery, setGlobalQuery] = useState("")
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(true)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [marketFilter, setMarketFilter] = useState<"ALL" | "MX" | "US">("ALL")
   const [dispositionScopeSelection, setDispositionScopeSelection] = useState<{
@@ -576,6 +578,36 @@ export function ExplorationMap({
     ...new Set(companyProfiles.flatMap((profile) =>
       profile.tags.filter((tag) => !isGeneratedRoleTag(tag)))),
   ].sort()
+  const globalSearchTerm = normalizeText(globalQuery)
+  const globalResults = (() => {
+    if (globalSearchTerm.length < 2) return []
+    const matchingProfiles = new Set(companyProfiles
+      .filter((profile) => normalizeText([
+        profile.displayName,
+        ...profile.aliases,
+        ...profile.tags.filter((tag) => !isGeneratedRoleTag(tag)),
+        ...profile.leadNodeIds.map((id) => byId.get(id)?.label ?? ""),
+      ].join(" ")).includes(globalSearchTerm))
+      .map((profile) => profile.companyId))
+    const results = new Map<string, { lead: MapNode; path: MapNode[] }>()
+    for (const lead of nodes) {
+      if (lead.kind !== "COMPANY_LEAD") continue
+      if (marketFilter !== "ALL" && lead.market !== marketFilter) continue
+      const profile = profileByLead.get(lead.id)
+      if (!(profile && matchingProfiles.has(profile.companyId)) &&
+          !normalizeText(lead.label).includes(globalSearchTerm)) continue
+      for (const relation of lead.parents) {
+        const path = pathForLead(lead, relation.parentId)
+        if (!path) continue
+        const key = `${profile?.companyId ?? lead.id}:${relation.parentId}`
+        if (!results.has(key)) results.set(key, { lead, path })
+      }
+    }
+    return [...results.values()].sort((a, b) =>
+      displayLabel(a.lead).localeCompare(displayLabel(b.lead), locale) ||
+      a.lead.market.localeCompare(b.lead.market) ||
+      displayLabel(a.path[4]!).localeCompare(displayLabel(b.path[4]!), locale))
+  })()
   const filteredOptions =
     activeStage === 5 && (companyQuery || selectedTags.length)
       ? options.filter((node) => {
@@ -1039,6 +1071,55 @@ export function ExplorationMap({
                 : locale === "es" ? "Estados Unidos" : "United States"}
           </button>
         ))}
+      </div>
+      <div className="acq-global-search">
+        <label htmlFor="acq-global-company-search">
+          {locale === "es" ? "Buscar empresa en todo el mapa" : "Search companies across the map"}
+        </label>
+        <input
+          id="acq-global-company-search"
+          type="search"
+          value={globalQuery}
+          onChange={(event) => {
+            setGlobalQuery(event.target.value)
+            setGlobalSearchOpen(true)
+          }}
+          placeholder={locale === "es" ? "Nombre, alias o metadato" : "Name, alias, or metadata"}
+        />
+        {globalSearchTerm.length >= 2 && !globalSearchOpen && (
+          <button type="button" className="acq-global-search-return"
+            onClick={() => setGlobalSearchOpen(true)}>
+            {locale === "es" ? "Volver a resultados" : "Back to results"}
+          </button>
+        )}
+        {globalSearchTerm.length >= 2 && globalSearchOpen && (
+          <div className="acq-global-results" role="group" aria-label={
+            locale === "es" ? "Resultados de búsqueda global" : "Global search results"
+          }>
+            <p className="acq-muted">
+              {locale === "es"
+                ? `${globalResults.length} ${globalResults.length === 1 ? "ubicación encontrada" : "ubicaciones encontradas"}`
+                : `${globalResults.length} ${globalResults.length === 1 ? "location found" : "locations found"}`}
+            </p>
+            {globalResults.slice(0, 50).map(({ lead, path }) => (
+              <button type="button" key={`${lead.id}:${path[4]!.id}`}
+                onClick={() => {
+                  setSelectedIds(path.map((node) => node.id))
+                  setActiveStage(5)
+                  setGlobalSearchOpen(false)
+                }}>
+                <strong>{displayLabel(lead)}</strong>
+                <span>{lead.market === "MX" ? "MX · México" : "US · Estados Unidos"}</span>
+                <small>{displayLabel(path[3]!)} › {displayLabel(path[4]!)}</small>
+              </button>
+            ))}
+            {globalResults.length > 50 && (
+              <p className="acq-muted">
+                {locale === "es" ? "Afina la búsqueda para ver más ubicaciones." : "Refine your search to see more locations."}
+              </p>
+            )}
+          </div>
+        )}
       </div>
       {error && (
         <p role="alert" className="acq-muted">
