@@ -309,6 +309,7 @@ function optionDetail(
   nodes: MapNode[],
   progress: Map<string, Chain>,
   locale: Locale,
+  marketFilter: "ALL" | "MX" | "US",
 ) {
   if (stage === 5)
     return field(node, "chainRole") === "ANCHOR"
@@ -321,8 +322,10 @@ function optionDetail(
 
   const nextKind = stages[stage + 1]
   if (!nextKind) return ""
-  const members = nodes.filter((item) => conceptKey(item) === conceptKey(node))
+  const members = nodes.filter((item) => conceptKey(item) === conceptKey(node) &&
+    (marketFilter === "ALL" || item.market === marketFilter))
   const children = members.flatMap((member) => childrenOf(nodes, member, nextKind))
+    .filter((child) => marketFilter === "ALL" || child.market === marketFilter)
   const count = new Set(children.map(conceptKey)).size
   if (stage === 3) {
     const leads = members.reduce(
@@ -1192,6 +1195,7 @@ export function ExplorationMap({
                           nodes,
                           progress,
                           locale,
+                          marketFilter,
                         )}
                       </small>
                       {activeStage < 5 && (
