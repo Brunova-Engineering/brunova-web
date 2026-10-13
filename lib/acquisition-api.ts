@@ -375,6 +375,82 @@ export const acquisitionApi = {
             updated_at: z.string(),
           }),
         ),
+        companyProfiles: z
+          .array(
+            z.object({
+              companyId: z.string(),
+              cycleId: z.string(),
+              displayName: z.string(),
+              identityStatus: z.string(),
+              aliases: z.array(z.string()),
+              leadNodeIds: z.array(z.string()),
+              fields: z.array(
+                z.object({
+                  key: z.string(),
+                  dimension: z.string(),
+                  value: z.string().nullable(),
+                  status: z.enum(["KNOWN", "HYPOTHESIS", "PENDING"]),
+                  sourceUrl: z.string().nullable(),
+                  observedAt: z.string().nullable(),
+                  nextQuestion: z.string().nullable(),
+                  conflict: z.boolean().optional(),
+                  conflictValues: z
+                    .array(
+                      z.object({
+                        companyId: z.string(),
+                        value: z.string().nullable(),
+                        status: z.enum(["KNOWN", "HYPOTHESIS", "PENDING"]),
+                        sourceUrl: z.string().nullable(),
+                        observedAt: z.string().nullable(),
+                      }),
+                    )
+                    .optional(),
+                }),
+              ),
+              tags: z.array(z.string()),
+              links: z.array(
+                z.object({
+                  linkId: z.string(),
+                  market: z.enum(["MX", "US"]),
+                  function: z.string().nullable(),
+                  functions: z.array(z.string()).optional(),
+                  roleConflict: z.boolean().optional(),
+                  evidenceStatus: z.enum([
+                    "OBSERVED",
+                    "INFERRED",
+                    "UNVERIFIED",
+                  ]),
+                  sourceUrl: z.string().nullable().optional(),
+                  observedAt: z.string().nullable().optional(),
+                  contexts: z
+                    .array(
+                      z.object({
+                        leadNodeId: z.string().optional(),
+                        function: z.string().optional(),
+                        statement: z.string(),
+                        sourceUrl: z.string().nullable(),
+                        observedAt: z.string().nullable(),
+                        status: z.enum(["OBSERVED", "INFERRED", "UNVERIFIED"]),
+                      }),
+                    )
+                    .optional(),
+                }),
+              ),
+              disposition: z
+                .array(
+                  z.object({
+                    scope: z.enum(["GLOBAL", "CHAIN", "LINK"]),
+                    branchId: z.string().nullable(),
+                    status: z.enum(["DISCARDED"]),
+                    reason: z.string(),
+                    actorId: z.string(),
+                    updatedAt: z.string(),
+                  }),
+                )
+                .optional(),
+            }),
+          )
+          .optional(),
         directives: z.array(
           z
             .object({
@@ -485,6 +561,34 @@ export const acquisitionApi = {
     request(
       "/exploration/human-decisions",
       z.object({ status: z.string(), mapVersion: z.number() }),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({ commandId, request: body }),
+      },
+    ),
+  explorationCompanyDisposition: (
+    commandId: string,
+    body: {
+      cycleId: string
+      operation: "DISCARD" | "REOPEN"
+      companyId: string
+      scope: "GLOBAL" | "CHAIN" | "LINK"
+      branchId?: string
+      reason: string
+      expectedVersions: Partial<Record<"MX" | "US", number>>
+    },
+    csrf: string,
+  ) =>
+    request(
+      "/exploration/company/disposition-commands",
+      z
+        .object({
+          status: z.string(),
+          companyId: z.string(),
+          externalEffect: z.boolean(),
+        })
+        .passthrough(),
       {
         method: "POST",
         headers: { "content-type": "application/json", "x-csrf-token": csrf },

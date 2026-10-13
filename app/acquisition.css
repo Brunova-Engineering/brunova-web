@@ -741,7 +741,7 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 }
 .acq-zoom-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(17rem, 0.72fr) minmax(34rem, 1.28fr);
   gap: 1.3rem;
   align-items: start;
 }
@@ -862,8 +862,9 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   background: var(--color-background);
   position: sticky;
   top: 5rem;
-  max-height: calc(100vh - 6rem);
+  max-height: calc(100dvh - 6rem);
   overflow: auto;
+  overscroll-behavior: contain;
 }
 .acq-zoom-company h4 {
   font: 500 1.35rem/1.3 var(--font-display);
@@ -883,6 +884,201 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   font-size: 0.87rem;
   line-height: 1.5;
   margin: 0.25rem 0 0;
+}
+.acq-company-filters {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+.acq-company-filters label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+.acq-company-filters input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  padding: 0.55rem;
+  color: var(--color-foreground);
+  background: var(--color-background);
+}
+.acq-company-tags,
+.acq-company-crosslinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.acq-company-tags button {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.75rem;
+  color: var(--color-foreground);
+  background: var(--color-background);
+  text-align: left;
+}
+.acq-company-tags button[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-muted);
+}
+.acq-company-profile {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.acq-company-profile section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.65rem;
+}
+.acq-company-profile h5,
+.acq-company-crosslinks h5 {
+  font-size: 0.86rem;
+  margin: 0 0 0.45rem;
+}
+.acq-company-profile article + article {
+  border-top: 1px dashed var(--color-border);
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+}
+.acq-company-profile article p {
+  margin: 0.25rem 0;
+  font-size: 0.82rem;
+}
+.acq-company-profile article small {
+  color: var(--color-muted-foreground);
+}
+.acq-company-identity-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.55rem 0;
+  color: var(--color-muted-foreground);
+  font-size: 0.8rem;
+}
+.acq-status-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  color: var(--color-foreground);
+  background: color-mix(
+    in srgb,
+    var(--color-foreground) 4%,
+    var(--color-surface)
+  );
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.acq-status-chip--subtle {
+  color: var(--color-muted-foreground);
+  font-weight: 500;
+}
+.acq-company-field-conflict {
+  border-left: 2px solid var(--color-border);
+  margin: 0.45rem 0;
+  padding-left: 0.55rem;
+  font-size: 0.78rem;
+}
+.acq-company-field-conflict ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.35rem 0;
+  padding-left: 1rem;
+}
+.acq-company-field-conflict li {
+  display: grid;
+  gap: 0.15rem;
+}
+.acq-company-crosslinks {
+  display: grid;
+  border-top: 1px solid var(--color-border);
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+}
+.acq-company-crosslinks h5 {
+  margin-bottom: 0;
+}
+.acq-company-crosslinks button {
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  color: var(--color-foreground);
+  background: var(--color-background);
+  text-align: left;
+  cursor: pointer;
+}
+.acq-company-crosslinks button:hover,
+.acq-company-crosslinks button:focus-visible {
+  border-color: var(--color-accent);
+}
+.acq-company-crosslinks button span {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.acq-company-crosslinks button small {
+  color: var(--color-muted-foreground);
+  font-size: 0.74rem;
+}
+.acq-company-disposition {
+  display: grid;
+  gap: 0.6rem;
+  border: 1px solid var(--color-border);
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+}
+.acq-company-disposition label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+}
+.acq-company-disposition select,
+.acq-company-disposition textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  padding: 0.45rem;
+  color: var(--color-foreground);
+  background: var(--color-background);
+}
+.acq-company-disposition-state {
+  border-left: 3px solid var(--color-border);
+  padding-left: 0.6rem;
+  font-size: 0.8rem;
+}
+.acq-company-disposition-impact {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.acq-company-current-function {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.acq-company-selected-link {
+  display: grid;
+  gap: 0.25rem;
+  border-left: 3px solid var(--color-border);
+  margin: 0.8rem 0;
+  padding-left: 0.7rem;
+}
+.acq-company-selected-link strong {
+  font-size: 0.9rem;
+}
+.acq-company-selected-link p,
+.acq-company-profile-scope {
+  margin: 0.2rem 0;
+  color: var(--color-muted-foreground);
+  font-size: 0.78rem;
 }
 .acq-zoom-caution {
   border-left: 2px solid var(--color-border);
@@ -926,32 +1122,52 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 .acq-zoom-other-list small {
   color: var(--color-muted-foreground);
 }
-@media (max-width: 850px) {
-  .acq-zoom-path {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 1080px) {
   .acq-zoom-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .acq-company-profile {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .acq-zoom-company {
     position: static;
     max-height: none;
     overflow: visible;
   }
+}
+@media (min-width: 1081px) and (max-width: 1280px) {
+  .acq-zoom-grid {
+    grid-template-columns: minmax(15rem, 0.68fr) minmax(30rem, 1.32fr);
+    gap: 1rem;
+  }
+}
+@media (max-width: 850px) {
+  .acq-zoom-path {
+    display: flex;
+    gap: 0.55rem;
+    overflow-x: auto;
+    padding-bottom: 0.65rem !important;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
   .acq-zoom-path li {
-    min-height: 0;
+    flex: 0 0 min(74vw, 16rem);
+    scroll-snap-align: start;
   }
   .acq .acq-zoom-path li button {
     min-height: 0;
   }
   .acq-zoom-path li:not(:last-child)::after {
-    content: "↓";
-    top: auto;
-    bottom: -0.9rem;
-    right: calc(50% - 0.5rem);
+    content: "→";
+    top: calc(50% - 0.7rem);
+    bottom: auto;
+    right: -0.5rem;
   }
 }
 @media (max-width: 600px) {
+  .acq-company-profile {
+    grid-template-columns: 1fr;
+  }
   .acq-zoom-other-list {
     grid-template-columns: 1fr;
   }
