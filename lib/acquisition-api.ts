@@ -344,6 +344,9 @@ export const acquisitionApi = {
             market: z.enum(["MX", "US"]),
             kind: z.string(),
             label: z.string(),
+            concept_id: z.string().nullable().optional(),
+            concept_label: z.string().nullable().optional(),
+            concept_status: z.string().nullable().optional(),
             state: z.string(),
             attributes: z.record(
               z.string(),

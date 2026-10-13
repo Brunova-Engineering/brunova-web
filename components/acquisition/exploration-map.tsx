@@ -41,6 +41,21 @@ function field(node: MapNode, key: string): string | null {
   return typeof value === "string" && value.trim() ? value : null
 }
 
+function conceptKey(node: MapNode) {
+  return node.concept_id ?? node.id
+}
+
+function displayLabel(node: MapNode) {
+  return node.kind === "COMPANY_LEAD"
+    ? node.label
+    : (node.concept_label ?? node.label)
+}
+
+function isGeneratedRoleTag(tag: string) {
+  return tag === "Papel en el mapa: actor ancla" ||
+    tag === "Papel en el mapa: empresa candidata"
+}
+
 function normalizeText(value: string) {
   return value
     .normalize("NFKD")
@@ -306,12 +321,17 @@ function optionDetail(
 
   const nextKind = stages[stage + 1]
   if (!nextKind) return ""
-  const count = childrenOf(nodes, node, nextKind).length
+  const members = nodes.filter((item) => conceptKey(item) === conceptKey(node))
+  const children = members.flatMap((member) => childrenOf(nodes, member, nextKind))
+  const count = new Set(children.map(conceptKey)).size
   if (stage === 3) {
-    const chain = progress.get(node.id)
+    const leads = members.reduce(
+      (total, member) => total + (progress.get(member.id)?.company_lead_count ?? 0),
+      0,
+    )
     return locale === "es"
-      ? `${count} ${count === 1 ? "ruta de eslabón registrada" : "rutas de eslabón registradas"} · ${chain?.company_lead_count ?? 0} pistas de empresas · cobertura sin confirmar`
-      : `${count} recorded ${count === 1 ? "link route" : "link routes"} · ${chain?.company_lead_count ?? 0} company leads · coverage unconfirmed`
+      ? `${count} ${count === 1 ? "función registrada" : "funciones registradas"} · ${leads} pistas de empresas · cobertura sin confirmar`
+      : `${count} recorded ${count === 1 ? "function" : "functions"} · ${leads} company leads · coverage unconfirmed`
   }
   const nextName = (stageNames[locale][stage + 1] ?? "").toLowerCase()
   return locale === "es"
@@ -356,6 +376,7 @@ export function ExplorationMap({
   const [decisionNotice, setDecisionNotice] = useState("")
   const [companyQuery, setCompanyQuery] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [marketFilter, setMarketFilter] = useState<"ALL" | "MX" | "US">("ALL")
   const [dispositionScopeSelection, setDispositionScopeSelection] = useState<{
     contextKey: string
     scope: "LINK" | "CHAIN" | "GLOBAL"
@@ -390,6 +411,14 @@ export function ExplorationMap({
     () => new Map(nodes.map((node) => [node.id, node])),
     [nodes],
   )
+  const conceptMembers = useMemo(() => {
+    const grouped = new Map<string, MapNode[]>()
+    for (const node of nodes) {
+      const key = conceptKey(node)
+      grouped.set(key, [...(grouped.get(key) ?? []), node])
+    }
+    return grouped
+  }, [nodes])
   const progress = useMemo(
     () =>
       new Map(
@@ -442,22 +471,30 @@ export function ExplorationMap({
   })
   const parent = activeStage > 0 ? selected[activeStage - 1] : null
   const options = (() => {
+    const parentMembers = parent
+      ? (conceptMembers.get(conceptKey(parent)) ?? [parent])
+      : []
     const allowedParentIds =
       activeStage === 4 && parent
-        ? new Set([parent.id, ...equivalentChainIds(parent.id)])
+        ? new Set(parentMembers.flatMap((member) => [
+            member.id, ...equivalentChainIds(member.id),
+          ]))
         : parent
-          ? new Set([parent.id])
+          ? new Set(parentMembers.map((member) => member.id))
           : new Set<string>()
     const candidates = nodes.filter((node) => {
       if (node.kind !== stages[activeStage]) return false
+      if (marketFilter !== "ALL" && node.market !== marketFilter) return false
       if (activeStage === 0) return node.parents.length === 0
       return parent
         ? node.parents.some((item) => allowedParentIds.has(item.parentId))
         : false
     })
-    const deduplicated = [
-      ...new Map(candidates.map((node) => [node.id, node])).values(),
-    ]
+    const deduplicated = [...new Map(
+      candidates.map((node) => [
+        activeStage === 5 ? node.id : conceptKey(node), node,
+      ]),
+    ).values()]
     return deduplicated.sort((a, b) => {
       if (activeStage === 0 && a.market !== b.market)
         return a.market === "MX" ? -1 : 1
@@ -473,7 +510,7 @@ export function ExplorationMap({
           childrenOf(nodes, a, nextKind).length
         if (difference) return difference
       }
-      return a.label.localeCompare(b.label, locale)
+      return displayLabel(a).localeCompare(displayLabel(b), locale)
     })
   })()
   const company = selected[5]
@@ -533,7 +570,8 @@ export function ExplorationMap({
     ),
   )
   const allTags = [
-    ...new Set(companyProfiles.flatMap((profile) => profile.tags)),
+    ...new Set(companyProfiles.flatMap((profile) =>
+      profile.tags.filter((tag) => !isGeneratedRoleTag(tag)))),
   ].sort()
   const filteredOptions =
     activeStage === 5 && (companyQuery || selectedTags.length)
@@ -555,6 +593,22 @@ export function ExplorationMap({
   const currentStageName = stageNames[locale][activeStage] ?? ""
 
   function choose(node: MapNode) {
+    if (activeStage === 5 && selected[4]) {
+      const memberIds = new Set(
+        (conceptMembers.get(conceptKey(selected[4])) ?? [selected[4]])
+          .map((item) => item.id),
+      )
+      const matchingLink = node.parents
+        .map((relation) => relation.parentId)
+        .find((id) => memberIds.has(id))
+      if (matchingLink) {
+        const path = pathForLead(node, matchingLink)
+        if (path) {
+          setSelectedIds(path.map((item) => item.id))
+          return
+        }
+      }
+    }
     setSelectedIds((previous) =>
       previous.map((id, index) =>
         index < activeStage ? id : index === activeStage ? node.id : null,
@@ -963,6 +1017,24 @@ export function ExplorationMap({
           ? "Selecciona una rama en cada nivel para ver todas sus vertientes registradas. Una entrega de cadena no demuestra que se hayan encontrado todos sus eslabones."
           : "Select a branch at each level to see all recorded alternatives. A chain delivery does not prove that all its links have been found."}
       </p>
+      <div className="acq-market-filter" role="group" aria-label={
+        locale === "es" ? "Mercado de exploración" : "Exploration market"
+      }>
+        {(["ALL", "MX", "US"] as const).map((market) => (
+          <button key={market} type="button" aria-pressed={marketFilter === market}
+            onClick={() => {
+              setMarketFilter(market)
+              setSelectedIds(stages.map(() => null))
+              setActiveStage(0)
+            }}>
+            {market === "ALL"
+              ? locale === "es" ? "Todos" : "All"
+              : market === "MX"
+                ? locale === "es" ? "México" : "Mexico"
+                : locale === "es" ? "Estados Unidos" : "United States"}
+          </button>
+        ))}
+      </div>
       {error && (
         <p role="alert" className="acq-muted">
           {locale === "es"
@@ -1000,7 +1072,7 @@ export function ExplorationMap({
                     {index + 1}. {stageNames[locale][index]}
                   </span>
                   <strong>
-                    {selected[index]?.label ??
+                    {selected[index] ? displayLabel(selected[index]) :
                       (locale === "es" ? "Por elegir" : "Choose a branch")}
                   </strong>
                 </button>
@@ -1025,7 +1097,7 @@ export function ExplorationMap({
                     : `${filteredOptions.length} recorded ${filteredOptions.length === 1 ? "option" : "options"}`}
                 </span>
               </div>
-              {parent && <p className="acq-muted">{parent.label}</p>}
+              {parent && <p className="acq-muted">{displayLabel(parent)}</p>}
               {activeStage === 5 && (
                 <div className="acq-company-filters">
                   <label>
@@ -1106,11 +1178,13 @@ export function ExplorationMap({
                       onClick={() => choose(node)}
                     >
                       <span className="acq-market-badge">
-                        {node.market === "MX"
-                          ? "MX · México"
-                          : "US · Estados Unidos"}
+                        {activeStage === 5
+                          ? node.market === "MX" ? "MX · México" : "US · Estados Unidos"
+                          : marketFilter !== "ALL" ? marketFilter
+                          : [...new Set((conceptMembers.get(conceptKey(node)) ?? [node])
+                              .map((member) => member.market))].sort().join(" · ")}
                       </span>
-                      <strong>{node.label}</strong>
+                      <strong>{displayLabel(node)}</strong>
                       <small>
                         {optionDetail(
                           node,
@@ -1125,7 +1199,10 @@ export function ExplorationMap({
                       )}
                     </button>
                     {data.marketPresence
-                      .filter((item) => item.node_id === node.id)
+                      .filter((item) =>
+                        (conceptMembers.get(conceptKey(node)) ?? [node])
+                          .some((member) => member.id === item.node_id) &&
+                        (marketFilter === "ALL" || item.market === marketFilter))
                       .map((presence, index) => (
                         <p
                           className="acq-exploration-market-presence"
@@ -1187,7 +1264,14 @@ export function ExplorationMap({
                       })}
                     {activeStage === 3 && coverageForChain(node)}
                     {nodeDecision(node)}
-                    {decisionControls(node)}
+                    {(marketFilter !== "ALL" ||
+                      (conceptMembers.get(conceptKey(node))?.length ?? 1) === 1)
+                      ? decisionControls(node)
+                      : <p className="acq-muted">
+                          {locale === "es"
+                            ? "Elige México o Estados Unidos para decidir sobre esa rama en un mercado."
+                            : "Choose Mexico or the United States to decide on this branch in one market."}
+                        </p>}
                   </div>
                 ))}
               </div>
@@ -1238,7 +1322,7 @@ export function ExplorationMap({
                           : "In this supply chain link"}
                       </span>
                       <strong>
-                        {selected[3].label} › {selected[4].label}
+                        {displayLabel(selected[3])} › {displayLabel(selected[4])}
                       </strong>
                       {selectedLinkProfile && (
                         <>
@@ -1320,6 +1404,67 @@ export function ExplorationMap({
                         </>
                       )}
                     </section>
+                  )}
+                  {companyCrossLinks.length > 0 && (
+                    <div className="acq-company-crosslinks">
+                      <h5>
+                        {locale === "es"
+                          ? "Referencias en otros eslabones"
+                          : "References in other supply chain links"}
+                      </h5>
+                      {companyCrossLinks.map((link) => {
+                        const node = byId.get(link.linkId)!
+                        const chain = node.parents
+                          .map((relation) => byId.get(relation.parentId))
+                          .find(
+                            (parentNode) => parentNode?.kind === "SUPPLY_CHAIN",
+                          )
+                        const linkFunction =
+                          cleanExplorationText(link.function, locale) ||
+                          cleanExplorationText(
+                            link.functions?.join(" / "),
+                            locale,
+                          )
+                        const contextSummary = cleanExplorationText(
+                          link.contexts?.[0]?.statement,
+                          locale,
+                        )
+                        const roleNames = [
+                          link.function,
+                          ...(link.functions ?? []),
+                        ]
+                          .filter((value): value is string => !!value)
+                          .map(normalizeText)
+                        return (
+                          <button
+                            type="button"
+                            key={link.linkId}
+                            onClick={() =>
+                              navigateToCompanyLink(
+                                link.linkId,
+                                companyProfile!,
+                              )
+                            }
+                          >
+                            <span>
+                              {node.market === "MX"
+                                ? "MX · México"
+                                : "US · Estados Unidos"}{" "}
+                              · {chain ? displayLabel(chain) : ""} · {displayLabel(node)} ·{" "}
+                              {linkFunction ||
+                                (locale === "es"
+                                  ? "Por confirmar"
+                                  : "Pending")}{" "}
+                              · {evidenceLabel(link.evidenceStatus, locale)}
+                            </span>
+                            {contextSummary &&
+                              !roleNames.includes(
+                                normalizeText(contextSummary),
+                              ) && <small>{contextSummary}</small>}
+                          </button>
+                        )
+                      })}
+                    </div>
                   )}
                   {effectiveDisposition && (
                     <p className="acq-company-disposition-state" role="status">
@@ -1736,67 +1881,6 @@ export function ExplorationMap({
                       )
                     })}
                   </div>
-                  {companyCrossLinks.length > 0 && (
-                    <div className="acq-company-crosslinks">
-                      <h5>
-                        {locale === "es"
-                          ? "Referencias en otros eslabones"
-                          : "References in other supply chain links"}
-                      </h5>
-                      {companyCrossLinks.map((link) => {
-                        const node = byId.get(link.linkId)!
-                        const chain = node.parents
-                          .map((relation) => byId.get(relation.parentId))
-                          .find(
-                            (parentNode) => parentNode?.kind === "SUPPLY_CHAIN",
-                          )
-                        const linkFunction =
-                          cleanExplorationText(link.function, locale) ||
-                          cleanExplorationText(
-                            link.functions?.join(" / "),
-                            locale,
-                          )
-                        const contextSummary = cleanExplorationText(
-                          link.contexts?.[0]?.statement,
-                          locale,
-                        )
-                        const roleNames = [
-                          link.function,
-                          ...(link.functions ?? []),
-                        ]
-                          .filter((value): value is string => !!value)
-                          .map(normalizeText)
-                        return (
-                          <button
-                            type="button"
-                            key={link.linkId}
-                            onClick={() =>
-                              navigateToCompanyLink(
-                                link.linkId,
-                                companyProfile!,
-                              )
-                            }
-                          >
-                            <span>
-                              {node.market === "MX"
-                                ? "MX · México"
-                                : "US · Estados Unidos"}{" "}
-                              · {chain?.label ?? ""} · {node.label} ·{" "}
-                              {linkFunction ||
-                                (locale === "es"
-                                  ? "Por confirmar"
-                                  : "Pending")}{" "}
-                              · {evidenceLabel(link.evidenceStatus, locale)}
-                            </span>
-                            {contextSummary &&
-                              !roleNames.includes(
-                                normalizeText(contextSummary),
-                              ) && <small>{contextSummary}</small>}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
                   <p className="acq-zoom-caution">
                     {locale === "es"
                       ? "Su relación con este eslabón es una hipótesis; no se ha probado un contrato ni una necesidad comercial."
