@@ -1573,9 +1573,34 @@ export function ExplorationMap({
                                   },
                                 ]
                               : []
+                      const knownFields = profileFields.filter(
+                        (item) => item.status === "KNOWN" && !item.conflict,
+                      ).length
+                      const pendingFields = profileFields.filter(
+                        (item) => item.status === "PENDING",
+                      ).length
+                      const hypothesisFields = profileFields.length - knownFields - pendingFields
                       return (
-                        <section key={dimension}>
-                          <h5>{title}</h5>
+                        <details
+                          className="acq-company-dimension"
+                          key={`${company.id}:${dimension}`}
+                          open={dimension === "activity"}
+                        >
+                          <summary>
+                            <span className="acq-company-dimension-title">{title}</span>
+                            <span className="acq-company-dimension-status">
+                              {knownFields > 0 && (
+                                <span>{knownFields} {locale === "es" ? "registrados" : "recorded"}</span>
+                              )}
+                              {hypothesisFields > 0 && (
+                                <span>{hypothesisFields} {locale === "es" ? "por confirmar" : "to confirm"}</span>
+                              )}
+                              {pendingFields > 0 && (
+                                <span>{pendingFields} {locale === "es" ? "pendientes" : "pending"}</span>
+                              )}
+                            </span>
+                          </summary>
+                          <div className="acq-company-dimension-fields">
                           {profileFields.length ? (
                             profileFields.map((item) => (
                               <article key={item.key}>
@@ -1706,7 +1731,8 @@ export function ExplorationMap({
                                 : "Pending research"}
                             </p>
                           )}
-                        </section>
+                          </div>
+                        </details>
                       )
                     })}
                   </div>
