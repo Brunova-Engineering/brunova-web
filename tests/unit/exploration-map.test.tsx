@@ -613,6 +613,11 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(
     within(selectedLink).getAllByRole("link", { name: "Abrir fuente" }),
   ).toHaveLength(4)
+  const decisionSummary = within(companyCard).getByText(
+    "Tomar una decisión sobre esta empresa",
+  )
+  expect(decisionSummary.closest("details")).not.toHaveAttribute("open")
+  fireEvent.click(decisionSummary)
   const scopeControl = screen.getByLabelText("¿Dónde aplicar este cambio?")
   const dispositionReason = screen.getByLabelText(
     "Motivo (8 caracteres mínimo)",
