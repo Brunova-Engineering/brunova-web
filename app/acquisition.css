@@ -1003,6 +1003,14 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 .acq-company-enrichment-status dt { color: #aaa39b; font-size: 0.76rem; }
 .acq-company-enrichment-status dd { margin: 0.12rem 0 0; font-size: 0.85rem; }
 .acq-company-enrichment-status p { margin: 0; font-size: 0.83rem; }
+.acq-company-enrichment-attempts { border: 1px solid #39342f; padding: 1rem; display: grid; gap: 0.65rem; }
+.acq-company-enrichment-attempts > p { color: #aaa39b; font-size: 0.82rem; margin: 0; }
+.acq-company-enrichment-attempts details { border-top: 1px solid #39342f; padding-top: 0.55rem; }
+.acq-company-enrichment-attempts summary { cursor: pointer; font-size: 0.84rem; }
+.acq-company-enrichment-attempts details p { margin: 0.55rem 0; font-size: 0.83rem; }
+.acq-company-enrichment-attempts ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+.acq-company-enrichment-attempts li { font-size: 0.82rem; margin: 0.35rem 0; }
+.acq-company-enrichment-attempts li small { color: #aaa39b; display: block; margin-top: 0.2rem; }
 .acq-company-profile-summary {
   display: flex;
   flex-wrap: wrap;

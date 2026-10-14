@@ -460,7 +460,15 @@ export const acquisitionApi = {
                 closedAt: z.string().nullable(),
                 closureReason: z.string().nullable(),
                 stageHistory: z.array(z.unknown()),
-                attempts: z.array(z.unknown()),
+                attempts: z.array(z.object({
+                  attemptId: z.string(),linkId: z.string(),fieldKey: z.string(),dimension: z.string(),
+                  question: z.string().optional(),disposition: z.string(),exhausted: z.boolean(),
+                  recordedAt: z.string(),aiReceipt: z.unknown().nullable().optional(),
+                  sourceReceipts: z.array(z.object({
+                    uri: z.string().optional(),outcome: z.string(),receiptHash: z.string().nullable().optional(),
+                    excerpt: z.string().optional(),
+                  }).passthrough()),
+                }).passthrough()),
               }).nullable().optional(),
             }),
           )

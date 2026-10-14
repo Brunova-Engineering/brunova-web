@@ -566,6 +566,10 @@ export function ExplorationMap({
       repeatsRole: roleTexts.includes(normalizeText(group.statement)),
     }))
   })()
+  const selectedEnrichmentAttempts = (companyProfile?.enrichment?.attempts ?? [])
+    .filter((attempt) => attempt.linkId === selected[4]?.id)
+    .slice(-4)
+    .reverse()
   const companyCrossLinks = companyProfile
     ? [
         ...new Map(
@@ -1519,6 +1523,27 @@ export function ExplorationMap({
                           )}
                         </>
                       )}
+                    </section>
+                  )}
+                  {selectedEnrichmentAttempts.length > 0 && (
+                    <section className="acq-company-enrichment-attempts" aria-label={locale === "es" ? "Investigación de este eslabón" : "Research for this link"}>
+                      <span className="acq-eyebrow">{locale === "es" ? "Investigación de este eslabón" : "Research for this link"}</span>
+                      <p>{locale === "es" ? "Las respuestas de IA son pistas; cada fuente original se revisa por separado." : "AI answers are leads; every original source is reviewed separately."}</p>
+                      {selectedEnrichmentAttempts.map((attempt) => (
+                        <details key={attempt.attemptId}>
+                          <summary>{attempt.dimension.replaceAll("_", " ")} · {attempt.fieldKey.replaceAll("_", " ")} · {candidateDate(attempt.recordedAt,locale)}</summary>
+                          {attempt.question && <p>{attempt.question}</p>}
+                          <ul>
+                            {attempt.sourceReceipts.length > 0 ? attempt.sourceReceipts.map((source,index) => (
+                              <li key={`${source.uri ?? "unavailable"}-${index}`}>
+                                {safeHttpUrl(source.uri) ? <a href={safeHttpUrl(source.uri)!.href} target="_blank" rel="noopener noreferrer">{locale === "es" ? "Fuente original" : "Original source"}</a> : (locale === "es" ? "Fuente no disponible" : "Source unavailable")}
+                                {` · ${source.outcome === "READ" ? locale === "es" ? "Leída" : "Read" : locale === "es" ? "No disponible" : "Unavailable"}`}
+                                {source.excerpt && <small>{cleanExplorationText(source.excerpt,locale)}</small>}
+                              </li>
+                            )) : <li>{locale === "es" ? "Sin páginas originales leídas en este intento" : "No original pages read in this attempt"}</li>}
+                          </ul>
+                        </details>
+                      ))}
                     </section>
                   )}
                   {companyCrossLinks.length > 0 && (
