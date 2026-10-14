@@ -209,6 +209,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
         cycleId: "cycle-1",
         displayName: "Cintli",
         identityStatus: "PROVISIONAL",
+        enrichment:{stage:"ENRICHMENT" as const,version:2,discoveredAt:now,lastTouchedAt:now,
+          contactedAt:null,closedAt:null,closureReason:null,stageHistory:[],attempts:[]},
         aliases: ["Cintli CDMX"],
         leadNodeIds: ["cintli"],
         fields: [
@@ -666,6 +668,10 @@ it("reveals every recorded branch one level at a time and keeps company context"
   const companyCard = screen
     .getByRole("heading", { name: "Cintli", level: 4 })
     .closest("aside")!
+  const stage=within(companyCard).getByLabelText("Etapa de la empresa")
+  expect(stage).toHaveTextContent("En enriquecimiento")
+  expect(stage).toHaveTextContent("Última actividad")
+  expect(stage).not.toHaveTextContent("Primer contacto")
   const dimensionCards = [
     ...companyCard.querySelectorAll("details.acq-company-dimension"),
   ]

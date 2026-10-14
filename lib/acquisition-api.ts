@@ -451,6 +451,17 @@ export const acquisitionApi = {
                   }),
                 )
                 .optional(),
+              enrichment: z.object({
+                stage: z.enum(["DISCOVERY", "ENRICHMENT", "BRUNOVA_FIT", "FILTERING", "SELECTED", "CONTACTED", "CLOSED"]),
+                version: z.coerce.number(),
+                discoveredAt: z.string().nullable(),
+                lastTouchedAt: z.string().nullable(),
+                contactedAt: z.string().nullable(),
+                closedAt: z.string().nullable(),
+                closureReason: z.string().nullable(),
+                stageHistory: z.array(z.unknown()),
+                attempts: z.array(z.unknown()),
+              }).nullable().optional(),
             }),
           )
           .optional(),

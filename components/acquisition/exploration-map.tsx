@@ -36,6 +36,22 @@ const stageNames = {
   ],
 }
 
+const candidateStageNames: Record<string, [string, string]> = {
+  DISCOVERY: ["Descubierta", "Discovered"],
+  ENRICHMENT: ["En enriquecimiento", "In research"],
+  BRUNOVA_FIT: ["Evaluar conexión con Brunova", "Assess Brunova fit"],
+  FILTERING: ["En selección", "In selection"],
+  SELECTED: ["Seleccionada", "Selected"],
+  CONTACTED: ["Primer contacto confirmado", "First contact confirmed"],
+  CLOSED: ["Cerrada", "Closed"],
+}
+function candidateDate(value:string|null|undefined,locale:Locale){
+  if(!value)return locale==="es"?"Pendiente":"Pending"
+  const date=new Date(value)
+  return Number.isNaN(date.getTime())?(locale==="es"?"Pendiente":"Pending"):
+    new Intl.DateTimeFormat(locale==="es"?"es-MX":"en-US",{dateStyle:"medium",timeZone:"America/Mexico_City"}).format(date)
+}
+
 function field(node: MapNode, key: string): string | null {
   const value = node.attributes[key]
   return typeof value === "string" && value.trim() ? value : null
@@ -1373,6 +1389,19 @@ export function ExplorationMap({
                       : "Company brief · lead"}
                   </span>
                   <h4>{companyProfile?.displayName ?? company.label}</h4>
+                  {companyProfile?.enrichment && (
+                    <section className="acq-company-enrichment-status" aria-label={locale === "es" ? "Etapa de la empresa" : "Company stage"}>
+                      <span className="acq-eyebrow">{locale === "es" ? "Etapa global" : "Global stage"}</span>
+                      <strong>{candidateStageNames[companyProfile.enrichment.stage]?.[locale === "es" ? 0 : 1] ?? companyProfile.enrichment.stage}</strong>
+                      <dl>
+                        <div><dt>{locale === "es" ? "Descubierta" : "Discovered"}</dt><dd>{candidateDate(companyProfile.enrichment.discoveredAt,locale)}</dd></div>
+                        <div><dt>{locale === "es" ? "Última actividad" : "Last activity"}</dt><dd>{candidateDate(companyProfile.enrichment.lastTouchedAt,locale)}</dd></div>
+                        {companyProfile.enrichment.contactedAt && <div><dt>{locale === "es" ? "Primer contacto" : "First contact"}</dt><dd>{candidateDate(companyProfile.enrichment.contactedAt,locale)}</dd></div>}
+                        {companyProfile.enrichment.closedAt && <div><dt>{locale === "es" ? "Cierre" : "Closed"}</dt><dd>{candidateDate(companyProfile.enrichment.closedAt,locale)}</dd></div>}
+                      </dl>
+                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason}</p>}
+                    </section>
+                  )}
                   {companyProfile &&
                     companyProfile.identityStatus !== "RESOLVED" && (
                       <p className="acq-company-identity-state">
