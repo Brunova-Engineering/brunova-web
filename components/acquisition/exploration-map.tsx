@@ -36,6 +36,22 @@ const stageNames = {
   ],
 }
 
+const candidateStageNames: Record<string, [string, string]> = {
+  DISCOVERY: ["Descubierta", "Discovered"],
+  ENRICHMENT: ["En enriquecimiento", "In research"],
+  BRUNOVA_FIT: ["Evaluar conexión con Brunova", "Assess Brunova fit"],
+  FILTERING: ["En selección", "In selection"],
+  SELECTED: ["Seleccionada", "Selected"],
+  CONTACTED: ["Primer contacto confirmado", "First contact confirmed"],
+  CLOSED: ["Cerrada", "Closed"],
+}
+function candidateDate(value:string|null|undefined,locale:Locale){
+  if(!value)return locale==="es"?"Pendiente":"Pending"
+  const date=new Date(value)
+  return Number.isNaN(date.getTime())?(locale==="es"?"Pendiente":"Pending"):
+    new Intl.DateTimeFormat(locale==="es"?"es-MX":"en-US",{dateStyle:"medium",timeZone:"America/Mexico_City"}).format(date)
+}
+
 function field(node: MapNode, key: string): string | null {
   const value = node.attributes[key]
   return typeof value === "string" && value.trim() ? value : null
@@ -550,6 +566,24 @@ export function ExplorationMap({
       repeatsRole: roleTexts.includes(normalizeText(group.statement)),
     }))
   })()
+  const selectedEnrichmentAttempts = (companyProfile?.enrichment?.attempts ?? [])
+    .filter((attempt) => attempt.linkId === selected[4]?.id)
+    .slice(-4)
+    .reverse()
+  const selectedMinimums = selected[4]
+    ? companyProfile?.enrichment?.minimumsByLink?.[selected[4].id]
+    : undefined
+  const minimumChecklist = selectedMinimums ? ([
+    ["identity", locale === "es" ? "Identidad distinguible" : "Distinct identity"],
+    ["operation", locale === "es" ? "Operación comprobada" : "Verified operation"],
+    ["functionInLink", locale === "es" ? "Función en este eslabón" : "Role in this link"],
+    ["operatingMarket", locale === "es" ? "Mercado donde opera" : "Operating market"],
+    ["scaleSignal", locale === "es" ? "Señal de escala" : "Scale signal"],
+    ["accessRoute", locale === "es" ? "Vía de acceso plausible" : "Plausible access route"],
+  ] as const) : []
+  const nextEnrichmentQuestion = companyProfile?.fields.find(
+    (item) => item.status !== "KNOWN" && item.nextQuestion,
+  )?.nextQuestion
   const companyCrossLinks = companyProfile
     ? [
         ...new Map(
@@ -1373,6 +1407,19 @@ export function ExplorationMap({
                       : "Company brief · lead"}
                   </span>
                   <h4>{companyProfile?.displayName ?? company.label}</h4>
+                  {companyProfile?.enrichment && (
+                    <section className="acq-company-enrichment-status" aria-label={locale === "es" ? "Etapa de la empresa" : "Company stage"}>
+                      <span className="acq-eyebrow">{locale === "es" ? "Etapa global" : "Global stage"}</span>
+                      <strong>{candidateStageNames[companyProfile.enrichment.stage]?.[locale === "es" ? 0 : 1] ?? companyProfile.enrichment.stage}</strong>
+                      <dl>
+                        <div><dt>{locale === "es" ? "Descubierta" : "Discovered"}</dt><dd>{candidateDate(companyProfile.enrichment.discoveredAt,locale)}</dd></div>
+                        <div><dt>{locale === "es" ? "Última actividad" : "Last activity"}</dt><dd>{candidateDate(companyProfile.enrichment.lastTouchedAt,locale)}</dd></div>
+                        {companyProfile.enrichment.contactedAt && <div><dt>{locale === "es" ? "Primer contacto" : "First contact"}</dt><dd>{candidateDate(companyProfile.enrichment.contactedAt,locale)}</dd></div>}
+                        {companyProfile.enrichment.closedAt && <div><dt>{locale === "es" ? "Cierre" : "Closed"}</dt><dd>{candidateDate(companyProfile.enrichment.closedAt,locale)}</dd></div>}
+                      </dl>
+                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason}</p>}
+                    </section>
+                  )}
                   {companyProfile &&
                     companyProfile.identityStatus !== "RESOLVED" && (
                       <p className="acq-company-identity-state">
@@ -1490,6 +1537,39 @@ export function ExplorationMap({
                           )}
                         </>
                       )}
+                    </section>
+                  )}
+                  {selectedMinimums && (
+                    <section className="acq-company-minimums" aria-label={locale === "es" ? "Mínimos para avanzar" : "Minimums to advance"}>
+                      <span className="acq-eyebrow">{locale === "es" ? "Mínimos para avanzar" : "Minimums to advance"}</span>
+                      <strong>{minimumChecklist.filter(([key]) => selectedMinimums[key]).length} / {minimumChecklist.length} {locale === "es" ? "sustentados" : "supported"}</strong>
+                      <ul>{minimumChecklist.map(([key,label]) => <li key={key} className={selectedMinimums[key] ? "is-supported" : "is-missing"}>
+                        <span aria-hidden="true">{selectedMinimums[key] ? "✓" : "○"}</span>
+                        <span>{label}</span>
+                        <small>{selectedMinimums[key] ? locale === "es" ? "Con fuente" : "Sourced" : locale === "es" ? "Falta sustento" : "Needs evidence"}</small>
+                      </li>)}</ul>
+                      {nextEnrichmentQuestion && <p>{locale === "es" ? "Siguiente pregunta registrada" : "Recorded next question"}: {cleanExplorationText(nextEnrichmentQuestion,locale)}</p>}
+                    </section>
+                  )}
+                  {selectedEnrichmentAttempts.length > 0 && (
+                    <section className="acq-company-enrichment-attempts" aria-label={locale === "es" ? "Investigación de este eslabón" : "Research for this link"}>
+                      <span className="acq-eyebrow">{locale === "es" ? "Investigación de este eslabón" : "Research for this link"}</span>
+                      <p>{locale === "es" ? "Las respuestas de IA son pistas; cada fuente original se revisa por separado." : "AI answers are leads; every original source is reviewed separately."}</p>
+                      {selectedEnrichmentAttempts.map((attempt) => (
+                        <details key={attempt.attemptId}>
+                          <summary>{attempt.dimension.replaceAll("_", " ")} · {attempt.fieldKey.replaceAll("_", " ")} · {candidateDate(attempt.recordedAt,locale)}</summary>
+                          {attempt.question && <p>{attempt.question}</p>}
+                          <ul>
+                            {attempt.sourceReceipts.length > 0 ? attempt.sourceReceipts.map((source,index) => (
+                              <li key={`${source.uri ?? "unavailable"}-${index}`}>
+                                {safeHttpUrl(source.uri) ? <a href={safeHttpUrl(source.uri)!.href} target="_blank" rel="noopener noreferrer">{locale === "es" ? "Fuente original" : "Original source"}</a> : (locale === "es" ? "Fuente no disponible" : "Source unavailable")}
+                                {` · ${source.outcome === "READ" ? locale === "es" ? "Leída" : "Read" : locale === "es" ? "No disponible" : "Unavailable"}`}
+                                {source.excerpt && <small>{cleanExplorationText(source.excerpt,locale)}</small>}
+                              </li>
+                            )) : <li>{locale === "es" ? "Sin páginas originales leídas en este intento" : "No original pages read in this attempt"}</li>}
+                          </ul>
+                        </details>
+                      ))}
                     </section>
                   )}
                   {companyCrossLinks.length > 0 && (
