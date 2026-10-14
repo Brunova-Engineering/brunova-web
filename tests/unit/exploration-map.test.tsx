@@ -210,7 +210,9 @@ it("reveals every recorded branch one level at a time and keeps company context"
         displayName: "Cintli",
         identityStatus: "PROVISIONAL",
         enrichment:{stage:"ENRICHMENT" as const,version:2,discoveredAt:now,lastTouchedAt:now,
-          contactedAt:null,closedAt:null,closureReason:null,stageHistory:[],attempts:[{
+          contactedAt:null,closedAt:null,closureReason:null,stageHistory:[],minimumsByLink:{link:{
+            identity:true,operation:false,functionInLink:false,operatingMarket:true,scaleSignal:false,accessRoute:false,
+          }},attempts:[{
             attemptId:"web-first-fixture",linkId:"link",fieldKey:"FUNCTION_IN_LINK",dimension:"WEB_FIRST",
             question:"¿Qué fuente confirma el lavado?",disposition:"NO_SIGNAL",exhausted:false,recordedAt:now,
             aiReceipt:{outcome:"READ"},sourceReceipts:[{uri:"https://cintli.example/source",outcome:"READ",receiptHash:"source-receipt",excerpt:"Fuente original consultada"}],
@@ -679,6 +681,10 @@ it("reveals every recorded branch one level at a time and keeps company context"
   fireEvent.click(within(research).getByText(/WEB FIRST/))
   expect(within(research).getByRole("link",{name:"Fuente original"})).toHaveAttribute("href","https://cintli.example/source")
   expect(stage).toHaveTextContent("Última actividad")
+  const minimums=within(companyCard).getByLabelText("Mínimos para avanzar")
+  expect(minimums).toHaveTextContent("2 / 6 sustentados")
+  expect(minimums).toHaveTextContent("Función en este eslabón")
+  expect(minimums).toHaveTextContent("Falta sustento")
   expect(stage).not.toHaveTextContent("Primer contacto")
   const dimensionCards = [
     ...companyCard.querySelectorAll("details.acq-company-dimension"),

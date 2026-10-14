@@ -460,6 +460,10 @@ export const acquisitionApi = {
                 closedAt: z.string().nullable(),
                 closureReason: z.string().nullable(),
                 stageHistory: z.array(z.unknown()),
+                minimumsByLink: z.record(z.string(), z.object({
+                  identity: z.boolean(),operation: z.boolean(),functionInLink: z.boolean(),
+                  operatingMarket: z.boolean(),scaleSignal: z.boolean(),accessRoute: z.boolean(),
+                })).optional(),
                 attempts: z.array(z.object({
                   attemptId: z.string(),linkId: z.string(),fieldKey: z.string(),dimension: z.string(),
                   question: z.string().optional(),disposition: z.string(),exhausted: z.boolean(),

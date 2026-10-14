@@ -570,6 +570,20 @@ export function ExplorationMap({
     .filter((attempt) => attempt.linkId === selected[4]?.id)
     .slice(-4)
     .reverse()
+  const selectedMinimums = selected[4]
+    ? companyProfile?.enrichment?.minimumsByLink?.[selected[4].id]
+    : undefined
+  const minimumChecklist = selectedMinimums ? ([
+    ["identity", locale === "es" ? "Identidad distinguible" : "Distinct identity"],
+    ["operation", locale === "es" ? "Operación comprobada" : "Verified operation"],
+    ["functionInLink", locale === "es" ? "Función en este eslabón" : "Role in this link"],
+    ["operatingMarket", locale === "es" ? "Mercado donde opera" : "Operating market"],
+    ["scaleSignal", locale === "es" ? "Señal de escala" : "Scale signal"],
+    ["accessRoute", locale === "es" ? "Vía de acceso plausible" : "Plausible access route"],
+  ] as const) : []
+  const nextEnrichmentQuestion = companyProfile?.fields.find(
+    (item) => item.status !== "KNOWN" && item.nextQuestion,
+  )?.nextQuestion
   const companyCrossLinks = companyProfile
     ? [
         ...new Map(
@@ -1523,6 +1537,18 @@ export function ExplorationMap({
                           )}
                         </>
                       )}
+                    </section>
+                  )}
+                  {selectedMinimums && (
+                    <section className="acq-company-minimums" aria-label={locale === "es" ? "Mínimos para avanzar" : "Minimums to advance"}>
+                      <span className="acq-eyebrow">{locale === "es" ? "Mínimos para avanzar" : "Minimums to advance"}</span>
+                      <strong>{minimumChecklist.filter(([key]) => selectedMinimums[key]).length} / {minimumChecklist.length} {locale === "es" ? "sustentados" : "supported"}</strong>
+                      <ul>{minimumChecklist.map(([key,label]) => <li key={key} className={selectedMinimums[key] ? "is-supported" : "is-missing"}>
+                        <span aria-hidden="true">{selectedMinimums[key] ? "✓" : "○"}</span>
+                        <span>{label}</span>
+                        <small>{selectedMinimums[key] ? locale === "es" ? "Con fuente" : "Sourced" : locale === "es" ? "Falta sustento" : "Needs evidence"}</small>
+                      </li>)}</ul>
+                      {nextEnrichmentQuestion && <p>{locale === "es" ? "Siguiente pregunta registrada" : "Recorded next question"}: {cleanExplorationText(nextEnrichmentQuestion,locale)}</p>}
                     </section>
                   )}
                   {selectedEnrichmentAttempts.length > 0 && (
