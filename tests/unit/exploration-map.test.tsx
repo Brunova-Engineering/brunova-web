@@ -281,6 +281,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
             linkId: "link",
             market: "MX" as const,
             function: "Molienda",
+            functions: ["Molienda", "Possible relationship pending research"],
+            roleConflict: true,
             evidenceStatus: "UNVERIFIED" as const,
             contexts: [
               {
@@ -683,6 +685,9 @@ it("reveals every recorded branch one level at a time and keeps company context"
   const companyCard = screen
     .getByRole("heading", { name: "Cintli", level: 4 })
     .closest("aside")!
+  const currentLink = within(companyCard).getByLabelText("Contexto del eslabón seleccionado")
+  expect(currentLink).toHaveTextContent("Molienda")
+  expect(currentLink).not.toHaveTextContent("Funciones en conflicto")
   const stage=within(companyCard).getByLabelText("Etapa de la empresa")
   expect(stage).toHaveTextContent("En enriquecimiento")
   const research=screen.getByLabelText("Investigación de este eslabón")
