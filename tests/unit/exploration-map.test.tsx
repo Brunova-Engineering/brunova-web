@@ -239,6 +239,15 @@ it("reveals every recorded branch one level at a time and keeps company context"
             nextQuestion: "What processes does it offer?",
           },
           {
+            key: "function",
+            dimension: "activity",
+            value: "Recepción en frío en otra ruta",
+            status: "KNOWN" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: null,
+          },
+          {
             key: "markets",
             dimension: "presence",
             value: "México",
@@ -694,6 +703,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
     if (!card.hasAttribute("open")) fireEvent.click(card.querySelector("summary")!)
   }
   expect(screen.getByText("Muele maíz")).toBeVisible()
+  expect(companyCard).not.toHaveTextContent("Recepción en frío en otra ruta")
   expect(
     screen.getByText(/¿Qué procesos o servicios ofrece exactamente\?/),
   ).toBeVisible()
