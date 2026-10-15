@@ -541,6 +541,14 @@ export function ExplorationMap({
   const selectedLinkProfile = companyProfile?.links.find(
     (link) => link.linkId === selected[4]?.id,
   )
+  const selectedLinkRoles = [...new Map(
+    (selectedLinkProfile?.functions?.length
+      ? selectedLinkProfile.functions
+      : [selectedLinkProfile?.function ?? ""])
+      .map((role) => cleanExplorationText(role, locale))
+      .filter(Boolean)
+      .map((role) => [normalizeText(role), role]),
+  ).values()]
   // The legacy company-level role can describe a different link. The selected
   // link above is the sole source for a role attributed to this route.
   const visibleCompanyFields = companyProfile?.fields.filter(
@@ -548,12 +556,7 @@ export function ExplorationMap({
   ) ?? []
   const selectedLinkObservations = (() => {
     const contexts = selectedLinkProfile?.contexts ?? []
-    const roleTexts = [
-      selectedLinkProfile?.function,
-      ...(selectedLinkProfile?.functions ?? []),
-    ]
-      .filter((item): item is string => !!item)
-      .map(normalizeText)
+    const roleTexts = selectedLinkRoles.map(normalizeText)
     const grouped = new Map<
       string,
       { statement: string; sources: typeof contexts }
@@ -1469,11 +1472,7 @@ export function ExplorationMap({
                             <strong>
                               {locale === "es" ? "Función" : "Function"}
                             </strong>{" "}
-                            {cleanExplorationText(
-                              selectedLinkProfile.function ??
-                                selectedLinkProfile.functions?.join(" / "),
-                              locale,
-                            ) ||
+                            {selectedLinkRoles.join(" / ") ||
                               (locale === "es" ? "Por confirmar" : "Pending")}
                             <span className="acq-status-chip">
                               {evidenceLabel(
@@ -1482,7 +1481,7 @@ export function ExplorationMap({
                               )}
                             </span>
                           </p>
-                          {selectedLinkProfile.roleConflict && (
+                          {selectedLinkRoles.length > 1 && (
                             <p>
                               {locale === "es"
                                 ? "Funciones en conflicto para este eslabón; revisar las fuentes."
