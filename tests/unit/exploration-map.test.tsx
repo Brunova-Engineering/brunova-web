@@ -239,6 +239,15 @@ it("reveals every recorded branch one level at a time and keeps company context"
             nextQuestion: "What processes does it offer?",
           },
           {
+            key: "function",
+            dimension: "activity",
+            value: "Recepción en frío en otra ruta",
+            status: "KNOWN" as const,
+            sourceUrl: null,
+            observedAt: now,
+            nextQuestion: null,
+          },
+          {
             key: "markets",
             dimension: "presence",
             value: "México",
@@ -272,6 +281,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
             linkId: "link",
             market: "MX" as const,
             function: "Molienda",
+            functions: ["Molienda", "Possible relationship pending research"],
+            roleConflict: true,
             evidenceStatus: "UNVERIFIED" as const,
             contexts: [
               {
@@ -674,6 +685,9 @@ it("reveals every recorded branch one level at a time and keeps company context"
   const companyCard = screen
     .getByRole("heading", { name: "Cintli", level: 4 })
     .closest("aside")!
+  const currentLink = within(companyCard).getByLabelText("Contexto del eslabón seleccionado")
+  expect(currentLink).toHaveTextContent("Molienda")
+  expect(currentLink).not.toHaveTextContent("Funciones en conflicto")
   const stage=within(companyCard).getByLabelText("Etapa de la empresa")
   expect(stage).toHaveTextContent("En enriquecimiento")
   const research=screen.getByLabelText("Investigación de este eslabón")
@@ -694,6 +708,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
     if (!card.hasAttribute("open")) fireEvent.click(card.querySelector("summary")!)
   }
   expect(screen.getByText("Muele maíz")).toBeVisible()
+  expect(companyCard).not.toHaveTextContent("Recepción en frío en otra ruta")
   expect(
     screen.getByText(/¿Qué procesos o servicios ofrece exactamente\?/),
   ).toBeVisible()
@@ -709,7 +724,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(
     screen.getByText(/¿Cuál es el canal público apropiado para contactarla\?/),
   ).toBeVisible()
-  expect(screen.getByText(/Descartada · Empresa completa/)).toBeVisible()
+  expect(screen.getByText(/Cerrada por dirección · Empresa completa/)).toBeVisible()
   expect(
     within(companyCard).getByText(/Registro heredado de descubrimiento/),
   ).toBeVisible()

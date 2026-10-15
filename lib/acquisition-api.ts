@@ -459,6 +459,7 @@ export const acquisitionApi = {
                 contactedAt: z.string().nullable(),
                 closedAt: z.string().nullable(),
                 closureReason: z.string().nullable(),
+                closedBy: z.string().nullable().optional(),
                 stageHistory: z.array(z.unknown()),
                 minimumsByLink: z.record(z.string(), z.object({
                   identity: z.boolean(),operation: z.boolean(),functionInLink: z.boolean(),

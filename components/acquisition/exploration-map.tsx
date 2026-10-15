@@ -541,14 +541,22 @@ export function ExplorationMap({
   const selectedLinkProfile = companyProfile?.links.find(
     (link) => link.linkId === selected[4]?.id,
   )
+  const selectedLinkRoles = [...new Map(
+    (selectedLinkProfile?.functions?.length
+      ? selectedLinkProfile.functions
+      : [selectedLinkProfile?.function ?? ""])
+      .map((role) => cleanExplorationText(role, locale))
+      .filter(Boolean)
+      .map((role) => [normalizeText(role), role]),
+  ).values()]
+  // The legacy company-level role can describe a different link. The selected
+  // link above is the sole source for a role attributed to this route.
+  const visibleCompanyFields = companyProfile?.fields.filter(
+    (item) => item.key !== "function" || !selectedLinkProfile,
+  ) ?? []
   const selectedLinkObservations = (() => {
     const contexts = selectedLinkProfile?.contexts ?? []
-    const roleTexts = [
-      selectedLinkProfile?.function,
-      ...(selectedLinkProfile?.functions ?? []),
-    ]
-      .filter((item): item is string => !!item)
-      .map(normalizeText)
+    const roleTexts = selectedLinkRoles.map(normalizeText)
     const grouped = new Map<
       string,
       { statement: string; sources: typeof contexts }
@@ -1411,13 +1419,16 @@ export function ExplorationMap({
                     <section className="acq-company-enrichment-status" aria-label={locale === "es" ? "Etapa de la empresa" : "Company stage"}>
                       <span className="acq-eyebrow">{locale === "es" ? "Etapa global" : "Global stage"}</span>
                       <strong>{candidateStageNames[companyProfile.enrichment.stage]?.[locale === "es" ? 0 : 1] ?? companyProfile.enrichment.stage}</strong>
+                      {companyProfile.enrichment.stage === "CLOSED" && <p>{companyProfile.enrichment.closedBy === "ENGINE_WORKER"
+                        ? locale === "es" ? "Cerrada por el Engine" : "Closed by the Engine"
+                        : locale === "es" ? "Origen del cierre no disponible" : "Closure origin unavailable"}</p>}
                       <dl>
                         <div><dt>{locale === "es" ? "Descubierta" : "Discovered"}</dt><dd>{candidateDate(companyProfile.enrichment.discoveredAt,locale)}</dd></div>
                         <div><dt>{locale === "es" ? "Última actividad" : "Last activity"}</dt><dd>{candidateDate(companyProfile.enrichment.lastTouchedAt,locale)}</dd></div>
                         {companyProfile.enrichment.contactedAt && <div><dt>{locale === "es" ? "Primer contacto" : "First contact"}</dt><dd>{candidateDate(companyProfile.enrichment.contactedAt,locale)}</dd></div>}
                         {companyProfile.enrichment.closedAt && <div><dt>{locale === "es" ? "Cierre" : "Closed"}</dt><dd>{candidateDate(companyProfile.enrichment.closedAt,locale)}</dd></div>}
                       </dl>
-                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason}</p>}
+                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason === "EARLY_NO_ATTRIBUTED_PRESENCE" ? locale === "es" ? "La búsqueda inicial revisada no acreditó identidad ni vía de acceso; se detuvo el gasto de investigación" : "The reviewed first search established neither identity nor access route; research spending stopped" : companyProfile.enrichment.closureReason}</p>}
                     </section>
                   )}
                   {companyProfile &&
@@ -1464,11 +1475,7 @@ export function ExplorationMap({
                             <strong>
                               {locale === "es" ? "Función" : "Function"}
                             </strong>{" "}
-                            {cleanExplorationText(
-                              selectedLinkProfile.function ??
-                                selectedLinkProfile.functions?.join(" / "),
-                              locale,
-                            ) ||
+                            {selectedLinkRoles.join(" / ") ||
                               (locale === "es" ? "Por confirmar" : "Pending")}
                             <span className="acq-status-chip">
                               {evidenceLabel(
@@ -1477,7 +1484,7 @@ export function ExplorationMap({
                               )}
                             </span>
                           </p>
-                          {selectedLinkProfile.roleConflict && (
+                          {selectedLinkRoles.length > 1 && (
                             <p>
                               {locale === "es"
                                 ? "Funciones en conflicto para este eslabón; revisar las fuentes."
@@ -1636,7 +1643,9 @@ export function ExplorationMap({
                   {effectiveDisposition && (
                     <p className="acq-company-disposition-state" role="status">
                       <span className="acq-status-chip">
-                        {locale === "es" ? "Descartada" : "Discarded"} ·{" "}
+                        {effectiveDisposition.scope === "GLOBAL"
+                          ? locale === "es" ? "Cerrada por dirección" : "Closed by management"
+                          : locale === "es" ? "Descartada" : "Discarded"} ·{" "}
                         {dispositionScopeLabel(
                           effectiveDisposition.scope,
                           locale,
@@ -1787,7 +1796,7 @@ export function ExplorationMap({
                       <span>
                         <strong>
                           {
-                            companyProfile.fields.filter(
+                            visibleCompanyFields.filter(
                               (item) =>
                                 item.status === "KNOWN" && !item.conflict,
                             ).length
@@ -1800,7 +1809,7 @@ export function ExplorationMap({
                       <span>
                         <strong>
                           {
-                            companyProfile.fields.filter(
+                            visibleCompanyFields.filter(
                               (item) =>
                                 item.status === "HYPOTHESIS" || item.conflict,
                             ).length
@@ -1813,7 +1822,7 @@ export function ExplorationMap({
                       <span>
                         <strong>
                           {
-                            companyProfile.fields.filter(
+                            visibleCompanyFields.filter(
                               (item) => item.status === "PENDING",
                             ).length
                           }
@@ -1844,7 +1853,7 @@ export function ExplorationMap({
                       ] as const
                     ).map(([dimension, title]) => {
                       const profileFields = companyProfile
-                        ? companyProfile.fields.filter(
+                        ? visibleCompanyFields.filter(
                             (item) =>
                               item.dimension.toLowerCase() === dimension,
                           )
