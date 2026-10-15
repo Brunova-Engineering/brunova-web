@@ -724,7 +724,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(
     screen.getByText(/¿Cuál es el canal público apropiado para contactarla\?/),
   ).toBeVisible()
-  expect(screen.getByText(/Descartada · Empresa completa/)).toBeVisible()
+  expect(screen.getByText(/Cerrada por dirección · Empresa completa/)).toBeVisible()
   expect(
     within(companyCard).getByText(/Registro heredado de descubrimiento/),
   ).toBeVisible()

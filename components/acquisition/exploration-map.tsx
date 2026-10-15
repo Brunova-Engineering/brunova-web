@@ -1419,13 +1419,16 @@ export function ExplorationMap({
                     <section className="acq-company-enrichment-status" aria-label={locale === "es" ? "Etapa de la empresa" : "Company stage"}>
                       <span className="acq-eyebrow">{locale === "es" ? "Etapa global" : "Global stage"}</span>
                       <strong>{candidateStageNames[companyProfile.enrichment.stage]?.[locale === "es" ? 0 : 1] ?? companyProfile.enrichment.stage}</strong>
+                      {companyProfile.enrichment.stage === "CLOSED" && <p>{companyProfile.enrichment.closedBy === "ENGINE_WORKER"
+                        ? locale === "es" ? "Cerrada por el Engine" : "Closed by the Engine"
+                        : locale === "es" ? "Origen del cierre no disponible" : "Closure origin unavailable"}</p>}
                       <dl>
                         <div><dt>{locale === "es" ? "Descubierta" : "Discovered"}</dt><dd>{candidateDate(companyProfile.enrichment.discoveredAt,locale)}</dd></div>
                         <div><dt>{locale === "es" ? "Última actividad" : "Last activity"}</dt><dd>{candidateDate(companyProfile.enrichment.lastTouchedAt,locale)}</dd></div>
                         {companyProfile.enrichment.contactedAt && <div><dt>{locale === "es" ? "Primer contacto" : "First contact"}</dt><dd>{candidateDate(companyProfile.enrichment.contactedAt,locale)}</dd></div>}
                         {companyProfile.enrichment.closedAt && <div><dt>{locale === "es" ? "Cierre" : "Closed"}</dt><dd>{candidateDate(companyProfile.enrichment.closedAt,locale)}</dd></div>}
                       </dl>
-                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason}</p>}
+                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason === "EARLY_NO_ATTRIBUTED_PRESENCE" ? locale === "es" ? "La búsqueda inicial revisada no acreditó identidad ni vía de acceso; se detuvo el gasto de investigación" : "The reviewed first search established neither identity nor access route; research spending stopped" : companyProfile.enrichment.closureReason}</p>}
                     </section>
                   )}
                   {companyProfile &&
@@ -1640,7 +1643,9 @@ export function ExplorationMap({
                   {effectiveDisposition && (
                     <p className="acq-company-disposition-state" role="status">
                       <span className="acq-status-chip">
-                        {locale === "es" ? "Descartada" : "Discarded"} ·{" "}
+                        {effectiveDisposition.scope === "GLOBAL"
+                          ? locale === "es" ? "Cerrada por dirección" : "Closed by management"
+                          : locale === "es" ? "Descartada" : "Discarded"} ·{" "}
                         {dispositionScopeLabel(
                           effectiveDisposition.scope,
                           locale,
