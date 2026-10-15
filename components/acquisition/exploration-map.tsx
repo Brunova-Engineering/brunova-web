@@ -541,6 +541,11 @@ export function ExplorationMap({
   const selectedLinkProfile = companyProfile?.links.find(
     (link) => link.linkId === selected[4]?.id,
   )
+  // The legacy company-level role can describe a different link. The selected
+  // link above is the sole source for a role attributed to this route.
+  const visibleCompanyFields = companyProfile?.fields.filter(
+    (item) => item.key !== "function" || !selectedLinkProfile,
+  ) ?? []
   const selectedLinkObservations = (() => {
     const contexts = selectedLinkProfile?.contexts ?? []
     const roleTexts = [
@@ -1787,7 +1792,7 @@ export function ExplorationMap({
                       <span>
                         <strong>
                           {
-                            companyProfile.fields.filter(
+                            visibleCompanyFields.filter(
                               (item) =>
                                 item.status === "KNOWN" && !item.conflict,
                             ).length
@@ -1800,7 +1805,7 @@ export function ExplorationMap({
                       <span>
                         <strong>
                           {
-                            companyProfile.fields.filter(
+                            visibleCompanyFields.filter(
                               (item) =>
                                 item.status === "HYPOTHESIS" || item.conflict,
                             ).length
@@ -1813,7 +1818,7 @@ export function ExplorationMap({
                       <span>
                         <strong>
                           {
-                            companyProfile.fields.filter(
+                            visibleCompanyFields.filter(
                               (item) => item.status === "PENDING",
                             ).length
                           }
@@ -1844,7 +1849,7 @@ export function ExplorationMap({
                       ] as const
                     ).map(([dimension, title]) => {
                       const profileFields = companyProfile
-                        ? companyProfile.fields.filter(
+                        ? visibleCompanyFields.filter(
                             (item) =>
                               item.dimension.toLowerCase() === dimension,
                           )
