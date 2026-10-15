@@ -343,7 +343,7 @@ it("reveals every recorded branch one level at a time and keeps company context"
           {
             linkId: "link-3",
             market: "MX" as const,
-            function: "Recepción en frío",
+            function: "Possible relationship pending research",
             evidenceStatus: "OBSERVED" as const,
             contexts: [
               {
@@ -872,6 +872,10 @@ it("reveals every recorded branch one level at a time and keeps company context"
   expect(
     screen.getByLabelText("Contexto del eslabón seleccionado"),
   ).toHaveTextContent("Receives refrigerated shipments")
+  const observedFunction = screen.getByLabelText("Contexto del eslabón seleccionado")
+    .querySelector(".acq-company-current-function")!
+  expect(observedFunction).toHaveTextContent("Receives refrigerated shipments")
+  expect(observedFunction).not.toHaveTextContent("Por confirmar")
   expect(
     screen.getByRole("heading", { name: "Referencias en otros eslabones" }),
   ).toBeVisible()

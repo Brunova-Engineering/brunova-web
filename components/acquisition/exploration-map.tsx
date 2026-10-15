@@ -549,6 +549,11 @@ export function ExplorationMap({
       .filter(Boolean)
       .map((role) => [normalizeText(role), role]),
   ).values()]
+  const selectedObservedFunction = selectedLinkProfile?.contexts
+    ?.filter((context) => context.status === "OBSERVED" && safeHttpUrl(context.sourceUrl))
+    .map((context) => cleanExplorationText(context.statement, locale))
+    .find(Boolean) ?? ""
+  const selectedFunctionSummary = selectedLinkRoles.join(" / ") || selectedObservedFunction
   // The legacy company-level role can describe a different link. The selected
   // link above is the sole source for a role attributed to this route.
   const visibleCompanyFields = companyProfile?.fields.filter(
@@ -556,7 +561,7 @@ export function ExplorationMap({
   ) ?? []
   const selectedLinkObservations = (() => {
     const contexts = selectedLinkProfile?.contexts ?? []
-    const roleTexts = selectedLinkRoles.map(normalizeText)
+    const roleTexts = [selectedFunctionSummary].filter(Boolean).map(normalizeText)
     const grouped = new Map<
       string,
       { statement: string; sources: typeof contexts }
@@ -1475,7 +1480,7 @@ export function ExplorationMap({
                             <strong>
                               {locale === "es" ? "Función" : "Function"}
                             </strong>{" "}
-                            {selectedLinkRoles.join(" / ") ||
+                            {selectedFunctionSummary ||
                               (locale === "es" ? "Por confirmar" : "Pending")}
                             <span className="acq-status-chip">
                               {evidenceLabel(
