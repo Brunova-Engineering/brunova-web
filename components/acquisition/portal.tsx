@@ -8,7 +8,7 @@ import { WorkHealthSummary } from "./work-health-summary"
 import { ActivationPreflight } from "./activation-preflight"
 import { OutreachState } from "./outreach-state"
 import { DiscoveryHealth } from "./discovery-health"
-import { OpportunityPool, CycleAttention } from "./operating-overview"
+import { CycleAttention } from "./operating-overview"
 import { ManagementOverview } from "./management-overview"
 import { ExplorationMap } from "./exploration-map"
 import { EvidenceDimensions } from "./evidence-dimensions"
@@ -512,16 +512,12 @@ export function AcquisitionPortal({
           />
         )}
         {tab === "Opportunities" && (
-          <OpportunityPool
+          <ExplorationMap
             key={`opportunities:${cycleId}:${projectionRevision}`}
             cycleId={cycleId}
             locale={locale}
             session={session}
-            onChanged={() => {
-              invalidateDiscoveryRead()
-              setProjectionRevision((value) => value + 1)
-            }}
-            onInspect={(id) => void inspect(id, null)}
+            mode="opportunities"
           />
         )}
         {tab === "Outreach" && (
