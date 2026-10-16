@@ -211,6 +211,18 @@ beforeEach(() => {
   vi.spyOn(api, "work").mockResolvedValue({ items: [], nextCursor: null })
 })
 function populated() {
+  vi.spyOn(api, "explorationMap").mockResolvedValue({
+    cycleId: "synthetic",
+    headers: [],
+    nodes: [],
+    companyProfiles: [],
+    directives: [],
+    chainProgress: [],
+    governance: [],
+    marketPresence: [],
+    chainEquivalences: [],
+    chainCoverage: [],
+  } as unknown as Awaited<ReturnType<typeof api.explorationMap>>)
   vi.mocked(api.cycles).mockResolvedValue({
     items: [
       {
@@ -465,8 +477,8 @@ it.each(["en", "es"] as const)(
       await screen.findByRole("heading", {
         name:
           locale === "es"
-            ? "Organizaciones conservadas para consideración"
-            : "Organizations retained for consideration",
+            ? "De la industria al encaje comercial"
+            : "From industry to commercial fit",
       }),
     ).toBeVisible()
     fireEvent.click(
@@ -557,7 +569,7 @@ it("navigation keeps the selected section aligned with its content without a pag
   ).not.toBeInTheDocument()
   const panel = container.querySelector<HTMLElement>("#acq-active-panel")!
   const sections = [
-    ["Opportunities", "Organizations retained for consideration"],
+    ["Opportunities", "From industry to commercial fit"],
     ["Outreach", "Outreach"],
     ["Needs your attention", "Needs your attention"],
     ["System status", "Operating state"],

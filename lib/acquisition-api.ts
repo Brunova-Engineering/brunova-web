@@ -451,30 +451,87 @@ export const acquisitionApi = {
                   }),
                 )
                 .optional(),
-              enrichment: z.object({
-                stage: z.enum(["DISCOVERY", "ENRICHMENT", "BRUNOVA_FIT", "FILTERING", "SELECTED", "CONTACTED", "CLOSED"]),
-                version: z.coerce.number(),
-                discoveredAt: z.string().nullable(),
-                lastTouchedAt: z.string().nullable(),
-                contactedAt: z.string().nullable(),
-                closedAt: z.string().nullable(),
-                closureReason: z.string().nullable(),
-                closedBy: z.string().nullable().optional(),
-                stageHistory: z.array(z.unknown()),
-                minimumsByLink: z.record(z.string(), z.object({
-                  identity: z.boolean(),operation: z.boolean(),functionInLink: z.boolean(),
-                  operatingMarket: z.boolean(),scaleSignal: z.boolean(),accessRoute: z.boolean(),
-                })).optional(),
-                attempts: z.array(z.object({
-                  attemptId: z.string(),linkId: z.string(),fieldKey: z.string(),dimension: z.string(),
-                  question: z.string().optional(),disposition: z.string(),exhausted: z.boolean(),
-                  recordedAt: z.string(),aiReceipt: z.unknown().nullable().optional(),
-                  sourceReceipts: z.array(z.object({
-                    uri: z.string().optional(),outcome: z.string(),receiptHash: z.string().nullable().optional(),
-                    excerpt: z.string().optional(),
-                  }).passthrough()),
-                }).passthrough()),
-              }).nullable().optional(),
+              fitReviews: z
+                .array(
+                  z.object({
+                    linkId: z.string(),
+                    reviewId: z.string(),
+                    stageVersion: z.coerce.number(),
+                    decision: z.enum(["ADVANCE", "MORE_RESEARCH", "NO_FIT"]),
+                    process: z.string(),
+                    brunovaCapability: z.string(),
+                    proposedOffer: z.string(),
+                    fitHypothesis: z.string(),
+                    commercialQuestion: z.string(),
+                    uncertainty: z.string(),
+                    counterevidence: z.string(),
+                    companySourceUrl: z.string(),
+                    brunovaSourceUrl: z.string(),
+                    reason: z.string(),
+                    recordedAt: z.string(),
+                  }),
+                )
+                .optional(),
+              enrichment: z
+                .object({
+                  stage: z.enum([
+                    "DISCOVERY",
+                    "ENRICHMENT",
+                    "BRUNOVA_FIT",
+                    "FILTERING",
+                    "SELECTED",
+                    "CONTACTED",
+                    "CLOSED",
+                  ]),
+                  version: z.coerce.number(),
+                  discoveredAt: z.string().nullable(),
+                  lastTouchedAt: z.string().nullable(),
+                  contactedAt: z.string().nullable(),
+                  closedAt: z.string().nullable(),
+                  closureReason: z.string().nullable(),
+                  closedBy: z.string().nullable().optional(),
+                  stageHistory: z.array(z.unknown()),
+                  minimumsByLink: z
+                    .record(
+                      z.string(),
+                      z.object({
+                        identity: z.boolean(),
+                        operation: z.boolean(),
+                        functionInLink: z.boolean(),
+                        operatingMarket: z.boolean(),
+                        scaleSignal: z.boolean(),
+                        accessRoute: z.boolean(),
+                      }),
+                    )
+                    .optional(),
+                  attempts: z.array(
+                    z
+                      .object({
+                        attemptId: z.string(),
+                        linkId: z.string(),
+                        fieldKey: z.string(),
+                        dimension: z.string(),
+                        question: z.string().optional(),
+                        disposition: z.string(),
+                        exhausted: z.boolean(),
+                        recordedAt: z.string(),
+                        aiReceipt: z.unknown().nullable().optional(),
+                        sourceReceipts: z.array(
+                          z
+                            .object({
+                              uri: z.string().optional(),
+                              outcome: z.string(),
+                              receiptHash: z.string().nullable().optional(),
+                              excerpt: z.string().optional(),
+                            })
+                            .passthrough(),
+                        ),
+                      })
+                      .passthrough(),
+                  ),
+                })
+                .nullable()
+                .optional(),
             }),
           )
           .optional(),

@@ -45,11 +45,17 @@ const candidateStageNames: Record<string, [string, string]> = {
   CONTACTED: ["Primer contacto confirmado", "First contact confirmed"],
   CLOSED: ["Cerrada", "Closed"],
 }
-function candidateDate(value:string|null|undefined,locale:Locale){
-  if(!value)return locale==="es"?"Pendiente":"Pending"
-  const date=new Date(value)
-  return Number.isNaN(date.getTime())?(locale==="es"?"Pendiente":"Pending"):
-    new Intl.DateTimeFormat(locale==="es"?"es-MX":"en-US",{dateStyle:"medium",timeZone:"America/Mexico_City"}).format(date)
+function candidateDate(value: string | null | undefined, locale: Locale) {
+  if (!value) return locale === "es" ? "Pendiente" : "Pending"
+  const date = new Date(value)
+  return Number.isNaN(date.getTime())
+    ? locale === "es"
+      ? "Pendiente"
+      : "Pending"
+    : new Intl.DateTimeFormat(locale === "es" ? "es-MX" : "en-US", {
+        dateStyle: "medium",
+        timeZone: "America/Mexico_City",
+      }).format(date)
 }
 
 function field(node: MapNode, key: string): string | null {
@@ -68,8 +74,10 @@ function displayLabel(node: MapNode) {
 }
 
 function isGeneratedRoleTag(tag: string) {
-  return tag === "Papel en el mapa: actor ancla" ||
+  return (
+    tag === "Papel en el mapa: actor ancla" ||
     tag === "Papel en el mapa: empresa candidata"
+  )
 }
 
 function normalizeText(value: string) {
@@ -326,7 +334,13 @@ function optionDetail(
   progress: Map<string, Chain>,
   locale: Locale,
   marketFilter: "ALL" | "MX" | "US",
+  mode: "exploration" | "opportunities" = "exploration",
 ) {
+  if (stage === 5)
+    if (mode === "opportunities")
+      return locale === "es"
+        ? "Tesis comercial registrada"
+        : "Commercial thesis recorded"
   if (stage === 5)
     return field(node, "chainRole") === "ANCHOR"
       ? locale === "es"
@@ -338,19 +352,37 @@ function optionDetail(
 
   const nextKind = stages[stage + 1]
   if (!nextKind) return ""
-  const members = nodes.filter((item) => conceptKey(item) === conceptKey(node) &&
-    (marketFilter === "ALL" || item.market === marketFilter))
-  const children = members.flatMap((member) => childrenOf(nodes, member, nextKind))
+  const members = nodes.filter(
+    (item) =>
+      conceptKey(item) === conceptKey(node) &&
+      (marketFilter === "ALL" || item.market === marketFilter),
+  )
+  const children = members
+    .flatMap((member) => childrenOf(nodes, member, nextKind))
     .filter((child) => marketFilter === "ALL" || child.market === marketFilter)
   const count = new Set(children.map(conceptKey)).size
   if (stage === 3) {
-    const leads = members.reduce(
-      (total, member) => total + (progress.get(member.id)?.company_lead_count ?? 0),
-      0,
-    )
+    const leads =
+      mode === "opportunities"
+        ? [
+            ...new Set(
+              children.flatMap((link) =>
+                childrenOf(nodes, link, "COMPANY_LEAD").map((lead) => lead.id),
+              ),
+            ),
+          ].length
+        : members.reduce(
+            (total, member) =>
+              total + (progress.get(member.id)?.company_lead_count ?? 0),
+            0,
+          )
     return locale === "es"
-      ? `${count} ${count === 1 ? "función registrada" : "funciones registradas"} · ${leads} pistas de empresas · cobertura sin confirmar`
-      : `${count} recorded ${count === 1 ? "function" : "functions"} · ${leads} company leads · coverage unconfirmed`
+      ? mode === "opportunities"
+        ? `${count} ${count === 1 ? "función" : "funciones"} · ${leads} ${leads === 1 ? "empresa" : "empresas"}`
+        : `${count} ${count === 1 ? "función registrada" : "funciones registradas"} · ${leads} pistas de empresas · cobertura sin confirmar`
+      : mode === "opportunities"
+        ? `${count} ${count === 1 ? "function" : "functions"} · ${leads} ${leads === 1 ? "company" : "companies"}`
+        : `${count} recorded ${count === 1 ? "function" : "functions"} · ${leads} company leads · coverage unconfirmed`
   }
   const nextName = (stageNames[locale][stage + 1] ?? "").toLowerCase()
   return locale === "es"
@@ -374,10 +406,12 @@ export function ExplorationMap({
   cycleId,
   locale,
   session,
+  mode = "exploration",
 }: {
   cycleId: string
   locale: Locale
   session: PortalSession
+  mode?: "exploration" | "opportunities"
 }) {
   const [data, setData] = useState<MapData | null>(null)
   const [error, setError] = useState(false)
@@ -398,6 +432,7 @@ export function ExplorationMap({
   const [globalSearchOpen, setGlobalSearchOpen] = useState(true)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [marketFilter, setMarketFilter] = useState<"ALL" | "MX" | "US">("ALL")
+  const [showClosedHistory, setShowClosedHistory] = useState(false)
   const [dispositionScopeSelection, setDispositionScopeSelection] = useState<{
     contextKey: string
     scope: "LINK" | "CHAIN" | "GLOBAL"
@@ -427,7 +462,45 @@ export function ExplorationMap({
     }
   }, [cycleId])
 
-  const nodes = useMemo(() => data?.nodes ?? [], [data])
+  const visibleProfiles = useMemo(
+    () =>
+      (data?.companyProfiles ?? []).filter((profile) => {
+        const stage = profile.enrichment?.stage ?? "DISCOVERY"
+        return mode === "opportunities"
+          ? ["FILTERING", "SELECTED", "CONTACTED"].includes(stage)
+          : ["DISCOVERY", "ENRICHMENT", "BRUNOVA_FIT"].includes(stage) ||
+              (showClosedHistory && stage === "CLOSED")
+      }),
+    [data, mode, showClosedHistory],
+  )
+  const nodes = useMemo(() => {
+    if (!data) return []
+    if (mode === "exploration") {
+      const allowedLeads = new Set(
+        visibleProfiles.flatMap((profile) => profile.leadNodeIds),
+      )
+      const profiledLeads = new Set(
+        data.companyProfiles?.flatMap((profile) => profile.leadNodeIds) ?? [],
+      )
+      return data.nodes.filter(
+        (node) =>
+          node.kind !== "COMPANY_LEAD" ||
+          allowedLeads.has(node.id) ||
+          !profiledLeads.has(node.id),
+      )
+    }
+    const rawById = new Map(data.nodes.map((node) => [node.id, node]))
+    const allowed = new Set<string>()
+    const pending = visibleProfiles.flatMap((profile) => profile.leadNodeIds)
+    while (pending.length) {
+      const id = pending.pop()!
+      if (allowed.has(id)) continue
+      allowed.add(id)
+      const node = rawById.get(id)
+      for (const parent of node?.parents ?? []) pending.push(parent.parentId)
+    }
+    return data.nodes.filter((node) => allowed.has(node.id))
+  }, [data, mode, visibleProfiles])
   const byId = useMemo(
     () => new Map(nodes.map((node) => [node.id, node])),
     [nodes],
@@ -497,9 +570,12 @@ export function ExplorationMap({
       : []
     const allowedParentIds =
       activeStage === 4 && parent
-        ? new Set(parentMembers.flatMap((member) => [
-            member.id, ...equivalentChainIds(member.id),
-          ]))
+        ? new Set(
+            parentMembers.flatMap((member) => [
+              member.id,
+              ...equivalentChainIds(member.id),
+            ]),
+          )
         : parent
           ? new Set(parentMembers.map((member) => member.id))
           : new Set<string>()
@@ -511,11 +587,14 @@ export function ExplorationMap({
         ? node.parents.some((item) => allowedParentIds.has(item.parentId))
         : false
     })
-    const deduplicated = [...new Map(
-      candidates.map((node) => [
-        activeStage === 5 ? node.id : conceptKey(node), node,
-      ]),
-    ).values()]
+    const deduplicated = [
+      ...new Map(
+        candidates.map((node) => [
+          activeStage === 5 ? node.id : conceptKey(node),
+          node,
+        ]),
+      ).values(),
+    ]
     return deduplicated.sort((a, b) => {
       if (activeStage === 0 && a.market !== b.market)
         return a.market === "MX" ? -1 : 1
@@ -535,33 +614,44 @@ export function ExplorationMap({
     })
   })()
   const company = selected[5]
-  const companyProfile = (data?.companyProfiles ?? []).find((profile) =>
+  const companyProfile = visibleProfiles.find((profile) =>
     profile.leadNodeIds.includes(company?.id ?? ""),
   )
   const selectedLinkProfile = companyProfile?.links.find(
     (link) => link.linkId === selected[4]?.id,
   )
-  const selectedLinkRoles = [...new Map(
-    (selectedLinkProfile?.functions?.length
-      ? selectedLinkProfile.functions
-      : [selectedLinkProfile?.function ?? ""])
-      .map((role) => cleanExplorationText(role, locale))
-      .filter(Boolean)
-      .map((role) => [normalizeText(role), role]),
-  ).values()]
-  const selectedObservedFunction = selectedLinkProfile?.contexts
-    ?.filter((context) => context.status === "OBSERVED" && safeHttpUrl(context.sourceUrl))
-    .map((context) => cleanExplorationText(context.statement, locale))
-    .find(Boolean) ?? ""
-  const selectedFunctionSummary = selectedLinkRoles.join(" / ") || selectedObservedFunction
+  const selectedLinkRoles = [
+    ...new Map(
+      (selectedLinkProfile?.functions?.length
+        ? selectedLinkProfile.functions
+        : [selectedLinkProfile?.function ?? ""]
+      )
+        .map((role) => cleanExplorationText(role, locale))
+        .filter(Boolean)
+        .map((role) => [normalizeText(role), role]),
+    ).values(),
+  ]
+  const selectedObservedFunction =
+    selectedLinkProfile?.contexts
+      ?.filter(
+        (context) =>
+          context.status === "OBSERVED" && safeHttpUrl(context.sourceUrl),
+      )
+      .map((context) => cleanExplorationText(context.statement, locale))
+      .find(Boolean) ?? ""
+  const selectedFunctionSummary =
+    selectedLinkRoles.join(" / ") || selectedObservedFunction
   // The legacy company-level role can describe a different link. The selected
   // link above is the sole source for a role attributed to this route.
-  const visibleCompanyFields = companyProfile?.fields.filter(
-    (item) => item.key !== "function" || !selectedLinkProfile,
-  ) ?? []
+  const visibleCompanyFields =
+    companyProfile?.fields.filter(
+      (item) => item.key !== "function" || !selectedLinkProfile,
+    ) ?? []
   const selectedLinkObservations = (() => {
     const contexts = selectedLinkProfile?.contexts ?? []
-    const roleTexts = [selectedFunctionSummary].filter(Boolean).map(normalizeText)
+    const roleTexts = [selectedFunctionSummary]
+      .filter(Boolean)
+      .map(normalizeText)
     const grouped = new Map<
       string,
       { statement: string; sources: typeof contexts }
@@ -579,21 +669,42 @@ export function ExplorationMap({
       repeatsRole: roleTexts.includes(normalizeText(group.statement)),
     }))
   })()
-  const selectedEnrichmentAttempts = (companyProfile?.enrichment?.attempts ?? [])
+  const selectedEnrichmentAttempts = (
+    companyProfile?.enrichment?.attempts ?? []
+  )
     .filter((attempt) => attempt.linkId === selected[4]?.id)
     .slice(-4)
     .reverse()
   const selectedMinimums = selected[4]
     ? companyProfile?.enrichment?.minimumsByLink?.[selected[4].id]
     : undefined
-  const minimumChecklist = selectedMinimums ? ([
-    ["identity", locale === "es" ? "Identidad distinguible" : "Distinct identity"],
-    ["operation", locale === "es" ? "Operación comprobada" : "Verified operation"],
-    ["functionInLink", locale === "es" ? "Función en este eslabón" : "Role in this link"],
-    ["operatingMarket", locale === "es" ? "Mercado donde opera" : "Operating market"],
-    ["scaleSignal", locale === "es" ? "Señal de escala" : "Scale signal"],
-    ["accessRoute", locale === "es" ? "Vía de acceso plausible" : "Plausible access route"],
-  ] as const) : []
+  const minimumChecklist = selectedMinimums
+    ? ([
+        [
+          "identity",
+          locale === "es" ? "Identidad distinguible" : "Distinct identity",
+        ],
+        [
+          "operation",
+          locale === "es" ? "Operación comprobada" : "Verified operation",
+        ],
+        [
+          "functionInLink",
+          locale === "es" ? "Función en este eslabón" : "Role in this link",
+        ],
+        [
+          "operatingMarket",
+          locale === "es" ? "Mercado donde opera" : "Operating market",
+        ],
+        ["scaleSignal", locale === "es" ? "Señal de escala" : "Scale signal"],
+        [
+          "accessRoute",
+          locale === "es"
+            ? "Vía de acceso plausible"
+            : "Plausible access route",
+        ],
+      ] as const)
+    : []
   const nextEnrichmentQuestion = companyProfile?.fields.find(
     (item) => item.status !== "KNOWN" && item.nextQuestion,
   )?.nextQuestion
@@ -615,34 +726,50 @@ export function ExplorationMap({
         ).values(),
       ]
     : []
-  const companyProfiles = data?.companyProfiles ?? []
+  const companyProfiles = visibleProfiles
+  const selectedFitReview = companyProfile?.fitReviews?.find(
+    (review) =>
+      review.linkId === selected[4]?.id && review.decision === "ADVANCE",
+  )
   const profileByLead = new Map(
     companyProfiles.flatMap((profile) =>
       profile.leadNodeIds.map((leadId) => [leadId, profile] as const),
     ),
   )
   const allTags = [
-    ...new Set(companyProfiles.flatMap((profile) =>
-      profile.tags.filter((tag) => !isGeneratedRoleTag(tag)))),
+    ...new Set(
+      companyProfiles.flatMap((profile) =>
+        profile.tags.filter((tag) => !isGeneratedRoleTag(tag)),
+      ),
+    ),
   ].sort()
   const globalSearchTerm = normalizeText(globalQuery)
   const globalResults = (() => {
     if (globalSearchTerm.length < 2) return []
-    const matchingProfiles = new Set(companyProfiles
-      .filter((profile) => normalizeText([
-        profile.displayName,
-        ...profile.aliases,
-        ...profile.tags.filter((tag) => !isGeneratedRoleTag(tag)),
-        ...profile.leadNodeIds.map((id) => byId.get(id)?.label ?? ""),
-      ].join(" ")).includes(globalSearchTerm))
-      .map((profile) => profile.companyId))
+    const matchingProfiles = new Set(
+      companyProfiles
+        .filter((profile) =>
+          normalizeText(
+            [
+              profile.displayName,
+              ...profile.aliases,
+              ...profile.tags.filter((tag) => !isGeneratedRoleTag(tag)),
+              ...profile.leadNodeIds.map((id) => byId.get(id)?.label ?? ""),
+            ].join(" "),
+          ).includes(globalSearchTerm),
+        )
+        .map((profile) => profile.companyId),
+    )
     const results = new Map<string, { lead: MapNode; path: MapNode[] }>()
     for (const lead of nodes) {
       if (lead.kind !== "COMPANY_LEAD") continue
       if (marketFilter !== "ALL" && lead.market !== marketFilter) continue
       const profile = profileByLead.get(lead.id)
-      if (!(profile && matchingProfiles.has(profile.companyId)) &&
-          !normalizeText(lead.label).includes(globalSearchTerm)) continue
+      if (
+        !(profile && matchingProfiles.has(profile.companyId)) &&
+        !normalizeText(lead.label).includes(globalSearchTerm)
+      )
+        continue
       for (const relation of lead.parents) {
         const path = pathForLead(lead, relation.parentId)
         if (!path) continue
@@ -650,10 +777,15 @@ export function ExplorationMap({
         if (!results.has(key)) results.set(key, { lead, path })
       }
     }
-    return [...results.values()].sort((a, b) =>
-      displayLabel(a.lead).localeCompare(displayLabel(b.lead), locale) ||
-      a.lead.market.localeCompare(b.lead.market) ||
-      displayLabel(a.path[4]!).localeCompare(displayLabel(b.path[4]!), locale))
+    return [...results.values()].sort(
+      (a, b) =>
+        displayLabel(a.lead).localeCompare(displayLabel(b.lead), locale) ||
+        a.lead.market.localeCompare(b.lead.market) ||
+        displayLabel(a.path[4]!).localeCompare(
+          displayLabel(b.path[4]!),
+          locale,
+        ),
+    )
   })()
   const filteredOptions =
     activeStage === 5 && (companyQuery || selectedTags.length)
@@ -672,13 +804,19 @@ export function ExplorationMap({
           )
         })
       : options
-  const currentStageName = stageNames[locale][activeStage] ?? ""
+  const currentStageName =
+    activeStage === 5 && mode === "opportunities"
+      ? locale === "es"
+        ? "Empresa"
+        : "Company"
+      : (stageNames[locale][activeStage] ?? "")
 
   function choose(node: MapNode) {
     if (activeStage === 5 && selected[4]) {
       const memberIds = new Set(
-        (conceptMembers.get(conceptKey(selected[4])) ?? [selected[4]])
-          .map((item) => item.id),
+        (conceptMembers.get(conceptKey(selected[4])) ?? [selected[4]]).map(
+          (item) => item.id,
+        ),
       )
       const matchingLink = node.parents
         .map((relation) => relation.parentId)
@@ -1084,85 +1222,163 @@ export function ExplorationMap({
   return (
     <section
       className="acq-panel acq-exploration"
-      aria-label={locale === "es" ? "Mapa de exploración" : "Exploration map"}
+      aria-label={
+        mode === "opportunities"
+          ? locale === "es"
+            ? "Mapa de oportunidades"
+            : "Opportunities map"
+          : locale === "es"
+            ? "Mapa de exploración"
+            : "Exploration map"
+      }
     >
       <span className="acq-eyebrow">
-        {locale === "es" ? "Exploración dirigida" : "Directed exploration"}
+        {mode === "opportunities"
+          ? locale === "es"
+            ? "Oportunidades"
+            : "Opportunities"
+          : locale === "es"
+            ? "Exploración dirigida"
+            : "Directed exploration"}
       </span>
       <h2>
-        {locale === "es"
-          ? "De la industria a la empresa"
-          : "From industry to company"}
+        {mode === "opportunities"
+          ? locale === "es"
+            ? "De la industria al encaje comercial"
+            : "From industry to commercial fit"
+          : locale === "es"
+            ? "De la industria a la empresa"
+            : "From industry to company"}
       </h2>
       <p className="acq-muted">
-        {locale === "es"
-          ? "Selecciona una rama en cada nivel para ver todas sus vertientes registradas. Una entrega de cadena no demuestra que se hayan encontrado todos sus eslabones."
-          : "Select a branch at each level to see all recorded alternatives. A chain delivery does not prove that all its links have been found."}
+        {mode === "opportunities"
+          ? locale === "es"
+            ? "Recorre las empresas que avanzaron con una tesis de encaje sustentada. Cada ficha conserva su eslabón y sus fuentes."
+            : "Explore companies advanced with a sourced fit thesis. Each brief retains its supply chain link and sources."
+          : locale === "es"
+            ? "Selecciona una rama en cada nivel para ver todas sus vertientes registradas. Una entrega de cadena no demuestra que se hayan encontrado todos sus eslabones."
+            : "Select a branch at each level to see all recorded alternatives. A chain delivery does not prove that all its links have been found."}
       </p>
-      <div className="acq-market-filter" role="group" aria-label={
-        locale === "es" ? "Mercado de exploración" : "Exploration market"
-      }>
+      {mode === "exploration" && (
+        <button
+          type="button"
+          className="acq-global-search-return"
+          aria-pressed={showClosedHistory}
+          onClick={() => setShowClosedHistory((current) => !current)}
+        >
+          {showClosedHistory
+            ? locale === "es"
+              ? "Ocultar historial cerrado"
+              : "Hide closed history"
+            : locale === "es"
+              ? "Consultar historial cerrado"
+              : "View closed history"}
+        </button>
+      )}
+      <div
+        className="acq-market-filter"
+        role="group"
+        aria-label={
+          locale === "es" ? "Mercado de exploración" : "Exploration market"
+        }
+      >
         {(["ALL", "MX", "US"] as const).map((market) => (
-          <button key={market} type="button" aria-pressed={marketFilter === market}
+          <button
+            key={market}
+            type="button"
+            aria-pressed={marketFilter === market}
             onClick={() => {
               setMarketFilter(market)
-              setSelectedIds((current) => current.map((id, index) => {
-                if (index !== stages.length - 1 || market === "ALL") return id
-                return byId.get(id ?? "")?.market === market ? id : null
-              }))
-            }}>
+              setSelectedIds((current) =>
+                current.map((id, index) => {
+                  if (index !== stages.length - 1 || market === "ALL") return id
+                  return byId.get(id ?? "")?.market === market ? id : null
+                }),
+              )
+            }}
+          >
             {market === "ALL"
-              ? locale === "es" ? "Todos" : "All"
+              ? locale === "es"
+                ? "Todos"
+                : "All"
               : market === "MX"
-                ? locale === "es" ? "México" : "Mexico"
-                : locale === "es" ? "Estados Unidos" : "United States"}
+                ? locale === "es"
+                  ? "México"
+                  : "Mexico"
+                : locale === "es"
+                  ? "Estados Unidos"
+                  : "United States"}
           </button>
         ))}
       </div>
       <div className="acq-global-search">
-        <label htmlFor="acq-global-company-search">
-          {locale === "es" ? "Buscar empresa en todo el mapa" : "Search companies across the map"}
+        <label htmlFor={`acq-global-company-search-${mode}`}>
+          {locale === "es"
+            ? "Buscar empresa en todo el mapa"
+            : "Search companies across the map"}
         </label>
         <input
-          id="acq-global-company-search"
+          id={`acq-global-company-search-${mode}`}
           type="search"
           value={globalQuery}
           onChange={(event) => {
             setGlobalQuery(event.target.value)
             setGlobalSearchOpen(true)
           }}
-          placeholder={locale === "es" ? "Nombre, alias o metadato" : "Name, alias, or metadata"}
+          placeholder={
+            locale === "es"
+              ? "Nombre, alias o metadato"
+              : "Name, alias, or metadata"
+          }
         />
         {globalSearchTerm.length >= 2 && !globalSearchOpen && (
-          <button type="button" className="acq-global-search-return"
-            onClick={() => setGlobalSearchOpen(true)}>
+          <button
+            type="button"
+            className="acq-global-search-return"
+            onClick={() => setGlobalSearchOpen(true)}
+          >
             {locale === "es" ? "Volver a resultados" : "Back to results"}
           </button>
         )}
         {globalSearchTerm.length >= 2 && globalSearchOpen && (
-          <div className="acq-global-results" role="group" aria-label={
-            locale === "es" ? "Resultados de búsqueda global" : "Global search results"
-          }>
+          <div
+            className="acq-global-results"
+            role="group"
+            aria-label={
+              locale === "es"
+                ? "Resultados de búsqueda global"
+                : "Global search results"
+            }
+          >
             <p className="acq-muted">
               {locale === "es"
                 ? `${globalResults.length} ${globalResults.length === 1 ? "ubicación encontrada" : "ubicaciones encontradas"}`
                 : `${globalResults.length} ${globalResults.length === 1 ? "location found" : "locations found"}`}
             </p>
             {globalResults.slice(0, 50).map(({ lead, path }) => (
-              <button type="button" key={`${lead.id}:${path[4]!.id}`}
+              <button
+                type="button"
+                key={`${lead.id}:${path[4]!.id}`}
                 onClick={() => {
                   setSelectedIds(path.map((node) => node.id))
                   setActiveStage(5)
                   setGlobalSearchOpen(false)
-                }}>
+                }}
+              >
                 <strong>{displayLabel(lead)}</strong>
-                <span>{lead.market === "MX" ? "MX · México" : "US · Estados Unidos"}</span>
-                <small>{displayLabel(path[3]!)} › {displayLabel(path[4]!)}</small>
+                <span>
+                  {lead.market === "MX" ? "MX · México" : "US · Estados Unidos"}
+                </span>
+                <small>
+                  {displayLabel(path[3]!)} › {displayLabel(path[4]!)}
+                </small>
               </button>
             ))}
             {globalResults.length > 50 && (
               <p className="acq-muted">
-                {locale === "es" ? "Afina la búsqueda para ver más ubicaciones." : "Refine your search to see more locations."}
+                {locale === "es"
+                  ? "Afina la búsqueda para ver más ubicaciones."
+                  : "Refine your search to see more locations."}
               </p>
             )}
           </div>
@@ -1205,8 +1421,11 @@ export function ExplorationMap({
                     {index + 1}. {stageNames[locale][index]}
                   </span>
                   <strong>
-                    {selected[index] ? displayLabel(selected[index]) :
-                      (locale === "es" ? "Por elegir" : "Choose a branch")}
+                    {selected[index]
+                      ? displayLabel(selected[index])
+                      : locale === "es"
+                        ? "Por elegir"
+                        : "Choose a branch"}
                   </strong>
                 </button>
               </li>
@@ -1312,10 +1531,22 @@ export function ExplorationMap({
                     >
                       <span className="acq-market-badge">
                         {activeStage === 5
-                          ? node.market === "MX" ? "MX · México" : "US · Estados Unidos"
-                          : marketFilter !== "ALL" ? marketFilter
-                          : [...new Set((conceptMembers.get(conceptKey(node)) ?? [node])
-                              .map((member) => member.market))].sort().join(" · ")}
+                          ? node.market === "MX"
+                            ? "MX · México"
+                            : "US · Estados Unidos"
+                          : marketFilter !== "ALL"
+                            ? marketFilter
+                            : [
+                                ...new Set(
+                                  (
+                                    conceptMembers.get(conceptKey(node)) ?? [
+                                      node,
+                                    ]
+                                  ).map((member) => member.market),
+                                ),
+                              ]
+                                .sort()
+                                .join(" · ")}
                       </span>
                       <strong>{displayLabel(node)}</strong>
                       <small>
@@ -1326,18 +1557,26 @@ export function ExplorationMap({
                           progress,
                           locale,
                           marketFilter,
+                          mode,
                         )}
                       </small>
-                      {activeStage < 5 && (marketFilter !== "ALL" ||
-                        (conceptMembers.get(conceptKey(node))?.length ?? 1) === 1) && (
-                        <small>{mapState(node, locale)}</small>
-                      )}
+                      {mode === "exploration" &&
+                        activeStage < 5 &&
+                        (marketFilter !== "ALL" ||
+                          (conceptMembers.get(conceptKey(node))?.length ??
+                            1) === 1) && (
+                          <small>{mapState(node, locale)}</small>
+                        )}
                     </button>
                     {data.marketPresence
-                      .filter((item) =>
-                        (conceptMembers.get(conceptKey(node)) ?? [node])
-                          .some((member) => member.id === item.node_id) &&
-                        (marketFilter === "ALL" || item.market === marketFilter))
+                      .filter(
+                        (item) =>
+                          (conceptMembers.get(conceptKey(node)) ?? [node]).some(
+                            (member) => member.id === item.node_id,
+                          ) &&
+                          (marketFilter === "ALL" ||
+                            item.market === marketFilter),
+                      )
                       .map((presence, index) => (
                         <p
                           className="acq-exploration-market-presence"
@@ -1397,15 +1636,24 @@ export function ExplorationMap({
                           </p>
                         )
                       })}
-                    {activeStage === 3 && coverageForChain(node)}
-                    {(marketFilter !== "ALL" ||
-                      (conceptMembers.get(conceptKey(node))?.length ?? 1) === 1)
-                      ? <>{nodeDecision(node)}{decisionControls(node)}</>
-                      : <p className="acq-muted">
+                    {mode === "exploration" &&
+                      activeStage === 3 &&
+                      coverageForChain(node)}
+                    {mode === "exploration" &&
+                      (marketFilter !== "ALL" ||
+                      (conceptMembers.get(conceptKey(node))?.length ?? 1) ===
+                        1 ? (
+                        <>
+                          {nodeDecision(node)}
+                          {decisionControls(node)}
+                        </>
+                      ) : (
+                        <p className="acq-muted">
                           {locale === "es"
                             ? "Elige México o Estados Unidos para decidir sobre esa rama en un mercado."
                             : "Choose Mexico or the United States to decide on this branch in one market."}
-                        </p>}
+                        </p>
+                      ))}
                   </div>
                 ))}
               </div>
@@ -1415,25 +1663,217 @@ export function ExplorationMap({
               {company ? (
                 <>
                   <span className="acq-eyebrow">
-                    {locale === "es"
-                      ? "Ficha de empresa · pista"
-                      : "Company brief · lead"}
+                    {mode === "opportunities"
+                      ? locale === "es"
+                        ? "Ficha de oportunidad · hipótesis"
+                        : "Opportunity brief · hypothesis"
+                      : locale === "es"
+                        ? "Ficha de empresa · pista"
+                        : "Company brief · lead"}
                   </span>
                   <h4>{companyProfile?.displayName ?? company.label}</h4>
+                  {mode === "opportunities" && (
+                    <section
+                      className="acq-company-fit"
+                      aria-label={
+                        locale === "es" ? "Encaje propuesto" : "Proposed fit"
+                      }
+                    >
+                      <span className="acq-eyebrow">
+                        {locale === "es"
+                          ? "Hipótesis comercial · este eslabón"
+                          : "Commercial hypothesis · this link"}
+                      </span>
+                      {selectedFitReview ? (
+                        <>
+                          <h5>{selectedFitReview.proposedOffer}</h5>
+                          <p>
+                            <strong>
+                              {locale === "es"
+                                ? "Por qué conversar"
+                                : "Why discuss"}
+                              :
+                            </strong>{" "}
+                            {selectedFitReview.fitHypothesis}
+                          </p>
+                          <p>
+                            <strong>
+                              {locale === "es"
+                                ? "Proceso observado"
+                                : "Observed process"}
+                              :
+                            </strong>{" "}
+                            {selectedFitReview.process}
+                          </p>
+                          <p>
+                            <strong>
+                              {locale === "es"
+                                ? "Capacidad de Brunova"
+                                : "Brunova capability"}
+                              :
+                            </strong>{" "}
+                            {selectedFitReview.brunovaCapability}
+                          </p>
+                          <p>
+                            <strong>
+                              {locale === "es"
+                                ? "Pregunta para validar"
+                                : "Question to validate"}
+                              :
+                            </strong>{" "}
+                            {selectedFitReview.commercialQuestion}
+                          </p>
+                          <p>
+                            <strong>
+                              {locale === "es"
+                                ? "Incertidumbre"
+                                : "Uncertainty"}
+                              :
+                            </strong>{" "}
+                            {selectedFitReview.uncertainty}
+                          </p>
+                          <details>
+                            <summary>
+                              {locale === "es"
+                                ? "Fundamento y contraevidencia"
+                                : "Sources and counterevidence"}
+                            </summary>
+                            <p>{selectedFitReview.counterevidence}</p>
+                            <a
+                              href={selectedFitReview.companySourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {locale === "es"
+                                ? "Fuente de la empresa"
+                                : "Company source"}
+                            </a>
+                            {" · "}
+                            <a
+                              href={selectedFitReview.brunovaSourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {locale === "es"
+                                ? "Capacidad de Brunova"
+                                : "Brunova capability"}
+                            </a>
+                          </details>
+                        </>
+                      ) : (
+                        <p>
+                          {locale === "es"
+                            ? "No hay tesis aprobada para este eslabón. Revisa las otras rutas de la empresa."
+                            : "No approved thesis for this link. Review the company's other routes."}
+                        </p>
+                      )}
+                    </section>
+                  )}
                   {companyProfile?.enrichment && (
-                    <section className="acq-company-enrichment-status" aria-label={locale === "es" ? "Etapa de la empresa" : "Company stage"}>
-                      <span className="acq-eyebrow">{locale === "es" ? "Etapa global" : "Global stage"}</span>
-                      <strong>{candidateStageNames[companyProfile.enrichment.stage]?.[locale === "es" ? 0 : 1] ?? companyProfile.enrichment.stage}</strong>
-                      {companyProfile.enrichment.stage === "CLOSED" && <p>{companyProfile.enrichment.closedBy === "ENGINE_WORKER"
-                        ? locale === "es" ? "Cerrada por el Engine" : "Closed by the Engine"
-                        : locale === "es" ? "Origen del cierre no disponible" : "Closure origin unavailable"}</p>}
+                    <section
+                      className="acq-company-enrichment-status"
+                      aria-label={
+                        locale === "es"
+                          ? "Etapa de la empresa"
+                          : "Company stage"
+                      }
+                    >
+                      <span className="acq-eyebrow">
+                        {locale === "es" ? "Etapa global" : "Global stage"}
+                      </span>
+                      <strong>
+                        {candidateStageNames[companyProfile.enrichment.stage]?.[
+                          locale === "es" ? 0 : 1
+                        ] ?? companyProfile.enrichment.stage}
+                      </strong>
+                      {companyProfile.enrichment.stage === "CLOSED" && (
+                        <p>
+                          {companyProfile.enrichment.closedBy ===
+                          "ENGINE_WORKER"
+                            ? locale === "es"
+                              ? "Cerrada por el Engine"
+                              : "Closed by the Engine"
+                            : locale === "es"
+                              ? "Origen del cierre no disponible"
+                              : "Closure origin unavailable"}
+                        </p>
+                      )}
                       <dl>
-                        <div><dt>{locale === "es" ? "Descubierta" : "Discovered"}</dt><dd>{candidateDate(companyProfile.enrichment.discoveredAt,locale)}</dd></div>
-                        <div><dt>{locale === "es" ? "Última actividad" : "Last activity"}</dt><dd>{candidateDate(companyProfile.enrichment.lastTouchedAt,locale)}</dd></div>
-                        {companyProfile.enrichment.contactedAt && <div><dt>{locale === "es" ? "Primer contacto" : "First contact"}</dt><dd>{candidateDate(companyProfile.enrichment.contactedAt,locale)}</dd></div>}
-                        {companyProfile.enrichment.closedAt && <div><dt>{locale === "es" ? "Cierre" : "Closed"}</dt><dd>{candidateDate(companyProfile.enrichment.closedAt,locale)}</dd></div>}
+                        <div>
+                          <dt>
+                            {locale === "es" ? "Descubierta" : "Discovered"}
+                          </dt>
+                          <dd>
+                            {candidateDate(
+                              companyProfile.enrichment.discoveredAt,
+                              locale,
+                            )}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>
+                            {locale === "es"
+                              ? "Última actividad"
+                              : "Last activity"}
+                          </dt>
+                          <dd>
+                            {candidateDate(
+                              companyProfile.enrichment.lastTouchedAt,
+                              locale,
+                            )}
+                          </dd>
+                        </div>
+                        {companyProfile.enrichment.contactedAt && (
+                          <div>
+                            <dt>
+                              {locale === "es"
+                                ? "Primer contacto"
+                                : "First contact"}
+                            </dt>
+                            <dd>
+                              {candidateDate(
+                                companyProfile.enrichment.contactedAt,
+                                locale,
+                              )}
+                            </dd>
+                          </div>
+                        )}
+                        {companyProfile.enrichment.closedAt && (
+                          <div>
+                            <dt>{locale === "es" ? "Cierre" : "Closed"}</dt>
+                            <dd>
+                              {candidateDate(
+                                companyProfile.enrichment.closedAt,
+                                locale,
+                              )}
+                            </dd>
+                          </div>
+                        )}
                       </dl>
-                      {companyProfile.enrichment.closureReason && <p>{locale === "es" ? "Motivo de cierre" : "Closure reason"}: {companyProfile.enrichment.closureReason === "INSUFFICIENT_INFORMATION" ? locale === "es" ? "Información insuficiente tras investigar las vías pertinentes" : "Insufficient information after pertinent research" : companyProfile.enrichment.closureReason === "EARLY_NO_ATTRIBUTED_PRESENCE" ? locale === "es" ? "La búsqueda inicial revisada no acreditó identidad ni vía de acceso; se detuvo el gasto de investigación" : "The reviewed first search established neither identity nor access route; research spending stopped" : companyProfile.enrichment.closureReason}</p>}
+                      {companyProfile.enrichment.closureReason && (
+                        <p>
+                          {locale === "es"
+                            ? "Motivo de cierre"
+                            : "Closure reason"}
+                          :{" "}
+                          {companyProfile.enrichment.closureReason ===
+                          "INSUFFICIENT_INFORMATION"
+                            ? locale === "es"
+                              ? "Información insuficiente tras investigar las vías pertinentes"
+                              : "Insufficient information after pertinent research"
+                            : companyProfile.enrichment.closureReason ===
+                                "EARLY_NO_ATTRIBUTED_PRESENCE"
+                              ? locale === "es"
+                                ? "La búsqueda inicial revisada no acreditó identidad ni vía de acceso; se detuvo el gasto de investigación"
+                                : "The reviewed first search established neither identity nor access route; research spending stopped"
+                              : companyProfile.enrichment.closureReason ===
+                                  "NO_BRUNOVA_FIT"
+                                ? locale === "es"
+                                  ? "Sin encaje defendible con Brunova en el eslabón revisado"
+                                  : "No defensible Brunova fit in the reviewed link"
+                                : companyProfile.enrichment.closureReason}
+                        </p>
+                      )}
                     </section>
                   )}
                   {companyProfile &&
@@ -1472,7 +1912,8 @@ export function ExplorationMap({
                           : "In this supply chain link"}
                       </span>
                       <strong>
-                        {displayLabel(selected[3])} › {displayLabel(selected[4])}
+                        {displayLabel(selected[3])} ›{" "}
+                        {displayLabel(selected[4])}
                       </strong>
                       {selectedLinkProfile && (
                         <>
@@ -1552,33 +1993,131 @@ export function ExplorationMap({
                     </section>
                   )}
                   {selectedMinimums && (
-                    <section className="acq-company-minimums" aria-label={locale === "es" ? "Mínimos para avanzar" : "Minimums to advance"}>
-                      <span className="acq-eyebrow">{locale === "es" ? "Mínimos para avanzar" : "Minimums to advance"}</span>
-                      <strong>{minimumChecklist.filter(([key]) => selectedMinimums[key]).length} / {minimumChecklist.length} {locale === "es" ? "sustentados" : "supported"}</strong>
-                      <ul>{minimumChecklist.map(([key,label]) => <li key={key} className={selectedMinimums[key] ? "is-supported" : "is-missing"}>
-                        <span aria-hidden="true">{selectedMinimums[key] ? "✓" : "○"}</span>
-                        <span>{label}</span>
-                        <small>{selectedMinimums[key] ? locale === "es" ? "Con fuente" : "Sourced" : locale === "es" ? "Falta sustento" : "Needs evidence"}</small>
-                      </li>)}</ul>
-                      {nextEnrichmentQuestion && <p>{locale === "es" ? "Siguiente pregunta registrada" : "Recorded next question"}: {cleanExplorationText(nextEnrichmentQuestion,locale)}</p>}
+                    <section
+                      className="acq-company-minimums"
+                      aria-label={
+                        locale === "es"
+                          ? "Mínimos para avanzar"
+                          : "Minimums to advance"
+                      }
+                    >
+                      <span className="acq-eyebrow">
+                        {locale === "es"
+                          ? "Mínimos para avanzar"
+                          : "Minimums to advance"}
+                      </span>
+                      <strong>
+                        {
+                          minimumChecklist.filter(
+                            ([key]) => selectedMinimums[key],
+                          ).length
+                        }{" "}
+                        / {minimumChecklist.length}{" "}
+                        {locale === "es" ? "sustentados" : "supported"}
+                      </strong>
+                      <ul>
+                        {minimumChecklist.map(([key, label]) => (
+                          <li
+                            key={key}
+                            className={
+                              selectedMinimums[key]
+                                ? "is-supported"
+                                : "is-missing"
+                            }
+                          >
+                            <span aria-hidden="true">
+                              {selectedMinimums[key] ? "✓" : "○"}
+                            </span>
+                            <span>{label}</span>
+                            <small>
+                              {selectedMinimums[key]
+                                ? locale === "es"
+                                  ? "Con fuente"
+                                  : "Sourced"
+                                : locale === "es"
+                                  ? "Falta sustento"
+                                  : "Needs evidence"}
+                            </small>
+                          </li>
+                        ))}
+                      </ul>
+                      {nextEnrichmentQuestion && (
+                        <p>
+                          {locale === "es"
+                            ? "Siguiente pregunta registrada"
+                            : "Recorded next question"}
+                          :{" "}
+                          {cleanExplorationText(nextEnrichmentQuestion, locale)}
+                        </p>
+                      )}
                     </section>
                   )}
                   {selectedEnrichmentAttempts.length > 0 && (
-                    <section className="acq-company-enrichment-attempts" aria-label={locale === "es" ? "Investigación de este eslabón" : "Research for this link"}>
-                      <span className="acq-eyebrow">{locale === "es" ? "Investigación de este eslabón" : "Research for this link"}</span>
-                      <p>{locale === "es" ? "Las respuestas de IA son pistas; cada fuente original se revisa por separado." : "AI answers are leads; every original source is reviewed separately."}</p>
+                    <section
+                      className="acq-company-enrichment-attempts"
+                      aria-label={
+                        locale === "es"
+                          ? "Investigación de este eslabón"
+                          : "Research for this link"
+                      }
+                    >
+                      <span className="acq-eyebrow">
+                        {locale === "es"
+                          ? "Investigación de este eslabón"
+                          : "Research for this link"}
+                      </span>
+                      <p>
+                        {locale === "es"
+                          ? "Las respuestas de IA son pistas; cada fuente original se revisa por separado."
+                          : "AI answers are leads; every original source is reviewed separately."}
+                      </p>
                       {selectedEnrichmentAttempts.map((attempt) => (
                         <details key={attempt.attemptId}>
-                          <summary>{attempt.dimension.replaceAll("_", " ")} · {attempt.fieldKey.replaceAll("_", " ")} · {candidateDate(attempt.recordedAt,locale)}</summary>
+                          <summary>
+                            {attempt.dimension.replaceAll("_", " ")} ·{" "}
+                            {attempt.fieldKey.replaceAll("_", " ")} ·{" "}
+                            {candidateDate(attempt.recordedAt, locale)}
+                          </summary>
                           {attempt.question && <p>{attempt.question}</p>}
                           <ul>
-                            {attempt.sourceReceipts.length > 0 ? attempt.sourceReceipts.map((source,index) => (
-                              <li key={`${source.uri ?? "unavailable"}-${index}`}>
-                                {safeHttpUrl(source.uri) ? <a href={safeHttpUrl(source.uri)!.href} target="_blank" rel="noopener noreferrer">{locale === "es" ? "Fuente original" : "Original source"}</a> : (locale === "es" ? "Fuente no disponible" : "Source unavailable")}
-                                {` · ${source.outcome === "READ" ? locale === "es" ? "Leída" : "Read" : locale === "es" ? "No disponible" : "Unavailable"}`}
-                                {source.excerpt && <small>{cleanExplorationText(source.excerpt,locale)}</small>}
+                            {attempt.sourceReceipts.length > 0 ? (
+                              attempt.sourceReceipts.map((source, index) => (
+                                <li
+                                  key={`${source.uri ?? "unavailable"}-${index}`}
+                                >
+                                  {safeHttpUrl(source.uri) ? (
+                                    <a
+                                      href={safeHttpUrl(source.uri)!.href}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {locale === "es"
+                                        ? "Fuente original"
+                                        : "Original source"}
+                                    </a>
+                                  ) : locale === "es" ? (
+                                    "Fuente no disponible"
+                                  ) : (
+                                    "Source unavailable"
+                                  )}
+                                  {` · ${source.outcome === "READ" ? (locale === "es" ? "Leída" : "Read") : locale === "es" ? "No disponible" : "Unavailable"}`}
+                                  {source.excerpt && (
+                                    <small>
+                                      {cleanExplorationText(
+                                        source.excerpt,
+                                        locale,
+                                      )}
+                                    </small>
+                                  )}
+                                </li>
+                              ))
+                            ) : (
+                              <li>
+                                {locale === "es"
+                                  ? "Sin páginas originales leídas en este intento"
+                                  : "No original pages read in this attempt"}
                               </li>
-                            )) : <li>{locale === "es" ? "Sin páginas originales leídas en este intento" : "No original pages read in this attempt"}</li>}
+                            )}
                           </ul>
                         </details>
                       ))}
@@ -1629,7 +2168,8 @@ export function ExplorationMap({
                               {node.market === "MX"
                                 ? "MX · México"
                                 : "US · Estados Unidos"}{" "}
-                              · {chain ? displayLabel(chain) : ""} · {displayLabel(node)} ·{" "}
+                              · {chain ? displayLabel(chain) : ""} ·{" "}
+                              {displayLabel(node)} ·{" "}
                               {linkFunction ||
                                 (locale === "es"
                                   ? "Por confirmar"
@@ -1649,8 +2189,13 @@ export function ExplorationMap({
                     <p className="acq-company-disposition-state" role="status">
                       <span className="acq-status-chip">
                         {effectiveDisposition.scope === "GLOBAL"
-                          ? locale === "es" ? "Cerrada por dirección" : "Closed by management"
-                          : locale === "es" ? "Descartada" : "Discarded"} ·{" "}
+                          ? locale === "es"
+                            ? "Cerrada por dirección"
+                            : "Closed by management"
+                          : locale === "es"
+                            ? "Descartada"
+                            : "Discarded"}{" "}
+                        ·{" "}
                         {dispositionScopeLabel(
                           effectiveDisposition.scope,
                           locale,
@@ -1905,7 +2450,8 @@ export function ExplorationMap({
                       const pendingFields = profileFields.filter(
                         (item) => item.status === "PENDING",
                       ).length
-                      const hypothesisFields = profileFields.length - knownFields - pendingFields
+                      const hypothesisFields =
+                        profileFields.length - knownFields - pendingFields
                       return (
                         <details
                           className="acq-company-dimension"
@@ -1913,150 +2459,165 @@ export function ExplorationMap({
                           open={dimension === "activity"}
                         >
                           <summary>
-                            <span className="acq-company-dimension-title">{title}</span>
+                            <span className="acq-company-dimension-title">
+                              {title}
+                            </span>
                             <span className="acq-company-dimension-status">
                               {knownFields > 0 && (
-                                <span>{knownFields} {locale === "es" ? "registrados" : "recorded"}</span>
+                                <span>
+                                  {knownFields}{" "}
+                                  {locale === "es" ? "registrados" : "recorded"}
+                                </span>
                               )}
                               {hypothesisFields > 0 && (
-                                <span>{hypothesisFields} {locale === "es" ? "por confirmar" : "to confirm"}</span>
+                                <span>
+                                  {hypothesisFields}{" "}
+                                  {locale === "es"
+                                    ? "por confirmar"
+                                    : "to confirm"}
+                                </span>
                               )}
                               {pendingFields > 0 && (
-                                <span>{pendingFields} {locale === "es" ? "pendientes" : "pending"}</span>
+                                <span>
+                                  {pendingFields}{" "}
+                                  {locale === "es" ? "pendientes" : "pending"}
+                                </span>
                               )}
                             </span>
                           </summary>
                           <div className="acq-company-dimension-fields">
-                          {profileFields.length ? (
-                            profileFields.map((item) => (
-                              <article key={item.key}>
-                                <strong>
-                                  {companyFieldLabel(item.key, locale)}
-                                </strong>
-                                <p>
-                                  {cleanExplorationText(item.value, locale) ||
-                                    (locale === "es" ? "Pendiente" : "Pending")}
-                                </p>
-                                <small className="acq-company-field-state">
-                                  {item.conflict
-                                    ? locale === "es"
-                                      ? "En conflicto · provisional"
-                                      : "Conflicting · provisional"
-                                    : item.status === "KNOWN"
+                            {profileFields.length ? (
+                              profileFields.map((item) => (
+                                <article key={item.key}>
+                                  <strong>
+                                    {companyFieldLabel(item.key, locale)}
+                                  </strong>
+                                  <p>
+                                    {cleanExplorationText(item.value, locale) ||
+                                      (locale === "es"
+                                        ? "Pendiente"
+                                        : "Pending")}
+                                  </p>
+                                  <small className="acq-company-field-state">
+                                    {item.conflict
                                       ? locale === "es"
-                                        ? "Conocido"
-                                        : "Known"
-                                      : item.status === "HYPOTHESIS"
+                                        ? "En conflicto · provisional"
+                                        : "Conflicting · provisional"
+                                      : item.status === "KNOWN"
                                         ? locale === "es"
-                                          ? "Hipótesis"
-                                          : "Hypothesis"
-                                        : locale === "es"
-                                          ? "Pendiente"
-                                          : "Pending"}
-                                </small>
-                                {item.conflict && (
-                                  <details className="acq-company-field-conflict">
-                                    <summary>
-                                      {locale === "es"
-                                        ? "Datos en conflicto"
-                                        : "Conflicting data"}
-                                    </summary>
-                                    <ul>
-                                      {(item.conflictValues ?? []).map(
-                                        (candidate, index) => (
-                                          <li
-                                            key={`${candidate.companyId}:${index}`}
-                                          >
-                                            <span>
-                                              {cleanExplorationText(
-                                                candidate.value,
-                                                locale,
-                                              ) ||
-                                                (locale === "es"
-                                                  ? "Valor pendiente"
-                                                  : "Pending value")}
-                                            </span>
-                                            {candidate.status === "KNOWN" && (
-                                              <small>
-                                                {locale === "es"
-                                                  ? " · discrepancia sin resolver"
-                                                  : " · disagreement unresolved"}
-                                              </small>
-                                            )}
-                                            {safeHttpUrl(
-                                              candidate.sourceUrl,
-                                            ) && (
-                                              <a
-                                                href={
-                                                  safeHttpUrl(
-                                                    candidate.sourceUrl,
-                                                  )!.href
-                                                }
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                              >
-                                                {locale === "es"
-                                                  ? "Fuente"
-                                                  : "Source"}
-                                              </a>
-                                            )}
-                                            <small>
-                                              {observedDate(
-                                                candidate.observedAt,
-                                                locale,
-                                              )}
-                                            </small>
-                                          </li>
-                                        ),
-                                      )}
-                                    </ul>
-                                  </details>
-                                )}
-                                {(item.observedAt ||
-                                  safeHttpUrl(item.sourceUrl)) && (
-                                  <small className="acq-company-field-source">
-                                    {item.observedAt
-                                      ? observedDate(item.observedAt, locale)
-                                      : null}
-                                    {safeHttpUrl(item.sourceUrl) && (
-                                      <>
-                                        {" "}
-                                        ·{" "}
-                                        <a
-                                          href={
-                                            safeHttpUrl(item.sourceUrl)!.href
-                                          }
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          {locale === "es"
-                                            ? "Fuente"
-                                            : "Source"}
-                                        </a>
-                                      </>
-                                    )}
+                                          ? "Conocido"
+                                          : "Known"
+                                        : item.status === "HYPOTHESIS"
+                                          ? locale === "es"
+                                            ? "Hipótesis"
+                                            : "Hypothesis"
+                                          : locale === "es"
+                                            ? "Pendiente"
+                                            : "Pending"}
                                   </small>
-                                )}
-                                <p className="acq-record-next">
-                                  {locale === "es"
-                                    ? "Siguiente pregunta"
-                                    : "Next question"}
-                                  :{" "}
-                                  {nextQuestionForField(
-                                    item.key,
-                                    item.nextQuestion,
-                                    locale,
+                                  {item.conflict && (
+                                    <details className="acq-company-field-conflict">
+                                      <summary>
+                                        {locale === "es"
+                                          ? "Datos en conflicto"
+                                          : "Conflicting data"}
+                                      </summary>
+                                      <ul>
+                                        {(item.conflictValues ?? []).map(
+                                          (candidate, index) => (
+                                            <li
+                                              key={`${candidate.companyId}:${index}`}
+                                            >
+                                              <span>
+                                                {cleanExplorationText(
+                                                  candidate.value,
+                                                  locale,
+                                                ) ||
+                                                  (locale === "es"
+                                                    ? "Valor pendiente"
+                                                    : "Pending value")}
+                                              </span>
+                                              {candidate.status === "KNOWN" && (
+                                                <small>
+                                                  {locale === "es"
+                                                    ? " · discrepancia sin resolver"
+                                                    : " · disagreement unresolved"}
+                                                </small>
+                                              )}
+                                              {safeHttpUrl(
+                                                candidate.sourceUrl,
+                                              ) && (
+                                                <a
+                                                  href={
+                                                    safeHttpUrl(
+                                                      candidate.sourceUrl,
+                                                    )!.href
+                                                  }
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                >
+                                                  {locale === "es"
+                                                    ? "Fuente"
+                                                    : "Source"}
+                                                </a>
+                                              )}
+                                              <small>
+                                                {observedDate(
+                                                  candidate.observedAt,
+                                                  locale,
+                                                )}
+                                              </small>
+                                            </li>
+                                          ),
+                                        )}
+                                      </ul>
+                                    </details>
                                   )}
-                                </p>
-                              </article>
-                            ))
-                          ) : (
-                            <p className="acq-muted">
-                              {locale === "es"
-                                ? "Pendiente de investigar"
-                                : "Pending research"}
-                            </p>
-                          )}
+                                  {(item.observedAt ||
+                                    safeHttpUrl(item.sourceUrl)) && (
+                                    <small className="acq-company-field-source">
+                                      {item.observedAt
+                                        ? observedDate(item.observedAt, locale)
+                                        : null}
+                                      {safeHttpUrl(item.sourceUrl) && (
+                                        <>
+                                          {" "}
+                                          ·{" "}
+                                          <a
+                                            href={
+                                              safeHttpUrl(item.sourceUrl)!.href
+                                            }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                          >
+                                            {locale === "es"
+                                              ? "Fuente"
+                                              : "Source"}
+                                          </a>
+                                        </>
+                                      )}
+                                    </small>
+                                  )}
+                                  <p className="acq-record-next">
+                                    {locale === "es"
+                                      ? "Siguiente pregunta"
+                                      : "Next question"}
+                                    :{" "}
+                                    {nextQuestionForField(
+                                      item.key,
+                                      item.nextQuestion,
+                                      locale,
+                                    )}
+                                  </p>
+                                </article>
+                              ))
+                            ) : (
+                              <p className="acq-muted">
+                                {locale === "es"
+                                  ? "Pendiente de investigar"
+                                  : "Pending research"}
+                              </p>
+                            )}
                           </div>
                         </details>
                       )
