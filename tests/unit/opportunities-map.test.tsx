@@ -108,7 +108,15 @@ it("moves one identity between exclusive active maps and leads with its link the
     directives: [],
     chainProgress: [],
     governance: [],
-    marketPresence: [],
+    marketPresence: [
+      {
+        node_id: "opportunity",
+        market: "MX",
+        status: "UNVERIFIED",
+        relation: "Discovered in this market; operating presence remains unconfirmed",
+        source_url: null,
+      },
+    ],
     chainEquivalences: [],
     chainCoverage: [],
     companyProfiles: [
@@ -159,6 +167,9 @@ it("moves one identity between exclusive active maps and leads with its link the
     within(results).getByRole("button", { name: /Empresa Avanzada/ }),
   )
   const brief = screen.getByRole("complementary")
+  expect(screen.queryByText(/Pista encontrada en este mercado/)).toBeNull()
+  expect(within(brief).queryByText(/Sin verificar/)).toBeNull()
+  expect(within(brief).getByText("Evidencia, límites y fuentes")).toBeInTheDocument()
   expect(within(brief).getByLabelText("Encaje propuesto")).toHaveTextContent(
     "Visibilidad del proceso de congelación",
   )

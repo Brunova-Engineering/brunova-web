@@ -1568,7 +1568,7 @@ export function ExplorationMap({
                           <small>{mapState(node, locale)}</small>
                         )}
                     </button>
-                    {data.marketPresence
+                    {mode === "exploration" && data.marketPresence
                       .filter(
                         (item) =>
                           (conceptMembers.get(conceptKey(node)) ?? [node]).some(
@@ -1696,25 +1696,7 @@ export function ExplorationMap({
                             </strong>{" "}
                             {selectedFitReview.fitHypothesis}
                           </p>
-                          <p>
-                            <strong>
-                              {locale === "es"
-                                ? "Proceso observado"
-                                : "Observed process"}
-                              :
-                            </strong>{" "}
-                            {selectedFitReview.process}
-                          </p>
-                          <p>
-                            <strong>
-                              {locale === "es"
-                                ? "Capacidad de Brunova"
-                                : "Brunova capability"}
-                              :
-                            </strong>{" "}
-                            {selectedFitReview.brunovaCapability}
-                          </p>
-                          <p>
+                          <p className="acq-fit-question">
                             <strong>
                               {locale === "es"
                                 ? "Pregunta para validar"
@@ -1723,22 +1705,28 @@ export function ExplorationMap({
                             </strong>{" "}
                             {selectedFitReview.commercialQuestion}
                           </p>
-                          <p>
-                            <strong>
-                              {locale === "es"
-                                ? "Incertidumbre"
-                                : "Uncertainty"}
-                              :
-                            </strong>{" "}
-                            {selectedFitReview.uncertainty}
-                          </p>
                           <details>
                             <summary>
                               {locale === "es"
-                                ? "Fundamento y contraevidencia"
-                                : "Sources and counterevidence"}
+                                ? "Evidencia, límites y fuentes"
+                                : "Evidence, limits and sources"}
                             </summary>
-                            <p>{selectedFitReview.counterevidence}</p>
+                            <p>
+                              <strong>{locale === "es" ? "Proceso observado" : "Observed process"}:</strong>{" "}
+                              {selectedFitReview.process}
+                            </p>
+                            <p>
+                              <strong>{locale === "es" ? "Capacidad de Brunova" : "Brunova capability"}:</strong>{" "}
+                              {selectedFitReview.brunovaCapability}
+                            </p>
+                            <p>
+                              <strong>{locale === "es" ? "Incertidumbre" : "Uncertainty"}:</strong>{" "}
+                              {selectedFitReview.uncertainty}
+                            </p>
+                            <p>
+                              <strong>{locale === "es" ? "Contraevidencia" : "Counterevidence"}:</strong>{" "}
+                              {selectedFitReview.counterevidence}
+                            </p>
                             <a
                               href={selectedFitReview.companySourceUrl}
                               target="_blank"
@@ -2303,7 +2291,7 @@ export function ExplorationMap({
                       </div>
                     </details>
                   )}
-                  {data.marketPresence
+                  {mode === "exploration" && data.marketPresence
                     .filter((item) => item.node_id === company.id)
                     .map((presence, index) => (
                       <p
@@ -2624,9 +2612,13 @@ export function ExplorationMap({
                     })}
                   </div>
                   <p className="acq-zoom-caution">
-                    {locale === "es"
-                      ? "Su relación con este eslabón es una hipótesis; no se ha probado un contrato ni una necesidad comercial."
-                      : "Its relationship to this link is a hypothesis; no contract or commercial need has been proven."}
+                    {mode === "opportunities"
+                      ? locale === "es"
+                        ? "La tesis comercial es una hipótesis; no se ha probado un contrato ni una necesidad declarada."
+                        : "The commercial thesis is a hypothesis; no contract or stated need has been proven."
+                      : locale === "es"
+                        ? "Su relación con este eslabón es una hipótesis; no se ha probado un contrato ni una necesidad comercial."
+                        : "Its relationship to this link is a hypothesis; no contract or commercial need has been proven."}
                   </p>
                   {sourceLinks(company).length > 0 && (
                     <div className="acq-zoom-sources">
