@@ -1043,6 +1043,11 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   margin: 0;
   line-height: 1.5;
 }
+.acq-company-fit .acq-fit-question {
+  border-left: 2px solid var(--color-accent);
+  padding: 0.35rem 0 0.35rem 0.8rem;
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
 .acq-company-fit details {
   border-top: 1px solid var(--color-border);
   padding-top: 0.65rem;
