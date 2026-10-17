@@ -806,6 +806,9 @@ export function ExplorationMap({
     (review) =>
       review.linkId === selected[4]?.id && review.decision === "ADVANCE",
   )
+  const selectedFilteringDecision = companyProfile?.filteringDecisions?.find(
+    (decision) => decision.linkId === selected[4]?.id,
+  )
   const profileByLead = new Map(
     companyProfiles.flatMap((profile) =>
       profile.leadNodeIds.map((leadId) => [leadId, profile] as const),
@@ -2741,6 +2744,77 @@ export function ExplorationMap({
                             </strong>{" "}
                             {selectedFitReview.commercialQuestion}
                           </p>
+                          {selectedFilteringDecision && (
+                            <div
+                              className="acq-fit-decision"
+                              aria-label={
+                                locale === "es"
+                                  ? "Decisión comercial"
+                                  : "Commercial decision"
+                              }
+                            >
+                              <strong>
+                                {selectedFilteringDecision.decision === "SELECT"
+                                  ? companyProfile?.enrichment?.stage ===
+                                    "SELECTED"
+                                    ? locale === "es"
+                                      ? "Seleccionada"
+                                      : "Selected"
+                                    : locale === "es"
+                                      ? "Selección registrada, pendiente del Engine"
+                                      : "Selection recorded, awaiting the Engine"
+                                  : selectedFilteringDecision.decision ===
+                                      "CONTINUE"
+                                    ? locale === "es"
+                                      ? "Seguir evaluando"
+                                      : "Continue evaluating"
+                                    : locale === "es"
+                                      ? "Cierre registrado, pendiente del Engine"
+                                      : "Closure recorded, awaiting the Engine"}
+                              </strong>
+                              <p>{selectedFilteringDecision.reason}</p>
+                              {selectedFilteringDecision.question && (
+                                <p>
+                                  <strong>
+                                    {locale === "es"
+                                      ? "Pregunta pendiente"
+                                      : "Open question"}
+                                    :
+                                  </strong>{" "}
+                                  {selectedFilteringDecision.question}
+                                </p>
+                              )}
+                              {selectedFilteringDecision.reviewAt && (
+                                <p>
+                                  <strong>
+                                    {locale === "es"
+                                      ? "Revisar el"
+                                      : "Review on"}
+                                    :
+                                  </strong>{" "}
+                                  {new Date(
+                                    selectedFilteringDecision.reviewAt,
+                                  ).toLocaleDateString(
+                                    locale === "es" ? "es-MX" : "en-US",
+                                    {
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric",
+                                    },
+                                  )}
+                                </p>
+                              )}
+                              <a
+                                href={selectedFilteringDecision.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {locale === "es"
+                                  ? "Fuente de la decisión"
+                                  : "Decision source"}
+                              </a>
+                            </div>
+                          )}
                           <details>
                             <summary>
                               {locale === "es"

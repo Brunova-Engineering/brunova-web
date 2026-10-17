@@ -486,6 +486,24 @@ export const acquisitionApi = {
                   }),
                 )
                 .optional(),
+              filteringDecisions: z
+                .array(
+                  z.object({
+                    linkId: z.string(),
+                    decisionId: z.string(),
+                    stageVersion: z.coerce.number(),
+                    decision: z.enum(["SELECT", "CONTINUE", "CLOSE"]),
+                    reason: z.string(),
+                    sourceUrl: z.string(),
+                    question: z.string().nullable(),
+                    reviewAt: z.string().nullable(),
+                    scope: z.string().nullable(),
+                    branchId: z.string().nullable(),
+                    actorType: z.string(),
+                    recordedAt: z.string(),
+                  }),
+                )
+                .optional(),
               attention: z
                 .object({
                   status: z.enum(["OPEN", "RESOLVED"]),
