@@ -474,6 +474,23 @@ export function ExplorationMap({
   const [closeScope, setCloseScope] = useState<"LINK" | "COMPANY">("COMPANY")
   const [closePending, setClosePending] = useState(false)
   const [closeNotice, setCloseNotice] = useState("")
+  const [resolutionDraft, setResolutionDraft] = useState<{
+    companyId: string
+    actionCode:
+      | "CONFIRM_IDENTITY"
+      | "KEEP_IDENTITIES_SEPARATE"
+      | "KEEP_SEPARATE"
+      | "CORRECT_FIT_THESIS"
+  } | null>(null)
+  const [resolutionText, setResolutionText] = useState("")
+  const [resolutionEvidence, setResolutionEvidence] = useState("")
+  const [resolutionPending, setResolutionPending] = useState(false)
+  const [resolutionNotice, setResolutionNotice] = useState("")
+  const resolutionCommand = useRef<{
+    companyId: string
+    actionCode: string
+    commandId: string
+  } | null>(null)
   const closeCommand = useRef<{ companyId: string; commandId: string } | null>(
     null,
   )
@@ -1002,7 +1019,10 @@ export function ExplorationMap({
           ? "Medio registrado y motivo resuelto. Se actualizó la sección de la empresa."
           : "Contact method recorded and reason resolved. The company section has been updated.",
       )
-      setData(await acquisitionApi.explorationMap(cycleId))
+      await acquisitionApi
+        .explorationMap(cycleId)
+        .then(setData)
+        .catch(() => undefined)
     } catch {
       setContactNotice(
         locale === "es"
@@ -1087,7 +1107,10 @@ export function ExplorationMap({
           ? "Encargo registrado en cola; la decisión sigue pendiente hasta recibir y revisar su resultado."
           : "Research queued; the decision remains open until its result is received and reviewed.",
       )
-      setData(await acquisitionApi.explorationMap(cycleId))
+      await acquisitionApi
+        .explorationMap(cycleId)
+        .then(setData)
+        .catch(() => undefined)
     } catch {
       setResearchNotice(
         locale === "es"
@@ -1153,7 +1176,10 @@ export function ExplorationMap({
           ? "Decisión de cierre registrada. El Engine debe aplicarla y actualizar la etapa; aún no se cuenta como cerrada."
           : "Closure decision recorded. The Engine must apply it before the company is considered closed.",
       )
-      setData(await acquisitionApi.explorationMap(cycleId))
+      await acquisitionApi
+        .explorationMap(cycleId)
+        .then(setData)
+        .catch(() => undefined)
     } catch {
       setCloseNotice(
         locale === "es"
@@ -1162,6 +1188,106 @@ export function ExplorationMap({
       )
     } finally {
       setClosePending(false)
+    }
+  }
+
+  async function resolveMaterialAttention() {
+    const profile = companyProfile
+    const attention = profile?.attention
+    const draft = resolutionDraft
+    if (
+      !profile ||
+      !attention ||
+      !draft ||
+      draft.companyId !== profile.companyId ||
+      resolutionPending ||
+      !session.actor.capabilities.includes("MANAGE_CYCLE")
+    )
+      return
+    const reasonCode =
+      draft.actionCode === "KEEP_SEPARATE"
+        ? "PRIOR_RELATIONSHIP_CONFLICT"
+        : draft.actionCode === "CORRECT_FIT_THESIS"
+          ? "FIT_EVIDENCE_CONFLICT"
+          : "IDENTITY_CONFLICT"
+    const reason = attention.reasons.find((item) => item.code === reasonCode)
+    const action = attention.actions.find(
+      (item) => item.code === draft.actionCode,
+    )
+    const linkId = reason?.linkId ?? selected[4]?.id
+    if (!reason || !action || action.enabled !== true || !linkId) return
+    const supportingActionId = action.supportingActionId ?? undefined
+    if (draft.actionCode !== "KEEP_SEPARATE" && !supportingActionId) return
+    if (draft.actionCode === "KEEP_SEPARATE" && !reason.relatedRecordRef) return
+    const resolution = resolutionText.trim()
+    const evidence = resolutionEvidence.trim()
+    if (
+      resolution.length < 20 ||
+      resolution.length > 1000 ||
+      evidence.length < 8 ||
+      evidence.length > 500
+    ) {
+      setResolutionNotice(
+        locale === "es"
+          ? "Explica la decisión con al menos 20 caracteres y cita evidencia verificable."
+          : "Explain the decision in at least 20 characters and cite verifiable evidence.",
+      )
+      return
+    }
+    const command =
+      resolutionCommand.current?.companyId === profile.companyId &&
+      resolutionCommand.current.actionCode === draft.actionCode
+        ? resolutionCommand.current
+        : {
+            companyId: profile.companyId,
+            actionCode: draft.actionCode,
+            commandId: crypto.randomUUID(),
+          }
+    resolutionCommand.current = command
+    setResolutionPending(true)
+    setResolutionNotice("")
+    try {
+      await acquisitionApi.candidateAttentionCommand(
+        command.commandId,
+        {
+          cycleId,
+          companyId: profile.companyId,
+          linkId,
+          expectedStageVersion: attention.stageVersion,
+          action: "RESOLVE",
+          reasonCode,
+          summary: reason.summary,
+          evidenceRefs: [evidence],
+          resolution,
+          resolutionAction: draft.actionCode,
+          ...(supportingActionId ? { supportingActionId } : {}),
+          ...(reason.relatedRecordRef
+            ? { relatedRecordRef: reason.relatedRecordRef }
+            : {}),
+        },
+        session.csrfToken,
+      )
+      resolutionCommand.current = null
+      setResolutionDraft(null)
+      setResolutionText("")
+      setResolutionEvidence("")
+      setResolutionNotice(
+        locale === "es"
+          ? "Decisión registrada con su corrección previa; la ficha se actualizó."
+          : "Decision recorded with its prior correction; the brief is updated.",
+      )
+      await acquisitionApi
+        .explorationMap(cycleId)
+        .then(setData)
+        .catch(() => undefined)
+    } catch {
+      setResolutionNotice(
+        locale === "es"
+          ? "La resolución no fue aceptada. Comprueba la corrección previa y la versión de la ficha."
+          : "Resolution rejected. Check the prior correction and current brief version.",
+      )
+    } finally {
+      setResolutionPending(false)
     }
   }
 
@@ -2008,6 +2134,14 @@ export function ExplorationMap({
                         : "Company brief · lead"}
                   </span>
                   <h4>{companyProfile?.displayName ?? company.label}</h4>
+                  {mode === "opportunities" &&
+                    companyProfile?.contactScreenRequired && (
+                      <p className="acq-company-contact-screen">
+                        {locale === "es"
+                          ? "Pendiente revisar correo, Facebook, Instagram y WhatsApp con fuentes atribuibles. Esto no significa que no exista un medio: solo una revisión completa puede determinarlo."
+                          : "Email, Facebook, Instagram, and WhatsApp still need a sourced review. This does not mean no channel exists; only a complete review can establish that."}
+                      </p>
+                    )}
                   {mode === "attention" &&
                     companyProfile?.attention?.status === "OPEN" && (
                       <section
@@ -2157,7 +2291,8 @@ export function ExplorationMap({
                                       : "Prepare bounded research"}
                                   </button>
                                 )}
-                              {action.code === "CLOSE_CANDIDATE" &&
+                              {(action.code === "CLOSE_CANDIDATE" ||
+                                action.code === "CLOSE_NO_FIT") &&
                                 action.enabled !== false &&
                                 companyProfile.enrichment?.stage ===
                                   "FILTERING" &&
@@ -2181,6 +2316,46 @@ export function ExplorationMap({
                                     {locale === "es"
                                       ? "Preparar decisión de cierre"
                                       : "Prepare closure decision"}
+                                  </button>
+                                )}
+                              {(
+                                [
+                                  "CONFIRM_IDENTITY",
+                                  "KEEP_IDENTITIES_SEPARATE",
+                                  "KEEP_SEPARATE",
+                                  "CORRECT_FIT_THESIS",
+                                ] as const
+                              ).some((code) => code === action.code) &&
+                                action.enabled === true &&
+                                (action.code === "KEEP_SEPARATE"
+                                  ? companyProfile.attention?.reasons.some(
+                                      (reason) =>
+                                        reason.code ===
+                                          "PRIOR_RELATIONSHIP_CONFLICT" &&
+                                        !!reason.relatedRecordRef,
+                                    )
+                                  : !!action.supportingActionId) &&
+                                session.actor.capabilities.includes(
+                                  "MANAGE_CYCLE",
+                                ) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      resolutionCommand.current = null
+                                      setResolutionDraft({
+                                        companyId: companyProfile.companyId,
+                                        actionCode: action.code as
+                                          | "CONFIRM_IDENTITY"
+                                          | "KEEP_IDENTITIES_SEPARATE"
+                                          | "KEEP_SEPARATE"
+                                          | "CORRECT_FIT_THESIS",
+                                      })
+                                      setResolutionNotice("")
+                                    }}
+                                  >
+                                    {locale === "es"
+                                      ? "Registrar resolución sustentada"
+                                      : "Record supported resolution"}
                                   </button>
                                 )}
                             </article>
@@ -2361,6 +2536,71 @@ export function ExplorationMap({
                           </form>
                         )}
                         {closeNotice && <p role="status">{closeNotice}</p>}
+                        {resolutionDraft?.companyId ===
+                          companyProfile.companyId && (
+                          <form
+                            className="acq-attention-contact-form"
+                            onSubmit={(event) => {
+                              event.preventDefault()
+                              void resolveMaterialAttention()
+                            }}
+                          >
+                            <h5>
+                              {locale === "es"
+                                ? "Registrar resolución con respaldo"
+                                : "Record supported resolution"}
+                            </h5>
+                            <p className="acq-muted">
+                              {locale === "es"
+                                ? "La corrección subyacente ya debe constar en el expediente; esta decisión únicamente resuelve el motivo de atención."
+                                : "The underlying correction must already be in the record; this decision only resolves the attention reason."}
+                            </p>
+                            <label>
+                              {locale === "es"
+                                ? "Evidencia revisada (URL o recibo)"
+                                : "Reviewed evidence (URL or receipt)"}
+                              <input
+                                required
+                                minLength={8}
+                                maxLength={500}
+                                value={resolutionEvidence}
+                                disabled={resolutionPending}
+                                onChange={(event) => {
+                                  resolutionCommand.current = null
+                                  setResolutionEvidence(event.target.value)
+                                }}
+                              />
+                            </label>
+                            <label>
+                              {locale === "es"
+                                ? "Explicación de la decisión"
+                                : "Decision explanation"}
+                              <textarea
+                                required
+                                minLength={20}
+                                maxLength={1000}
+                                value={resolutionText}
+                                disabled={resolutionPending}
+                                onChange={(event) => {
+                                  resolutionCommand.current = null
+                                  setResolutionText(event.target.value)
+                                }}
+                              />
+                            </label>
+                            <button type="submit" disabled={resolutionPending}>
+                              {resolutionPending
+                                ? locale === "es"
+                                  ? "Guardando…"
+                                  : "Saving…"
+                                : locale === "es"
+                                  ? "Resolver motivo con evidencia"
+                                  : "Resolve reason with evidence"}
+                            </button>
+                          </form>
+                        )}
+                        {resolutionNotice && (
+                          <p role="status">{resolutionNotice}</p>
+                        )}
                         {contactDraftCompanyId === companyProfile.companyId &&
                           companyProfile.attention.reasons.some(
                             (reason) => reason.code === "NO_VERIFIED_CONTACT",

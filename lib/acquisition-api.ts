@@ -411,6 +411,20 @@ export const acquisitionApi = {
                 }),
               ),
               tags: z.array(z.string()),
+              contactScreenRequired: z.boolean().optional(),
+              contactMethods: z
+                .array(
+                  z.object({
+                    methodId: z.string(),
+                    channelType: z.string(),
+                    channelValue: z.string(),
+                    sourceUrl: z.string(),
+                    attribution: z.string(),
+                    stageVersion: z.coerce.number(),
+                    recordedAt: z.string(),
+                  }),
+                )
+                .optional(),
               links: z.array(
                 z.object({
                   linkId: z.string(),
@@ -483,6 +497,7 @@ export const acquisitionApi = {
                       linkId: z.string().nullable().optional(),
                       evidenceRefs: z.array(z.string()).optional(),
                       checkedChannels: z.array(z.string()).optional(),
+                      relatedRecordRef: z.string().nullable().optional(),
                       openedAt: z.string().nullable().optional(),
                     }),
                   ),
@@ -493,6 +508,7 @@ export const acquisitionApi = {
                       actor: z.enum(["MANAGEMENT", "PANKY"]),
                       resultHint: z.string(),
                       enabled: z.boolean().optional(),
+                      supportingActionId: z.string().nullable().optional(),
                     }),
                   ),
                   researchRequests: z
@@ -772,6 +788,8 @@ export const acquisitionApi = {
         | "CORRECT_FIT_THESIS"
         | "CLOSE_NO_FIT"
       contactMethodId?: string
+      relatedRecordRef?: string
+      supportingActionId?: string
     },
     csrf: string,
   ) =>

@@ -1067,6 +1067,12 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
     var(--color-background)
   );
 }
+.acq-company-contact-screen {
+  border-left: 2px solid var(--color-accent);
+  padding: 0.55rem 0.8rem;
+  color: var(--color-muted-foreground);
+  font-size: 0.88rem;
+}
 .acq-company-attention h5,
 .acq-company-attention p {
   margin: 0;

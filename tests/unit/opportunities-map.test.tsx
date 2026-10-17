@@ -162,7 +162,7 @@ it("moves one identity between exclusive active maps and leads with its link the
     chainCoverage: [],
     companyProfiles: [
       profile("discovery", "DISCOVERY"),
-      profile("opportunity", "FILTERING"),
+      { ...profile("opportunity", "FILTERING"), contactScreenRequired: true },
       profile("attention", "FILTERING"),
       profile("closed", "CLOSED"),
     ],
@@ -210,6 +210,11 @@ it("moves one identity between exclusive active maps and leads with its link the
     within(results).getByRole("button", { name: /Empresa Avanzada/ }),
   )
   const brief = screen.getByRole("complementary")
+  expect(
+    within(brief).getByText(
+      /Pendiente revisar correo, Facebook, Instagram y WhatsApp/,
+    ),
+  ).toBeInTheDocument()
   expect(screen.queryByText(/Pista encontrada en este mercado/)).toBeNull()
   expect(within(brief).queryByText(/Sin verificar/)).toBeNull()
   expect(
@@ -229,7 +234,7 @@ it("moves one identity between exclusive active maps and leads with its link the
       ) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy()
   second.unmount()
-  render(<ExplorationMap {...props} mode="attention" />)
+  const third = render(<ExplorationMap {...props} mode="attention" />)
   const attentionSearch = await screen.findByRole("searchbox", {
     name: "Buscar empresa en todo el mapa",
   })
@@ -361,4 +366,84 @@ it("moves one identity between exclusive active maps and leads with its link the
       within(attentionBrief).getByLabelText("Encaje propuesto"),
     ) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy()
+  third.unmount()
+  const currentMap = await acquisitionApi.explorationMap("cycle-fit")
+  const materialProfile = {
+    ...currentMap.companyProfiles![2]!,
+    attention: {
+      status: "OPEN" as const,
+      primaryReasonCode: "IDENTITY_CONFLICT",
+      stageVersion: 4,
+      reasons: [
+        {
+          code: "IDENTITY_CONFLICT",
+          summary: "Dos identidades de la empresa requieren conciliación",
+          linkId: "link",
+          evidenceRefs: ["https://empresa.example/registro"],
+          relatedRecordRef: null,
+        },
+      ],
+      actions: [
+        {
+          code: "CONFIRM_IDENTITY",
+          label: "Confirmar identidad",
+          actor: "MANAGEMENT" as const,
+          enabled: true,
+          supportingActionId: "reconcile-command",
+          resultHint: "Conciliación registrada",
+        },
+      ],
+    },
+  }
+  vi.mocked(acquisitionApi.explorationMap).mockResolvedValue({
+    ...currentMap,
+    companyProfiles: [materialProfile],
+  })
+  vi.mocked(acquisitionApi.candidateAttentionCommand).mockClear()
+  render(<ExplorationMap {...props} mode="attention" />)
+  const materialSearch = await screen.findByRole("searchbox", {
+    name: "Buscar empresa en todo el mapa",
+  })
+  fireEvent.change(materialSearch, { target: { value: "Empresa" } })
+  fireEvent.click(
+    within(
+      screen.getByRole("group", { name: "Resultados de búsqueda global" }),
+    ).getByRole("button", { name: /Empresa en Revisión/ }),
+  )
+  const materialBrief = within(
+    screen.getByRole("complementary"),
+  ).getByLabelText("Motivos y opciones de atención")
+  fireEvent.click(
+    within(materialBrief).getByRole("button", {
+      name: "Registrar resolución sustentada",
+    }),
+  )
+  fireEvent.change(
+    within(materialBrief).getByLabelText("Evidencia revisada (URL o recibo)"),
+    { target: { value: "https://empresa.example/registro" } },
+  )
+  fireEvent.change(
+    within(materialBrief).getByLabelText("Explicación de la decisión"),
+    {
+      target: {
+        value:
+          "La conciliación gobernada acredita una sola identidad para la empresa.",
+      },
+    },
+  )
+  fireEvent.click(
+    within(materialBrief).getByRole("button", {
+      name: "Resolver motivo con evidencia",
+    }),
+  )
+  await waitFor(() =>
+    expect(acquisitionApi.candidateAttentionCommand).toHaveBeenCalledOnce(),
+  )
+  expect(
+    vi.mocked(acquisitionApi.candidateAttentionCommand).mock.calls[0]![1],
+  ).toMatchObject({
+    reasonCode: "IDENTITY_CONFLICT",
+    resolutionAction: "CONFIRM_IDENTITY",
+    supportingActionId: "reconcile-command",
+  })
 })
