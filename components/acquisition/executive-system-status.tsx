@@ -125,6 +125,19 @@ function remainingTime(session: Session | undefined, now: number, es: boolean) {
   return es ? `${minutes} min restantes` : `${minutes} min remaining`
 }
 
+function currentPhase(session: Session, es: boolean) {
+  const phases: Record<string, [string,string]> = {
+    ALLOCATOR_REASONING: ["Panky compara el siguiente trabajo permitido.", "Panky is comparing the next permitted work."],
+    WAITING_FOR_MODEL: ["Panky prepara la siguiente decisión.", "Panky is preparing the next decision."],
+    SOURCE_EXECUTION: ["El Engine investiga una fuente.", "The Engine is researching a source."],
+    EVIDENCE_EVALUATION: ["Panky revisa la evidencia.", "Panky is reviewing the evidence."],
+    CANDIDATE_ACCOUNT_UPDATE: ["El Engine actualiza el expediente.", "The Engine is updating the record."],
+    CLOSING_SESSION: ["El Engine prepara el cierre de la ventana.", "The Engine is preparing to close the window."],
+  }
+  const value = phases[session.activity_phase ?? ""]
+  return value ? value[es ? 0 : 1] : es ? "El Engine aún no publica una unidad concreta." : "The Engine has not published a specific unit yet."
+}
+
 export function ExecutiveSystemStatus({
   locale,
   health,
@@ -203,6 +216,12 @@ export function ExecutiveSystemStatus({
     return () => { alive = false }
   }, [session?.cycle_id, active])
   const ordered = order.map((key) => pieces.find((piece) => piece.key === key)).filter((piece): piece is FlowPiece => Boolean(piece))
+  const draftChanged = active && (direction
+    ? priority !== direction.priority_block || maxMinutes !== direction.max_unit_minutes
+      || focusCompanyId !== (direction.focus_company_id ?? "") || reason.trim() !== direction.reason
+      || order.some((key, index) => key !== direction.display_order[index])
+    : priority !== "AUTO" || maxMinutes !== 15 || focusCompanyId !== "" || reason.trim() !== ""
+      || order.some((key, index) => key !== defaultOrder[index]))
   const save = async () => {
     if (!session || !active || saving || reason.trim().length < 20) return
     setSaving(true); setMessage("")
@@ -289,6 +308,11 @@ export function ExecutiveSystemStatus({
             ? direction.applied_at ? es ? "Aplicada por el Engine en un límite de unidad." : "Applied by the Engine at a unit boundary."
               : es ? "Aceptada; espera el siguiente límite de unidad." : "Accepted; waiting for the next unit boundary."
             : es ? "Todavía no hay una prioridad humana registrada para esta sesión." : "No human priority has been recorded for this session."}</p>
+          {direction && <p className="acq-executive-why"><strong>{es ? "Por qué:" : "Why:"}</strong> {direction.reason}</p>}
+          {active && <p className="acq-executive-now"><strong>{es ? "Ahora:" : "Now:"}</strong> {currentPhase(session, es)}</p>}
+          {draftChanged && <p className="acq-executive-draft" role="status">{es
+            ? "Borrador sin confirmar · la orden vigente no cambia hasta que confirmes."
+            : "Unconfirmed draft · the current direction does not change until you confirm."}</p>}
         </div>
         {active && <div className="acq-executive-controls">
           <label>{es ? "Qué priorizar" : "Priority"}<select value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>
