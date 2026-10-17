@@ -1048,6 +1048,17 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   padding: 0.35rem 0 0.35rem 0.8rem;
   background: color-mix(in srgb, var(--color-accent) 5%, transparent);
 }
+.acq-fit-decision {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  font-size: 0.9rem;
+}
+.acq-fit-decision a {
+  width: fit-content;
+}
 .acq-company-fit details {
   border-top: 1px solid var(--color-border);
   padding-top: 0.65rem;

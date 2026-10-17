@@ -88,6 +88,26 @@ it("moves one identity between exclusive active maps and leads with its link the
             },
           ]
         : [],
+    filteringDecisions:
+      id === "opportunity"
+        ? [
+            {
+              linkId: "link",
+              decisionId: "decision-selected",
+              stageVersion: 4,
+              decision: "SELECT",
+              reason:
+                "La operación acreditada permite una conversación concreta sobre el relevo.",
+              sourceUrl: "https://empresa.example/servicios",
+              question: null,
+              reviewAt: null,
+              scope: null,
+              branchId: null,
+              actorType: "PANCRACIO_GATEWAY",
+              recordedAt: now,
+            },
+          ]
+        : [],
     attention:
       id === "attention"
         ? {
@@ -225,6 +245,9 @@ it("moves one identity between exclusive active maps and leads with its link the
   )
   expect(within(brief).getByLabelText("Encaje propuesto")).toHaveTextContent(
     "¿Cómo supervisan hoy el proceso?",
+  )
+  expect(within(brief).getByLabelText("Decisión comercial")).toHaveTextContent(
+    "La operación acreditada permite una conversación concreta sobre el relevo.",
   )
   expect(
     within(brief)
