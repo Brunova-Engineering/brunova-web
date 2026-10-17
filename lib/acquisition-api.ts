@@ -340,6 +340,12 @@ export const acquisitionApi = {
     status: z.string(), commandId: z.string(), version: z.number(), externalEffect: z.literal(false),
   }), {method: "POST", headers: {"content-type": "application/json", "x-csrf-token": csrf},
     body: JSON.stringify({commandId, request: body})}),
+  cancelRoutine: (body: {sessionId: string; expectedVersion: number; reason: string}, csrf: string) =>
+    request("/routine/cancel", z.object({
+      status: z.enum(["cancel_requested", "already_requested"]),
+      sessionId: z.string(), externalEffect: z.literal(false),
+    }), {method: "POST", headers: {"content-type": "application/json", "x-csrf-token": csrf},
+      body: JSON.stringify(body)}),
   explorationMap: (cycle: string) =>
     request(
       `/exploration/map?cycleId=${id(cycle)}`,
