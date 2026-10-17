@@ -572,7 +572,7 @@ it("navigation keeps the selected section aligned with its content without a pag
     ["Opportunities", "From industry to commercial fit"],
     ["Outreach", "Outreach"],
     ["Needs your attention", "Needs your attention"],
-    ["System status", "Operating state"],
+    ["System status", "The window at a glance"],
     ["Overview", "Cycle 1"],
   ] as const
   for (const [tab, heading] of sections) {
