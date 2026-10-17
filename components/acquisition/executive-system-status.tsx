@@ -164,6 +164,10 @@ export function ExecutiveSystemStatus({
   const [focusCompanyId, setFocusCompanyId] = useState("")
   const [companySearch, setCompanySearch] = useState("")
   const [saving, setSaving] = useState(false)
+  const [confirmCancel, setConfirmCancel] = useState(false)
+  const [cancelReason, setCancelReason] = useState("")
+  const [cancelling, setCancelling] = useState(false)
+  const [cancelRequested, setCancelRequested] = useState(false)
   const [message, setMessage] = useState("")
   const synced = useRef("")
   useEffect(() => {
@@ -187,6 +191,7 @@ export function ExecutiveSystemStatus({
       synced.current = `${session.id}:0`
       setDirection(null); setPriority("AUTO"); setMaxMinutes(15); setOrder(defaultOrder)
       setFocusCompanyId(""); setReason("")
+      setConfirmCancel(false); setCancelReason(""); setCancelRequested(false)
     }
     let alive = true
     const refresh = () => acquisitionApi.routineSupervision(session.id)
@@ -240,6 +245,23 @@ export function ExecutiveSystemStatus({
       setMessage(es ? "No se pudo confirmar el cambio. Actualiza la sesión antes de intentarlo de nuevo."
         : "The change could not be confirmed. Refresh the session before trying again.")
     } finally { setSaving(false) }
+  }
+  const cancelWindow = async () => {
+    if (!session || !active || cancelling || cancelRequested || cancelReason.trim().length < 20) return
+    setCancelling(true); setMessage("")
+    try {
+      const receipt = await acquisitionApi.cancelRoutine({
+        sessionId: session.id, expectedVersion: direction?.version ?? 0, reason: cancelReason.trim(),
+      }, csrf)
+      setCancelRequested(true)
+      setConfirmCancel(false)
+      setMessage(es
+        ? `Cancelación ${receipt.status === "already_requested" ? "ya solicitada" : "solicitada"}. El Engine terminará la unidad en curso y conservará lo pendiente.`
+        : `Cancellation ${receipt.status === "already_requested" ? "already requested" : "requested"}. The Engine will finish the current unit and preserve pending work.`)
+    } catch {
+      setMessage(es ? "No se pudo cancelar. Actualiza la sesión y revisa la prioridad vigente."
+        : "Cancellation failed. Refresh the session and review the current direction.")
+    } finally { setCancelling(false) }
   }
   return (
     <section className="acq-executive" aria-labelledby="acq-executive-title">
@@ -298,6 +320,20 @@ export function ExecutiveSystemStatus({
             </button>
           </div>}
           {openPiece === "attention" && <button type="button" onClick={onAttention}>{es ? "Abrir Necesita tu atención" : "Open Attention"}</button>}
+          {openPiece === "continue" && active && <div className="acq-executive-cancel">
+            {!confirmCancel ? <button type="button" disabled={cancelRequested} onClick={() => setConfirmCancel(true)}>
+              {cancelRequested ? es ? "Cancelación solicitada" : "Cancellation requested" : es ? "Cancelar esta ventana" : "Cancel this window"}
+            </button> : <>
+              <p>{es ? "El Engine terminará la unidad actual y conservará el trabajo pendiente." : "The Engine will finish the current unit and preserve pending work."}</p>
+              <label>{es ? "Motivo de cancelación" : "Cancellation reason"}
+                <textarea value={cancelReason} maxLength={1000} onChange={(event) => setCancelReason(event.target.value)} />
+              </label>
+              <button type="button" disabled={cancelling || cancelReason.trim().length < 20} onClick={cancelWindow}>
+                {cancelling ? es ? "Solicitando…" : "Requesting…" : es ? "Confirmar cancelación" : "Confirm cancellation"}
+              </button>
+              <button type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{es ? "Volver" : "Back"}</button>
+            </>}
+          </div>}
         </div>
       )}
       <div className="acq-executive-editor">
