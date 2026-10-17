@@ -472,6 +472,44 @@ export const acquisitionApi = {
                   }),
                 )
                 .optional(),
+              attention: z
+                .object({
+                  status: z.enum(["OPEN", "RESOLVED"]),
+                  primaryReasonCode: z.string().nullable(),
+                  reasons: z.array(
+                    z.object({
+                      code: z.string(),
+                      summary: z.string(),
+                      linkId: z.string().nullable().optional(),
+                      evidenceRefs: z.array(z.string()).optional(),
+                      checkedChannels: z.array(z.string()).optional(),
+                      openedAt: z.string().nullable().optional(),
+                    }),
+                  ),
+                  actions: z.array(
+                    z.object({
+                      code: z.string(),
+                      label: z.string(),
+                      actor: z.enum(["MANAGEMENT", "PANKY"]),
+                      resultHint: z.string(),
+                    }),
+                  ),
+                  researchRequests: z
+                    .array(
+                      z.object({
+                        linkId: z.string(),
+                        reasonCode: z.string(),
+                        question: z.string(),
+                        maxMinutes: z.coerce.number(),
+                        status: z.string(),
+                        requestedAt: z.string(),
+                      }),
+                    )
+                    .optional(),
+                  stageVersion: z.coerce.number(),
+                })
+                .nullable()
+                .optional(),
               enrichment: z
                 .object({
                   stage: z.enum([
@@ -671,6 +709,110 @@ export const acquisitionApi = {
           status: z.string(),
           companyId: z.string(),
           externalEffect: z.boolean(),
+        })
+        .passthrough(),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({ commandId, request: body }),
+      },
+    ),
+  candidateContactMethod: (
+    commandId: string,
+    body: {
+      cycleId: string
+      companyId: string
+      expectedStageVersion: number
+      channelType: "EMAIL" | "FACEBOOK" | "INSTAGRAM" | "WHATSAPP"
+      channelValue: string
+      sourceUrl: string
+      attribution: string
+    },
+    csrf: string,
+  ) =>
+    request(
+      "/exploration/contact-methods",
+      z
+        .object({
+          status: z.string(),
+          methodId: z.string(),
+          externalEffect: z.literal(false),
+        })
+        .passthrough(),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({ commandId, request: body }),
+      },
+    ),
+  candidateAttentionCommand: (
+    commandId: string,
+    body: {
+      cycleId: string
+      companyId: string
+      linkId: string
+      expectedStageVersion: number
+      action: "OPEN" | "RESOLVE"
+      reasonCode:
+        | "NO_VERIFIED_CONTACT"
+        | "IDENTITY_CONFLICT"
+        | "PRIOR_RELATIONSHIP_CONFLICT"
+        | "FIT_EVIDENCE_CONFLICT"
+      summary: string
+      evidenceRefs: string[]
+      checkedChannels?: string[]
+      resolution?: string
+      resolutionAction?:
+        | "REGISTER_CONTACT"
+        | "CONFIRM_IDENTITY"
+        | "KEEP_IDENTITIES_SEPARATE"
+        | "LINK_PRIOR_RECORD"
+        | "KEEP_SEPARATE"
+        | "CORRECT_FIT_THESIS"
+        | "CLOSE_NO_FIT"
+      contactMethodId?: string
+    },
+    csrf: string,
+  ) =>
+    request(
+      "/exploration/attention/commands",
+      z
+        .object({
+          status: z.string(),
+          eventId: z.string(),
+          externalEffect: z.literal(false),
+        })
+        .passthrough(),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({ commandId, request: body }),
+      },
+    ),
+  candidateAttentionResearchRequest: (
+    commandId: string,
+    body: {
+      cycleId: string
+      companyId: string
+      linkId: string
+      expectedStageVersion: number
+      reasonCode:
+        | "NO_VERIFIED_CONTACT"
+        | "IDENTITY_CONFLICT"
+        | "PRIOR_RELATIONSHIP_CONFLICT"
+        | "FIT_EVIDENCE_CONFLICT"
+      question: string
+      maxMinutes: number
+    },
+    csrf: string,
+  ) =>
+    request(
+      "/exploration/attention/research-requests",
+      z
+        .object({
+          status: z.string(),
+          requestId: z.string(),
+          externalEffect: z.literal(false),
         })
         .passthrough(),
       {

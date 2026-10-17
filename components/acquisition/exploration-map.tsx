@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { acquisitionApi, type PortalSession } from "@/lib/acquisition-api"
 import type { Locale } from "@/lib/i18n"
 
@@ -334,13 +334,17 @@ function optionDetail(
   progress: Map<string, Chain>,
   locale: Locale,
   marketFilter: "ALL" | "MX" | "US",
-  mode: "exploration" | "opportunities" = "exploration",
+  mode: "exploration" | "opportunities" | "attention" = "exploration",
 ) {
   if (stage === 5)
-    if (mode === "opportunities")
+    if (mode === "opportunities" || mode === "attention")
       return locale === "es"
-        ? "Tesis comercial registrada"
-        : "Commercial thesis recorded"
+        ? mode === "attention"
+          ? "Decisión de Dirección pendiente"
+          : "Tesis comercial registrada"
+        : mode === "attention"
+          ? "Management decision pending"
+          : "Commercial thesis recorded"
   if (stage === 5)
     return field(node, "chainRole") === "ANCHOR"
       ? locale === "es"
@@ -363,7 +367,7 @@ function optionDetail(
   const count = new Set(children.map(conceptKey)).size
   if (stage === 3) {
     const leads =
-      mode === "opportunities"
+      mode !== "exploration"
         ? [
             ...new Set(
               children.flatMap((link) =>
@@ -377,10 +381,10 @@ function optionDetail(
             0,
           )
     return locale === "es"
-      ? mode === "opportunities"
+      ? mode !== "exploration"
         ? `${count} ${count === 1 ? "función" : "funciones"} · ${leads} ${leads === 1 ? "empresa" : "empresas"}`
         : `${count} ${count === 1 ? "función registrada" : "funciones registradas"} · ${leads} pistas de empresas · cobertura sin confirmar`
-      : mode === "opportunities"
+      : mode !== "exploration"
         ? `${count} ${count === 1 ? "function" : "functions"} · ${leads} ${leads === 1 ? "company" : "companies"}`
         : `${count} recorded ${count === 1 ? "function" : "functions"} · ${leads} company leads · coverage unconfirmed`
   }
@@ -411,7 +415,7 @@ export function ExplorationMap({
   cycleId: string
   locale: Locale
   session: PortalSession
-  mode?: "exploration" | "opportunities"
+  mode?: "exploration" | "opportunities" | "attention"
 }) {
   const [data, setData] = useState<MapData | null>(null)
   const [error, setError] = useState(false)
@@ -440,6 +444,39 @@ export function ExplorationMap({
   const [dispositionReason, setDispositionReason] = useState("")
   const [dispositionPending, setDispositionPending] = useState(false)
   const [dispositionNotice, setDispositionNotice] = useState("")
+  const [contactDraftCompanyId, setContactDraftCompanyId] = useState<
+    string | null
+  >(null)
+  const [contactType, setContactType] = useState<
+    "EMAIL" | "FACEBOOK" | "INSTAGRAM" | "WHATSAPP"
+  >("EMAIL")
+  const [contactValue, setContactValue] = useState("")
+  const [contactSource, setContactSource] = useState("")
+  const [contactAttribution, setContactAttribution] = useState("")
+  const [contactPending, setContactPending] = useState(false)
+  const [contactRecorded, setContactRecorded] = useState(false)
+  const [contactNotice, setContactNotice] = useState("")
+  const [researchActionCode, setResearchActionCode] = useState<string | null>(
+    null,
+  )
+  const [researchDraftCompanyId, setResearchDraftCompanyId] = useState<
+    string | null
+  >(null)
+  const [researchQuestion, setResearchQuestion] = useState("")
+  const [researchMinutes, setResearchMinutes] = useState(10)
+  const [researchPending, setResearchPending] = useState(false)
+  const [researchNotice, setResearchNotice] = useState("")
+  const researchCommand = useRef<{
+    companyId: string
+    actionCode: string
+    commandId: string
+  } | null>(null)
+  const contactCommand = useRef<{
+    companyId: string
+    commandId: string
+    methodId: string | null
+    resolveCommandId: string | null
+  } | null>(null)
 
   type DecisionOperation =
     "PRIORITIZE" | "PAUSE_BRANCH" | "DISCARD_BRANCH" | "REOPEN_BRANCH"
@@ -466,9 +503,19 @@ export function ExplorationMap({
     () =>
       (data?.companyProfiles ?? []).filter((profile) => {
         const stage = profile.enrichment?.stage ?? "DISCOVERY"
-        return mode === "opportunities"
-          ? ["FILTERING", "SELECTED", "CONTACTED"].includes(stage)
-          : ["DISCOVERY", "ENRICHMENT", "BRUNOVA_FIT"].includes(stage) ||
+        const inCommercialStage = [
+          "FILTERING",
+          "SELECTED",
+          "CONTACTED",
+        ].includes(stage)
+        const needsAttention =
+          profile.attention?.status === "OPEN" &&
+          profile.attention.reasons.length > 0
+        return mode === "attention"
+          ? inCommercialStage && needsAttention
+          : mode === "opportunities"
+            ? inCommercialStage && !needsAttention
+            : ["DISCOVERY", "ENRICHMENT", "BRUNOVA_FIT"].includes(stage) ||
               (showClosedHistory && stage === "CLOSED")
       }),
     [data, mode, showClosedHistory],
@@ -805,7 +852,7 @@ export function ExplorationMap({
         })
       : options
   const currentStageName =
-    activeStage === 5 && mode === "opportunities"
+    activeStage === 5 && mode !== "exploration"
       ? locale === "es"
         ? "Empresa"
         : "Company"
@@ -852,6 +899,193 @@ export function ExplorationMap({
     if (!path) return
     setSelectedIds(path.map((node) => node.id))
     setActiveStage(5)
+  }
+
+  async function recordContactMethod() {
+    const profile = companyProfile
+    const attention = profile?.attention
+    const reason = attention?.reasons.find(
+      (item) => item.code === "NO_VERIFIED_CONTACT",
+    )
+    const linkId = reason?.linkId ?? selected[4]?.id
+    if (
+      !profile ||
+      !attention ||
+      !reason ||
+      !linkId ||
+      contactPending ||
+      !session.actor.capabilities.includes("MANAGE_CYCLE")
+    )
+      return
+    const value = contactValue.trim()
+    const sourceUrl = contactSource.trim()
+    const attribution = contactAttribution.trim()
+    if (
+      value.length < 3 ||
+      !sourceUrl.startsWith("https://") ||
+      attribution.length < 20
+    ) {
+      setContactNotice(
+        locale === "es"
+          ? "Completa el medio, su fuente HTTPS y cómo se atribuye a esta empresa."
+          : "Provide the contact method, its HTTPS source, and how it belongs to this company.",
+      )
+      return
+    }
+    setContactPending(true)
+    setContactNotice("")
+    const command =
+      contactCommand.current?.companyId === profile.companyId
+        ? contactCommand.current
+        : {
+            companyId: profile.companyId,
+            commandId: crypto.randomUUID(),
+            methodId: null,
+            resolveCommandId: null,
+          }
+    contactCommand.current = command
+    try {
+      if (!command.methodId) {
+        const receipt = await acquisitionApi.candidateContactMethod(
+          command.commandId,
+          {
+            cycleId,
+            companyId: profile.companyId,
+            expectedStageVersion: attention.stageVersion,
+            channelType: contactType,
+            channelValue: value,
+            sourceUrl,
+            attribution,
+          },
+          session.csrfToken,
+        )
+        command.methodId = receipt.methodId
+        setContactRecorded(true)
+      }
+      command.resolveCommandId ??= crypto.randomUUID()
+      await acquisitionApi.candidateAttentionCommand(
+        command.resolveCommandId,
+        {
+          cycleId,
+          companyId: profile.companyId,
+          linkId,
+          expectedStageVersion: attention.stageVersion,
+          action: "RESOLVE",
+          reasonCode: "NO_VERIFIED_CONTACT",
+          summary: reason.summary,
+          evidenceRefs: [sourceUrl],
+          resolution: attribution,
+          resolutionAction: "REGISTER_CONTACT",
+          contactMethodId: command.methodId,
+        },
+        session.csrfToken,
+      )
+      contactCommand.current = null
+      setContactRecorded(false)
+      setContactDraftCompanyId(null)
+      setContactValue("")
+      setContactSource("")
+      setContactAttribution("")
+      setContactNotice(
+        locale === "es"
+          ? "Medio registrado y motivo resuelto. Se actualizó la sección de la empresa."
+          : "Contact method recorded and reason resolved. The company section has been updated.",
+      )
+      setData(await acquisitionApi.explorationMap(cycleId))
+    } catch {
+      setContactNotice(
+        locale === "es"
+          ? "No se pudo completar la decisión. Revisa los datos o actualiza la ficha antes de intentar de nuevo."
+          : "The decision could not be completed. Review the details or refresh the brief before retrying.",
+      )
+    } finally {
+      setContactPending(false)
+    }
+  }
+
+  async function requestAttentionResearch() {
+    const profile = companyProfile
+    const attention = profile?.attention
+    const code =
+      researchActionCode === "REQUEST_CONTACT_RESEARCH"
+        ? "NO_VERIFIED_CONTACT"
+        : researchActionCode === "REQUEST_RECONCILIATION"
+          ? "IDENTITY_CONFLICT"
+          : researchActionCode === "REQUEST_HISTORY_REVIEW"
+            ? "PRIOR_RELATIONSHIP_CONFLICT"
+            : researchActionCode === "REQUEST_FIT_CONTRAST"
+              ? "FIT_EVIDENCE_CONFLICT"
+              : null
+    const reason = attention?.reasons.find((item) => item.code === code)
+    const linkId = reason?.linkId ?? selected[4]?.id
+    if (
+      !profile ||
+      !attention ||
+      !code ||
+      !researchActionCode ||
+      !linkId ||
+      researchPending ||
+      !session.actor.capabilities.includes("MANAGE_CYCLE")
+    )
+      return
+    const question = researchQuestion.trim()
+    if (
+      question.length < 12 ||
+      question.length > 500 ||
+      researchMinutes < 1 ||
+      researchMinutes > 30
+    ) {
+      setResearchNotice(
+        locale === "es"
+          ? "Define una pregunta concreta y un límite de 1 a 30 minutos."
+          : "Provide a specific question and a 1–30 minute limit.",
+      )
+      return
+    }
+    const command =
+      researchCommand.current?.companyId === profile.companyId &&
+      researchCommand.current.actionCode === researchActionCode
+        ? researchCommand.current
+        : {
+            companyId: profile.companyId,
+            actionCode: researchActionCode,
+            commandId: crypto.randomUUID(),
+          }
+    researchCommand.current = command
+    setResearchPending(true)
+    setResearchNotice("")
+    try {
+      await acquisitionApi.candidateAttentionResearchRequest(
+        command.commandId,
+        {
+          cycleId,
+          companyId: profile.companyId,
+          linkId,
+          expectedStageVersion: attention.stageVersion,
+          reasonCode: code,
+          question,
+          maxMinutes: researchMinutes,
+        },
+        session.csrfToken,
+      )
+      researchCommand.current = null
+      setResearchActionCode(null)
+      setResearchQuestion("")
+      setResearchNotice(
+        locale === "es"
+          ? "Encargo registrado en cola; la decisión sigue pendiente hasta recibir y revisar su resultado."
+          : "Research queued; the decision remains open until its result is received and reviewed.",
+      )
+      setData(await acquisitionApi.explorationMap(cycleId))
+    } catch {
+      setResearchNotice(
+        locale === "es"
+          ? "No se pudo registrar el encargo. Revisa la ficha antes de reintentarlo."
+          : "The research request could not be queued. Review the brief before retrying.",
+      )
+    } finally {
+      setResearchPending(false)
+    }
   }
 
   function isDescendantOf(nodeId: string, ancestorId: string): boolean {
@@ -1223,41 +1457,57 @@ export function ExplorationMap({
     <section
       className="acq-panel acq-exploration"
       aria-label={
-        mode === "opportunities"
+        mode === "attention"
           ? locale === "es"
-            ? "Mapa de oportunidades"
-            : "Opportunities map"
-          : locale === "es"
-            ? "Mapa de exploración"
-            : "Exploration map"
+            ? "Mapa de candidatas que necesitan tu atención"
+            : "Candidates needing your attention map"
+          : mode === "opportunities"
+            ? locale === "es"
+              ? "Mapa de oportunidades"
+              : "Opportunities map"
+            : locale === "es"
+              ? "Mapa de exploración"
+              : "Exploration map"
       }
     >
       <span className="acq-eyebrow">
-        {mode === "opportunities"
+        {mode === "attention"
           ? locale === "es"
-            ? "Oportunidades"
-            : "Opportunities"
-          : locale === "es"
-            ? "Exploración dirigida"
-            : "Directed exploration"}
+            ? "Necesita tu atención"
+            : "Needs your attention"
+          : mode === "opportunities"
+            ? locale === "es"
+              ? "Oportunidades"
+              : "Opportunities"
+            : locale === "es"
+              ? "Exploración dirigida"
+              : "Directed exploration"}
       </span>
       <h2>
-        {mode === "opportunities"
+        {mode === "attention"
           ? locale === "es"
-            ? "De la industria al encaje comercial"
-            : "From industry to commercial fit"
-          : locale === "es"
-            ? "De la industria a la empresa"
-            : "From industry to company"}
+            ? "De la industria a la decisión pendiente"
+            : "From industry to the pending decision"
+          : mode === "opportunities"
+            ? locale === "es"
+              ? "De la industria al encaje comercial"
+              : "From industry to commercial fit"
+            : locale === "es"
+              ? "De la industria a la empresa"
+              : "From industry to company"}
       </h2>
       <p className="acq-muted">
-        {mode === "opportunities"
+        {mode === "attention"
           ? locale === "es"
-            ? "Recorre las empresas que avanzaron con una tesis de encaje sustentada. Cada ficha conserva su eslabón y sus fuentes."
-            : "Explore companies advanced with a sourced fit thesis. Each brief retains its supply chain link and sources."
-          : locale === "es"
-            ? "Selecciona una rama en cada nivel para ver todas sus vertientes registradas. Una entrega de cadena no demuestra que se hayan encontrado todos sus eslabones."
-            : "Select a branch at each level to see all recorded alternatives. A chain delivery does not prove that all its links have been found."}
+            ? "Cada empresa aparece una sola vez aquí mientras tenga un motivo abierto. La razón y las opciones disponibles preceden a la hipótesis comercial."
+            : "Each company appears here once while a reason remains open. The reason and available options precede its commercial hypothesis."
+          : mode === "opportunities"
+            ? locale === "es"
+              ? "Recorre las empresas que avanzaron con una tesis de encaje sustentada. Cada ficha conserva su eslabón y sus fuentes."
+              : "Explore companies advanced with a sourced fit thesis. Each brief retains its supply chain link and sources."
+            : locale === "es"
+              ? "Selecciona una rama en cada nivel para ver todas sus vertientes registradas. Una entrega de cadena no demuestra que se hayan encontrado todos sus eslabones."
+              : "Select a branch at each level to see all recorded alternatives. A chain delivery does not prove that all its links have been found."}
       </p>
       {mode === "exploration" && (
         <button
@@ -1394,6 +1644,13 @@ export function ExplorationMap({
       {!error && !data && (
         <p className="acq-muted">
           {locale === "es" ? "Cargando mapa…" : "Loading map…"}
+        </p>
+      )}
+      {data && mode === "attention" && visibleProfiles.length === 0 && (
+        <p className="acq-muted">
+          {locale === "es"
+            ? "No hay candidatas con decisiones comerciales pendientes."
+            : "No candidates have pending commercial decisions."}
         </p>
       )}
       {data && (
@@ -1568,48 +1825,50 @@ export function ExplorationMap({
                           <small>{mapState(node, locale)}</small>
                         )}
                     </button>
-                    {mode === "exploration" && data.marketPresence
-                      .filter(
-                        (item) =>
-                          (conceptMembers.get(conceptKey(node)) ?? [node]).some(
-                            (member) => member.id === item.node_id,
-                          ) &&
-                          (marketFilter === "ALL" ||
-                            item.market === marketFilter),
-                      )
-                      .map((presence, index) => (
-                        <p
-                          className="acq-exploration-market-presence"
-                          key={`${presence.market}:${index}`}
-                        >
-                          <strong>{presence.market}</strong> ·{" "}
-                          <span
-                            className={`acq-presence-status acq-presence-${presence.status.toLowerCase()}`}
+                    {mode === "exploration" &&
+                      data.marketPresence
+                        .filter(
+                          (item) =>
+                            (
+                              conceptMembers.get(conceptKey(node)) ?? [node]
+                            ).some((member) => member.id === item.node_id) &&
+                            (marketFilter === "ALL" ||
+                              item.market === marketFilter),
+                        )
+                        .map((presence, index) => (
+                          <p
+                            className="acq-exploration-market-presence"
+                            key={`${presence.market}:${index}`}
                           >
-                            {presenceStatus(presence.status, locale)}
-                          </span>{" "}
-                          {marketPresenceNote(presence.relation, locale) && (
-                            <>
-                              {" "}
-                              · {marketPresenceNote(presence.relation, locale)}
-                            </>
-                          )}
-                          {safeHttpUrl(presence.source_url) && (
-                            <>
-                              {" "}
-                              ·{" "}
-                              <a
-                                href={safeHttpUrl(presence.source_url)!.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {locale === "es" ? "Fuente" : "Source"}:{" "}
-                                {safeHttpUrl(presence.source_url)!.hostname}
-                              </a>
-                            </>
-                          )}
-                        </p>
-                      ))}
+                            <strong>{presence.market}</strong> ·{" "}
+                            <span
+                              className={`acq-presence-status acq-presence-${presence.status.toLowerCase()}`}
+                            >
+                              {presenceStatus(presence.status, locale)}
+                            </span>{" "}
+                            {marketPresenceNote(presence.relation, locale) && (
+                              <>
+                                {" "}
+                                ·{" "}
+                                {marketPresenceNote(presence.relation, locale)}
+                              </>
+                            )}
+                            {safeHttpUrl(presence.source_url) && (
+                              <>
+                                {" "}
+                                ·{" "}
+                                <a
+                                  href={safeHttpUrl(presence.source_url)!.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {locale === "es" ? "Fuente" : "Source"}:{" "}
+                                  {safeHttpUrl(presence.source_url)!.hostname}
+                                </a>
+                              </>
+                            )}
+                          </p>
+                        ))}
                     {activeStage === 3 &&
                       equivalencesForChain(node.id).map((equivalence) => {
                         const counterpartId =
@@ -1663,7 +1922,7 @@ export function ExplorationMap({
               {company ? (
                 <>
                   <span className="acq-eyebrow">
-                    {mode === "opportunities"
+                    {mode !== "exploration"
                       ? locale === "es"
                         ? "Ficha de oportunidad · hipótesis"
                         : "Opportunity brief · hypothesis"
@@ -1672,7 +1931,346 @@ export function ExplorationMap({
                         : "Company brief · lead"}
                   </span>
                   <h4>{companyProfile?.displayName ?? company.label}</h4>
-                  {mode === "opportunities" && (
+                  {mode === "attention" &&
+                    companyProfile?.attention?.status === "OPEN" && (
+                      <section
+                        className="acq-company-attention"
+                        aria-label={
+                          locale === "es"
+                            ? "Motivos y opciones de atención"
+                            : "Attention reasons and options"
+                        }
+                      >
+                        <span className="acq-eyebrow">
+                          {locale === "es"
+                            ? "Decisión requerida"
+                            : "Decision required"}
+                        </span>
+                        {[...companyProfile.attention.reasons]
+                          .sort(
+                            (a, b) =>
+                              Number(
+                                b.code ===
+                                  companyProfile.attention?.primaryReasonCode,
+                              ) -
+                              Number(
+                                a.code ===
+                                  companyProfile.attention?.primaryReasonCode,
+                              ),
+                          )
+                          .map((reason) => (
+                            <article
+                              key={`${reason.code}:${reason.linkId ?? "company"}`}
+                            >
+                              <h5>{reason.summary}</h5>
+                              <p className="acq-muted">
+                                {reason.linkId
+                                  ? reason.linkId === selected[4]?.id
+                                    ? locale === "es"
+                                      ? "Este eslabón"
+                                      : "This link"
+                                    : locale === "es"
+                                      ? "Otro eslabón de esta empresa"
+                                      : "Another company link"
+                                  : locale === "es"
+                                    ? "Toda la empresa"
+                                    : "Whole company"}
+                              </p>
+                              {reason.checkedChannels?.length ? (
+                                <p>
+                                  <strong>
+                                    {locale === "es"
+                                      ? "Medios revisados"
+                                      : "Channels checked"}
+                                    :
+                                  </strong>{" "}
+                                  {reason.checkedChannels.join(", ")}
+                                </p>
+                              ) : null}
+                              {reason.evidenceRefs?.length ? (
+                                <details>
+                                  <summary>
+                                    {locale === "es"
+                                      ? "Evidencia revisada"
+                                      : "Reviewed evidence"}
+                                  </summary>
+                                  <ul>
+                                    {reason.evidenceRefs.map((ref) => (
+                                      <li key={ref}>{ref}</li>
+                                    ))}
+                                  </ul>
+                                </details>
+                              ) : null}
+                            </article>
+                          ))}
+                        <h5>
+                          {locale === "es"
+                            ? "Opciones disponibles"
+                            : "Available options"}
+                        </h5>
+                        <div className="acq-attention-actions">
+                          {companyProfile.attention.actions.map((action) => (
+                            <article key={action.code}>
+                              <strong>{action.label}</strong>
+                              <span>
+                                {action.actor === "MANAGEMENT"
+                                  ? locale === "es"
+                                    ? "Lo hago yo"
+                                    : "I do it"
+                                  : locale === "es"
+                                    ? "Encargar a Panky"
+                                    : "Ask Panky"}
+                              </span>
+                              <p>{action.resultHint}</p>
+                              {action.code === "REGISTER_CONTACT" &&
+                                companyProfile.attention?.reasons.some(
+                                  (reason) =>
+                                    reason.code === "NO_VERIFIED_CONTACT",
+                                ) &&
+                                session.actor.capabilities.includes(
+                                  "MANAGE_CYCLE",
+                                ) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (
+                                        contactDraftCompanyId !==
+                                        companyProfile.companyId
+                                      ) {
+                                        contactCommand.current = null
+                                        setContactRecorded(false)
+                                      }
+                                      setContactDraftCompanyId(
+                                        companyProfile.companyId,
+                                      )
+                                      setContactNotice("")
+                                    }}
+                                  >
+                                    {locale === "es"
+                                      ? "Registrar medio con fuente"
+                                      : "Record sourced contact method"}
+                                  </button>
+                                )}
+                              {action.actor === "PANKY" &&
+                                session.actor.capabilities.includes(
+                                  "MANAGE_CYCLE",
+                                ) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      researchCommand.current = null
+                                      setResearchActionCode(action.code)
+                                      setResearchDraftCompanyId(
+                                        companyProfile.companyId,
+                                      )
+                                      setResearchNotice("")
+                                    }}
+                                  >
+                                    {locale === "es"
+                                      ? "Preparar encargo acotado"
+                                      : "Prepare bounded research"}
+                                  </button>
+                                )}
+                            </article>
+                          ))}
+                        </div>
+                        {researchActionCode &&
+                          researchDraftCompanyId ===
+                            companyProfile.companyId && (
+                            <form
+                              className="acq-attention-contact-form"
+                              onSubmit={(event) => {
+                                event.preventDefault()
+                                void requestAttentionResearch()
+                              }}
+                            >
+                              <h5>
+                                {locale === "es"
+                                  ? "Encargar investigación a Panky"
+                                  : "Request Panky research"}
+                              </h5>
+                              <label>
+                                {locale === "es"
+                                  ? "Pregunta concreta"
+                                  : "Specific question"}
+                                <textarea
+                                  required
+                                  minLength={12}
+                                  maxLength={500}
+                                  value={researchQuestion}
+                                  disabled={researchPending}
+                                  onChange={(event) => {
+                                    researchCommand.current = null
+                                    setResearchQuestion(event.target.value)
+                                  }}
+                                />
+                              </label>
+                              <label>
+                                {locale === "es"
+                                  ? "Límite en minutos"
+                                  : "Time limit in minutes"}
+                                <input
+                                  required
+                                  type="number"
+                                  min={1}
+                                  max={30}
+                                  value={researchMinutes}
+                                  disabled={researchPending}
+                                  onChange={(event) => {
+                                    researchCommand.current = null
+                                    setResearchMinutes(
+                                      Number(event.target.value),
+                                    )
+                                  }}
+                                />
+                              </label>
+                              <button type="submit" disabled={researchPending}>
+                                {researchPending
+                                  ? locale === "es"
+                                    ? "Registrando…"
+                                    : "Queuing…"
+                                  : locale === "es"
+                                    ? "Poner encargo en cola"
+                                    : "Queue research"}
+                              </button>
+                              <p className="acq-muted">
+                                {locale === "es"
+                                  ? "El encargo queda en cola; esta acción no acredita datos ni resuelve el motivo."
+                                  : "This queues research; it does not prove a fact or resolve the reason."}
+                              </p>
+                            </form>
+                          )}
+                        {companyProfile.attention.researchRequests?.length ? (
+                          <details>
+                            <summary>
+                              {locale === "es"
+                                ? "Encargos registrados"
+                                : "Recorded requests"}
+                            </summary>
+                            <ul>
+                              {companyProfile.attention.researchRequests.map(
+                                (request, index) => (
+                                  <li
+                                    key={`${request.reasonCode}:${request.requestedAt}:${index}`}
+                                  >
+                                    {request.question} · {request.status}
+                                  </li>
+                                ),
+                              )}
+                            </ul>
+                          </details>
+                        ) : null}
+                        {researchNotice && (
+                          <p role="status">{researchNotice}</p>
+                        )}
+                        {contactDraftCompanyId === companyProfile.companyId &&
+                          companyProfile.attention.reasons.some(
+                            (reason) => reason.code === "NO_VERIFIED_CONTACT",
+                          ) && (
+                            <form
+                              className="acq-attention-contact-form"
+                              onSubmit={(event) => {
+                                event.preventDefault()
+                                void recordContactMethod()
+                              }}
+                            >
+                              <h5>
+                                {locale === "es"
+                                  ? "Acreditar un medio de contacto"
+                                  : "Verify a contact method"}
+                              </h5>
+                              <label>
+                                {locale === "es"
+                                  ? "Tipo de medio"
+                                  : "Channel type"}
+                                <select
+                                  value={contactType}
+                                  disabled={contactPending || contactRecorded}
+                                  onChange={(event) => {
+                                    contactCommand.current = null
+                                    setContactRecorded(false)
+                                    setContactType(
+                                      event.target.value as typeof contactType,
+                                    )
+                                  }}
+                                >
+                                  <option value="EMAIL">Email</option>
+                                  <option value="FACEBOOK">Facebook</option>
+                                  <option value="INSTAGRAM">Instagram</option>
+                                  <option value="WHATSAPP">WhatsApp</option>
+                                </select>
+                              </label>
+                              <label>
+                                {locale === "es"
+                                  ? "Correo, perfil o número"
+                                  : "Address, profile, or number"}
+                                <input
+                                  required
+                                  minLength={3}
+                                  maxLength={500}
+                                  value={contactValue}
+                                  disabled={contactPending || contactRecorded}
+                                  onChange={(event) => {
+                                    contactCommand.current = null
+                                    setContactRecorded(false)
+                                    setContactValue(event.target.value)
+                                  }}
+                                />
+                              </label>
+                              <label>
+                                {locale === "es"
+                                  ? "Fuente original HTTPS"
+                                  : "Original HTTPS source"}
+                                <input
+                                  required
+                                  type="url"
+                                  pattern="https://.*"
+                                  value={contactSource}
+                                  disabled={contactPending || contactRecorded}
+                                  onChange={(event) => {
+                                    contactCommand.current = null
+                                    setContactRecorded(false)
+                                    setContactSource(event.target.value)
+                                  }}
+                                />
+                              </label>
+                              <label>
+                                {locale === "es"
+                                  ? "Cómo se atribuye a esta empresa"
+                                  : "How this belongs to the company"}
+                                <textarea
+                                  required
+                                  minLength={20}
+                                  maxLength={1000}
+                                  value={contactAttribution}
+                                  disabled={contactPending || contactRecorded}
+                                  onChange={(event) => {
+                                    contactCommand.current = null
+                                    setContactRecorded(false)
+                                    setContactAttribution(event.target.value)
+                                  }}
+                                />
+                              </label>
+                              <button type="submit" disabled={contactPending}>
+                                {contactPending
+                                  ? locale === "es"
+                                    ? "Guardando…"
+                                    : "Saving…"
+                                  : locale === "es"
+                                    ? "Guardar y resolver este motivo"
+                                    : "Save and resolve this reason"}
+                              </button>
+                              <p className="acq-muted">
+                                {locale === "es"
+                                  ? "Registrar el medio no envía mensajes ni autoriza contacto externo."
+                                  : "Recording the method sends no messages and does not authorize outreach."}
+                              </p>
+                            </form>
+                          )}
+                        {contactNotice && <p role="status">{contactNotice}</p>}
+                      </section>
+                    )}
+                  {mode !== "exploration" && (
                     <section
                       className="acq-company-fit"
                       aria-label={
@@ -1712,19 +2310,39 @@ export function ExplorationMap({
                                 : "Evidence, limits and sources"}
                             </summary>
                             <p>
-                              <strong>{locale === "es" ? "Proceso observado" : "Observed process"}:</strong>{" "}
+                              <strong>
+                                {locale === "es"
+                                  ? "Proceso observado"
+                                  : "Observed process"}
+                                :
+                              </strong>{" "}
                               {selectedFitReview.process}
                             </p>
                             <p>
-                              <strong>{locale === "es" ? "Capacidad de Brunova" : "Brunova capability"}:</strong>{" "}
+                              <strong>
+                                {locale === "es"
+                                  ? "Capacidad de Brunova"
+                                  : "Brunova capability"}
+                                :
+                              </strong>{" "}
                               {selectedFitReview.brunovaCapability}
                             </p>
                             <p>
-                              <strong>{locale === "es" ? "Incertidumbre" : "Uncertainty"}:</strong>{" "}
+                              <strong>
+                                {locale === "es"
+                                  ? "Incertidumbre"
+                                  : "Uncertainty"}
+                                :
+                              </strong>{" "}
                               {selectedFitReview.uncertainty}
                             </p>
                             <p>
-                              <strong>{locale === "es" ? "Contraevidencia" : "Counterevidence"}:</strong>{" "}
+                              <strong>
+                                {locale === "es"
+                                  ? "Contraevidencia"
+                                  : "Counterevidence"}
+                                :
+                              </strong>{" "}
                               {selectedFitReview.counterevidence}
                             </p>
                             <a
@@ -2291,27 +2909,28 @@ export function ExplorationMap({
                       </div>
                     </details>
                   )}
-                  {mode === "exploration" && data.marketPresence
-                    .filter((item) => item.node_id === company.id)
-                    .map((presence, index) => (
-                      <p
-                        className="acq-exploration-market-presence"
-                        key={`${presence.market}:${index}`}
-                      >
-                        <strong>
-                          {presence.market === "MX"
-                            ? "MX · México"
-                            : "US · Estados Unidos"}
-                        </strong>{" "}
-                        · {presenceStatus(presence.status, locale)}
-                        {marketPresenceNote(presence.relation, locale) && (
-                          <>
-                            {" "}
-                            · {marketPresenceNote(presence.relation, locale)}
-                          </>
-                        )}
-                      </p>
-                    ))}
+                  {mode === "exploration" &&
+                    data.marketPresence
+                      .filter((item) => item.node_id === company.id)
+                      .map((presence, index) => (
+                        <p
+                          className="acq-exploration-market-presence"
+                          key={`${presence.market}:${index}`}
+                        >
+                          <strong>
+                            {presence.market === "MX"
+                              ? "MX · México"
+                              : "US · Estados Unidos"}
+                          </strong>{" "}
+                          · {presenceStatus(presence.status, locale)}
+                          {marketPresenceNote(presence.relation, locale) && (
+                            <>
+                              {" "}
+                              · {marketPresenceNote(presence.relation, locale)}
+                            </>
+                          )}
+                        </p>
+                      ))}
                   <p className="acq-company-profile-scope">
                     <strong>
                       {locale === "es"
@@ -2612,7 +3231,7 @@ export function ExplorationMap({
                     })}
                   </div>
                   <p className="acq-zoom-caution">
-                    {mode === "opportunities"
+                    {mode !== "exploration"
                       ? locale === "es"
                         ? "La tesis comercial es una hipótesis; no se ha probado un contrato ni una necesidad declarada."
                         : "The commercial thesis is a hypothesis; no contract or stated need has been proven."

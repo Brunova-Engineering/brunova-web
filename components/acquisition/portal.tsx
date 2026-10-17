@@ -622,6 +622,15 @@ export function AcquisitionPortal({
         {tab === "Attention" && (
           <section>
             {cycleId && (
+              <ExplorationMap
+                key={`candidate-attention:${cycleId}:${projectionRevision}`}
+                cycleId={cycleId}
+                locale={locale}
+                session={session}
+                mode="attention"
+              />
+            )}
+            {cycleId && (
               <CycleAttention
                 key={projectionRevision}
                 cycleId={cycleId}
@@ -630,7 +639,11 @@ export function AcquisitionPortal({
               />
             )}
             <div className="acq-section-heading">
-              <h2>{t("Necesita tu atención")}</h2>
+              <h2>
+                {locale === "es"
+                  ? "Otras decisiones operativas"
+                  : "Other operating decisions"}
+              </h2>
               <p className="acq-muted">
                 {locale === "es"
                   ? "Sólo decisiones que necesita Dirección; las esperas normales no son tareas."

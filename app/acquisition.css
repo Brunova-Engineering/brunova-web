@@ -1055,6 +1055,62 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 .acq-company-fit details p {
   margin: 0.65rem 0;
 }
+.acq-company-attention {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0.9rem 0 1.2rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+  border: 1px solid var(--color-accent);
+  background: color-mix(
+    in srgb,
+    var(--color-accent) 8%,
+    var(--color-background)
+  );
+}
+.acq-company-attention h5,
+.acq-company-attention p {
+  margin: 0;
+}
+.acq-company-attention > article {
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.acq-company-attention > article:first-of-type h5 {
+  font: 500 1.2rem/1.35 var(--font-display);
+}
+.acq-attention-actions {
+  display: grid;
+  gap: 0.6rem;
+}
+.acq-attention-actions article {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+}
+.acq-attention-actions span {
+  font-size: 0.78rem;
+  color: var(--color-muted-foreground);
+}
+.acq-attention-contact-form,
+.acq-attention-contact-form label {
+  display: grid;
+  gap: 0.5rem;
+}
+.acq-attention-contact-form {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+.acq-attention-contact-form label {
+  font-size: 0.86rem;
+}
+.acq-attention-contact-form input,
+.acq-attention-contact-form select,
+.acq-attention-contact-form textarea {
+  width: 100%;
+}
 .acq-company-minimums {
   border: 1px solid #39342f;
   padding: 1rem;
