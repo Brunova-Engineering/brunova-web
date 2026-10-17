@@ -322,6 +322,24 @@ const poolItemSchema = z.object({
 })
 export type CyclePoolItem = z.infer<typeof poolItemSchema>
 export const acquisitionApi = {
+  routineSupervision: (sessionId: string) =>
+    request(`/routine/supervision?sessionId=${id(sessionId)}`, z.object({
+      direction: z.object({
+        command_id: z.string(), session_id: z.string(), cycle_id: z.string(), version: z.number(),
+        focus_company_id: z.string().nullable(),
+        priority_block: z.enum(["AUTO", "DISCOVERY", "ENRICHMENT", "FIT", "FILTERING", "ATTENTION"]),
+        max_unit_minutes: z.number(), display_order: z.array(z.string()), reason: z.string(),
+        actor_type: z.string(), recorded_at: z.string(), applied_at: z.string().nullable(),
+      }).nullable(),
+    })),
+  setRoutineSupervision: (commandId: string, body: {
+    sessionId: string; cycleId: string; expectedVersion: number; focusCompanyId?: string;
+    priorityBlock: "AUTO" | "DISCOVERY" | "ENRICHMENT" | "FIT" | "FILTERING" | "ATTENTION";
+    maxUnitMinutes: number; displayOrder: string[]; reason: string;
+  }, csrf: string) => request("/routine/supervision", z.object({
+    status: z.string(), commandId: z.string(), version: z.number(), externalEffect: z.literal(false),
+  }), {method: "POST", headers: {"content-type": "application/json", "x-csrf-token": csrf},
+    body: JSON.stringify({commandId, request: body})}),
   explorationMap: (cycle: string) =>
     request(
       `/exploration/map?cycleId=${id(cycle)}`,

@@ -5,6 +5,7 @@ import { CrmBoundarySection } from "./crm-boundary"
 import { CycleControlSection } from "./cycle-control"
 import { PolicySettings } from "./policy-settings"
 import { WorkHealthSummary } from "./work-health-summary"
+import { ExecutiveSystemStatus } from "./executive-system-status"
 import { ActivationPreflight } from "./activation-preflight"
 import { OutreachState } from "./outreach-state"
 import { DiscoveryHealth } from "./discovery-health"
@@ -32,7 +33,6 @@ import {
   type Cycle,
   type AccountDetail,
   type Attention,
-  type Counts,
   type Health,
   type Work,
   type Disposition,
@@ -135,8 +135,7 @@ export function AcquisitionPortal({
   const [cycles, setCycles] = useState<Cycle[]>([]),
     [cycleId, setCycleId] = useState("")
   const [tab, setTab] = useState("Overview")
-  const [active, setActive] = useState<Attention[]>([]),
-    [counts, setCounts] = useState<Counts | null>(null)
+  const [active, setActive] = useState<Attention[]>([])
   const [health, setHealth] = useState<Health | null>(null),
     [work, setWork] = useState<Work[]>([]),
     [workCursor, setWorkCursor] = useState(""),
@@ -205,19 +204,16 @@ export function AcquisitionPortal({
       const current = cycleId || cs.items[0]?.cycleId || ""
       if (current !== cycleId) setCycleId(current)
       if (current) {
-        const [ats, totals, ws] = await Promise.all([
+        const [ats, ws] = await Promise.all([
           api.attention(current, true),
-          api.counts(current),
           api.work(current, workCursor, workState),
         ])
         if (run !== generation.current) return
         setActive(ats.items)
-        setCounts(totals)
         setWork(ws.items)
         setWorkNext(ws.nextCursor)
       } else {
         setActive([])
-        setCounts(null)
         setWork([])
       }
     } catch (e) {
@@ -464,36 +460,42 @@ export function AcquisitionPortal({
               </h2>
               <p className="acq-muted">
                 {locale === "es"
-                  ? "Estado actual primero; política y actividad histórica permanecen disponibles como detalle."
-                  : "Current state first; policy and historical activity remain available as detail."}
+                  ? "Trabajo y decisiones primero; diagnóstico técnico disponible al abrir el detalle."
+                  : "Work and decisions first; technical diagnostics available on demand."}
               </p>
             </div>
           </section>
         )}
         {tab === "SystemStatus" && (
-          <WorkHealthSummary
-            key={`health-summary:${projectionRevision}`}
+          <ExecutiveSystemStatus
+            key={`executive:${projectionRevision}`}
             locale={locale}
             health={health}
-          />
-        )}
-        {tab === "SystemStatus" && cycle && (
-          <DiscoveryHealth
-            key={`discovery-health:${projectionRevision}`}
-            locale={locale}
-          />
-        )}
-        {tab === "SystemStatus" && !cycle && (
-          <ActivationPreflight
-            key={`preflight:${projectionRevision}`}
-            locale={locale}
+            csrf={session.csrfToken}
+            onAttention={() => setTab("Attention")}
           />
         )}
         {tab === "SystemStatus" && (
-          <details className="acq-panel">
+          <details className="acq-panel acq-executive-diagnostics">
             <summary>
-              {locale === "es" ? "Política vigente" : "Current policy"}
+              {locale === "es" ? "Salud, política y diagnóstico" : "Health, policy and diagnostics"}
             </summary>
+            <WorkHealthSummary
+              key={`health-summary:${projectionRevision}`}
+              locale={locale}
+              health={health}
+            />
+            {cycle ? (
+              <DiscoveryHealth
+                key={`discovery-health:${projectionRevision}`}
+                locale={locale}
+              />
+            ) : (
+              <ActivationPreflight
+                key={`preflight:${projectionRevision}`}
+                locale={locale}
+              />
+            )}
             <PolicySettings
               key={`settings:${projectionRevision}`}
               locale={locale}
@@ -534,40 +536,6 @@ export function AcquisitionPortal({
             locale={locale}
             onInspect={(accountId) => void inspect(accountId, null)}
           />
-        )}
-        {tab === "SystemStatus" && cycle && (
-          <section className="acq-metrics" aria-label={t("Resumen")}>
-            <div>
-              <span>{t("Calificadas")}</span>
-              <strong>{cycle?.outcomeCounts.qualified ?? "—"}</strong>
-            </div>
-            <div>
-              <span>{t("Priorizadas")}</span>
-              <strong>{counts?.counts?.prioritized_count ?? "—"}</strong>
-            </div>
-            <div>
-              <span>{t("Atención activa")}</span>
-              <strong>{counts?.counts?.active_count ?? "—"}</strong>
-            </div>
-            <div>
-              <span>{t("En espera de capacidad")}</span>
-              <strong>{counts?.counts?.overflow_count ?? "—"}</strong>
-            </div>
-            <div>
-              <span>{t("Trabajo pendiente · global")}</span>
-              <strong>{health?.pendingWorkCount ?? "—"}</strong>
-            </div>
-            <div>
-              <span>{t("Base de datos")}</span>
-              <strong>
-                {health
-                  ? health.databaseReady
-                    ? t("Disponible")
-                    : t("No disponible")
-                  : "—"}
-              </strong>
-            </div>
-          </section>
         )}
         {health && (tab === "Overview" || tab === "SystemStatus") && (
           <p className="acq-safety">
@@ -706,46 +674,6 @@ export function AcquisitionPortal({
                 </article>
               ))}
             </div>
-          </section>
-        )}
-        {tab === "SystemStatus" && cycle && (
-          <section className="acq-panel">
-            <h2>{t("Estado del ciclo")}</h2>
-            {cycle ? (
-              <>
-                <h3>{t("Investigación")}</h3>
-                <dl>
-                  {Object.entries(cycle.outcomeCounts).map(([label, n]) => (
-                    <div key={label}>
-                      <dt>{humanize(label)}</dt>
-                      <dd>{n}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <h3>{t("Prioridad")}</h3>
-                {counts?.configured ? (
-                  <>
-                    <dl>
-                      {Object.entries(counts.tiers).map(([label, n]) => (
-                        <div key={label}>
-                          <dt>{humanize(label)}</dt>
-                          <dd>{n}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                    <p>
-                      {t("Grupo candidato:")} {counts.counts?.candidate_count}.{" "}
-                      {t("En espera de capacidad")}:{" "}
-                      {counts.counts?.overflow_count}.
-                    </p>
-                  </>
-                ) : (
-                  <p>{t("Aún no hay pool priorizado.")}</p>
-                )}
-              </>
-            ) : (
-              <p>{t("No hay un ciclo configurado.")}</p>
-            )}
           </section>
         )}
         {tab === "SystemStatus" && (
