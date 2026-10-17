@@ -1,0 +1,60 @@
+name: Validate and deploy Brunova web
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brunova-web-production
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.22.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy exact main revision from GitHub
+        env:
+          DEPLOY_KEY: ${{ secrets.BRUNOVA_CI_DEPLOY_KEY }}
+          REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_KEY"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/brunova_deploy
+          chmod 600 ~/.ssh/brunova_deploy
+          printf '%s\n' '69.48.202.231 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKvpBAIf4YoOydrbUGaE3NP+N/ObkmlnUdpQfdnsFZuh' > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/brunova_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes root@69.48.202.231 "bash -s -- '$REVISION'" <<'REMOTE'
+          set -euo pipefail
+          revision="$1"
+          repo=/root/brunova/brunova-web
+          [[ "$revision" =~ ^[a-f0-9]{40}$ ]]
+          test -z "$(git -C "$repo" status --porcelain --untracked-files=no)"
+          git -C "$repo" remote set-url origin git@github.com:Brunova-Engineering/brunova-web.git
+          git -C "$repo" fetch origin main
+          test "$(git -C "$repo" rev-parse origin/main)" = "$revision"
+          git -C "$repo" checkout --detach "$revision"
+          cd "$repo"
+          ./scripts/deploy.sh
+          ./scripts/verify-deployment.sh
+          REMOTE
