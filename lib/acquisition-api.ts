@@ -1449,6 +1449,8 @@ export const acquisitionApi = {
                 recurrence_state: z.string(),
                 prospect_effects_authorized: z.literal(false),
                 lease_expires_at: z.string().nullable(),
+                cancel_requested_at: z.string().nullable().optional(),
+                cancel_requested_by: z.string().nullable().optional(),
                 operational_status: z.enum([
                   "ACTIVE",
                   "INTERRUPTED",
