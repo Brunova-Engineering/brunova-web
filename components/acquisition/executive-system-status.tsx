@@ -185,6 +185,7 @@ export function ExecutiveSystemStatus({
   const pieces = data ? executiveFlowPieces(session, health, locale) : []
   const remaining = remainingTime(session, now, es)
   const active = session?.operational_status === "ACTIVE"
+  const stopPending = cancelRequested || Boolean(session?.cancel_requested_at)
   useEffect(() => {
     if (!session?.id) return
     if (!synced.current.startsWith(`${session.id}:`)) {
@@ -221,14 +222,14 @@ export function ExecutiveSystemStatus({
     return () => { alive = false }
   }, [session?.cycle_id, active])
   const ordered = order.map((key) => pieces.find((piece) => piece.key === key)).filter((piece): piece is FlowPiece => Boolean(piece))
-  const draftChanged = active && (direction
+  const draftChanged = active && !stopPending && (direction
     ? priority !== direction.priority_block || maxMinutes !== direction.max_unit_minutes
       || focusCompanyId !== (direction.focus_company_id ?? "") || reason.trim() !== direction.reason
       || order.some((key, index) => key !== direction.display_order[index])
     : priority !== "AUTO" || maxMinutes !== 15 || focusCompanyId !== "" || reason.trim() !== ""
       || order.some((key, index) => key !== defaultOrder[index]))
   const save = async () => {
-    if (!session || !active || saving || reason.trim().length < 20) return
+    if (!session || !active || stopPending || saving || reason.trim().length < 20) return
     setSaving(true); setMessage("")
     try {
       const result = await acquisitionApi.setRoutineSupervision(`c6-${crypto.randomUUID()}`, {
@@ -247,7 +248,7 @@ export function ExecutiveSystemStatus({
     } finally { setSaving(false) }
   }
   const cancelWindow = async () => {
-    if (!session || !active || cancelling || cancelRequested || cancelReason.trim().length < 20) return
+    if (!session || !active || cancelling || stopPending || cancelReason.trim().length < 20) return
     setCancelling(true); setMessage("")
     try {
       const receipt = await acquisitionApi.cancelRoutine({
@@ -277,7 +278,7 @@ export function ExecutiveSystemStatus({
         </div>
         <div className="acq-executive-session" role="status">
           <span className={`acq-executive-state ${active ? "is-active" : ""}`}>
-            {active ? es ? "En curso" : "In progress" : session?.operational_status === "INTERRUPTED" ? es ? "Interrumpida" : "Interrupted" : session ? es ? "Sin sesión activa" : "No active session" : es ? "Sin sesión publicada" : "No published session"}
+            {stopPending && active ? es ? "Cierre solicitado" : "Closure requested" : active ? es ? "En curso" : "In progress" : session?.operational_status === "INTERRUPTED" ? es ? "Interrumpida" : "Interrupted" : session ? es ? "Sin sesión activa" : "No active session" : es ? "Sin sesión publicada" : "No published session"}
           </span>
           <strong>{remaining ?? (es ? "Ventana de hasta 2 horas" : "Up to 2-hour window")}</strong>
         </div>
@@ -321,8 +322,8 @@ export function ExecutiveSystemStatus({
           </div>}
           {openPiece === "attention" && <button type="button" onClick={onAttention}>{es ? "Abrir Necesita tu atención" : "Open Attention"}</button>}
           {openPiece === "continue" && active && <div className="acq-executive-cancel">
-            {!confirmCancel ? <button type="button" disabled={cancelRequested} onClick={() => setConfirmCancel(true)}>
-              {cancelRequested ? es ? "Cancelación solicitada" : "Cancellation requested" : es ? "Cancelar esta ventana" : "Cancel this window"}
+            {!confirmCancel ? <button type="button" disabled={stopPending} onClick={() => setConfirmCancel(true)}>
+              {stopPending ? es ? "Cancelación solicitada" : "Cancellation requested" : es ? "Cancelar esta ventana" : "Cancel this window"}
             </button> : <>
               <p>{es ? "El Engine terminará la unidad actual y conservará el trabajo pendiente." : "The Engine will finish the current unit and preserve pending work."}</p>
               <label>{es ? "Motivo de cancelación" : "Cancellation reason"}
@@ -350,7 +351,7 @@ export function ExecutiveSystemStatus({
             ? "Borrador sin confirmar · la orden vigente no cambia hasta que confirmes."
             : "Unconfirmed draft · the current direction does not change until you confirm."}</p>}
         </div>
-        {active && <div className="acq-executive-controls">
+        {active && !stopPending && <div className="acq-executive-controls">
           <label>{es ? "Qué priorizar" : "Priority"}<select value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>
             {Object.entries(priorityLabels).map(([value,label]) => <option key={value} value={value}>{label}</option>)}
           </select></label>
