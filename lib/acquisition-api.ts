@@ -492,6 +492,7 @@ export const acquisitionApi = {
                       label: z.string(),
                       actor: z.enum(["MANAGEMENT", "PANKY"]),
                       resultHint: z.string(),
+                      enabled: z.boolean().optional(),
                     }),
                   ),
                   researchRequests: z
@@ -812,6 +813,35 @@ export const acquisitionApi = {
         .object({
           status: z.string(),
           requestId: z.string(),
+          externalEffect: z.literal(false),
+        })
+        .passthrough(),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-csrf-token": csrf },
+        body: JSON.stringify({ commandId, request: body }),
+      },
+    ),
+  candidateFilteringDecision: (
+    commandId: string,
+    body: {
+      cycleId: string
+      companyId: string
+      linkId: string
+      expectedStageVersion: number
+      decision: "CLOSE"
+      reason: string
+      sourceUrl: string
+      scope: "LINK" | "COMPANY"
+    },
+    csrf: string,
+  ) =>
+    request(
+      "/exploration/filtering/decisions",
+      z
+        .object({
+          status: z.string(),
+          decisionId: z.string(),
           externalEffect: z.literal(false),
         })
         .passthrough(),

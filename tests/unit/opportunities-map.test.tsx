@@ -116,6 +116,13 @@ it("moves one identity between exclusive active maps and leads with its link the
                 actor: "PANKY",
                 resultHint: "Hallazgos con fuente o ausencia acotada",
               },
+              {
+                code: "CLOSE_CANDIDATE",
+                label: "Cerrar empresa",
+                actor: "MANAGEMENT",
+                resultHint: "Decisión de cierre con motivo y alcance",
+                enabled: true,
+              },
             ],
             stageVersion: 4,
           }
@@ -261,6 +268,37 @@ it("moves one identity between exclusive active maps and leads with its link the
     status: "queued",
     requestId: "research-command",
     externalEffect: false,
+  })
+  vi.spyOn(acquisitionApi, "candidateFilteringDecision").mockResolvedValue({
+    status: "recorded",
+    decisionId: "close-command",
+    externalEffect: false,
+  })
+  fireEvent.click(
+    within(reasons).getByRole("button", {
+      name: "Preparar decisión de cierre",
+    }),
+  )
+  fireEvent.change(within(reasons).getByLabelText("Motivo sustentado"), {
+    target: {
+      value:
+        "No existe un canal atribuible y Dirección decide cerrar la empresa.",
+    },
+  })
+  fireEvent.click(
+    within(reasons).getByRole("button", {
+      name: "Registrar decisión para el Engine",
+    }),
+  )
+  await waitFor(() =>
+    expect(acquisitionApi.candidateFilteringDecision).toHaveBeenCalledOnce(),
+  )
+  expect(
+    vi.mocked(acquisitionApi.candidateFilteringDecision).mock.calls[0]![1],
+  ).toMatchObject({
+    companyId: "attention",
+    decision: "CLOSE",
+    scope: "COMPANY",
   })
   fireEvent.click(
     within(reasons).getByRole("button", { name: "Preparar encargo acotado" }),

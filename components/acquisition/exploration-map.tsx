@@ -466,6 +466,17 @@ export function ExplorationMap({
   const [researchMinutes, setResearchMinutes] = useState(10)
   const [researchPending, setResearchPending] = useState(false)
   const [researchNotice, setResearchNotice] = useState("")
+  const [closeDraftCompanyId, setCloseDraftCompanyId] = useState<string | null>(
+    null,
+  )
+  const [closeReason, setCloseReason] = useState("")
+  const [closeSource, setCloseSource] = useState("")
+  const [closeScope, setCloseScope] = useState<"LINK" | "COMPANY">("COMPANY")
+  const [closePending, setClosePending] = useState(false)
+  const [closeNotice, setCloseNotice] = useState("")
+  const closeCommand = useRef<{ companyId: string; commandId: string } | null>(
+    null,
+  )
   const researchCommand = useRef<{
     companyId: string
     actionCode: string
@@ -1085,6 +1096,72 @@ export function ExplorationMap({
       )
     } finally {
       setResearchPending(false)
+    }
+  }
+
+  async function recordAttentionClose() {
+    const profile = companyProfile
+    const linkId = selected[4]?.id
+    if (
+      !profile ||
+      !linkId ||
+      profile.enrichment?.stage !== "FILTERING" ||
+      closePending ||
+      !session.actor.capabilities.includes("MANAGE_CYCLE")
+    )
+      return
+    const reason = closeReason.trim()
+    const sourceUrl = closeSource.trim()
+    if (
+      reason.length < 20 ||
+      reason.length > 1000 ||
+      !sourceUrl.startsWith("https://")
+    ) {
+      setCloseNotice(
+        locale === "es"
+          ? "Explica el cierre con al menos 20 caracteres y cita una fuente HTTPS de este eslabón."
+          : "Give a reason of at least 20 characters and cite an HTTPS source for this link.",
+      )
+      return
+    }
+    const command =
+      closeCommand.current?.companyId === profile.companyId
+        ? closeCommand.current
+        : { companyId: profile.companyId, commandId: crypto.randomUUID() }
+    closeCommand.current = command
+    setClosePending(true)
+    setCloseNotice("")
+    try {
+      await acquisitionApi.candidateFilteringDecision(
+        command.commandId,
+        {
+          cycleId,
+          companyId: profile.companyId,
+          linkId,
+          expectedStageVersion: profile.enrichment.version,
+          decision: "CLOSE",
+          reason,
+          sourceUrl,
+          scope: closeScope,
+        },
+        session.csrfToken,
+      )
+      closeCommand.current = null
+      setCloseDraftCompanyId(null)
+      setCloseNotice(
+        locale === "es"
+          ? "Decisión de cierre registrada. El Engine debe aplicarla y actualizar la etapa; aún no se cuenta como cerrada."
+          : "Closure decision recorded. The Engine must apply it before the company is considered closed.",
+      )
+      setData(await acquisitionApi.explorationMap(cycleId))
+    } catch {
+      setCloseNotice(
+        locale === "es"
+          ? "No se pudo registrar el cierre. Verifica la fuente y la versión actual de la ficha."
+          : "The closure could not be recorded. Check the source and current brief version.",
+      )
+    } finally {
+      setClosePending(false)
     }
   }
 
@@ -2022,7 +2099,15 @@ export function ExplorationMap({
                                     : "Ask Panky"}
                               </span>
                               <p>{action.resultHint}</p>
+                              {action.enabled === false && (
+                                <small className="acq-muted">
+                                  {locale === "es"
+                                    ? "Requiere primero una corrección comprobada en el expediente."
+                                    : "A verified underlying record change is required first."}
+                                </small>
+                              )}
                               {action.code === "REGISTER_CONTACT" &&
+                                action.enabled !== false &&
                                 companyProfile.attention?.reasons.some(
                                   (reason) =>
                                     reason.code === "NO_VERIFIED_CONTACT",
@@ -2052,6 +2137,7 @@ export function ExplorationMap({
                                   </button>
                                 )}
                               {action.actor === "PANKY" &&
+                                action.enabled !== false &&
                                 session.actor.capabilities.includes(
                                   "MANAGE_CYCLE",
                                 ) && (
@@ -2069,6 +2155,32 @@ export function ExplorationMap({
                                     {locale === "es"
                                       ? "Preparar encargo acotado"
                                       : "Prepare bounded research"}
+                                  </button>
+                                )}
+                              {action.code === "CLOSE_CANDIDATE" &&
+                                action.enabled !== false &&
+                                companyProfile.enrichment?.stage ===
+                                  "FILTERING" &&
+                                session.actor.capabilities.includes(
+                                  "MANAGE_CYCLE",
+                                ) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      closeCommand.current = null
+                                      setCloseDraftCompanyId(
+                                        companyProfile.companyId,
+                                      )
+                                      setCloseSource(
+                                        selectedFitReview?.companySourceUrl ??
+                                          "",
+                                      )
+                                      setCloseNotice("")
+                                    }}
+                                  >
+                                    {locale === "es"
+                                      ? "Preparar decisión de cierre"
+                                      : "Prepare closure decision"}
                                   </button>
                                 )}
                             </article>
@@ -2163,6 +2275,92 @@ export function ExplorationMap({
                         {researchNotice && (
                           <p role="status">{researchNotice}</p>
                         )}
+                        {closeDraftCompanyId === companyProfile.companyId && (
+                          <form
+                            className="acq-attention-contact-form"
+                            onSubmit={(event) => {
+                              event.preventDefault()
+                              void recordAttentionClose()
+                            }}
+                          >
+                            <h5>
+                              {locale === "es"
+                                ? "Decisión de cierre"
+                                : "Closure decision"}
+                            </h5>
+                            <label>
+                              {locale === "es" ? "Alcance" : "Scope"}
+                              <select
+                                value={closeScope}
+                                disabled={closePending}
+                                onChange={(event) => {
+                                  closeCommand.current = null
+                                  setCloseScope(
+                                    event.target.value as typeof closeScope,
+                                  )
+                                }}
+                              >
+                                <option value="COMPANY">
+                                  {locale === "es"
+                                    ? "Toda la empresa"
+                                    : "Whole company"}
+                                </option>
+                                <option value="LINK">
+                                  {locale === "es"
+                                    ? "Este eslabón"
+                                    : "This link"}
+                                </option>
+                              </select>
+                            </label>
+                            <label>
+                              {locale === "es"
+                                ? "Motivo sustentado"
+                                : "Evidence-based reason"}
+                              <textarea
+                                required
+                                minLength={20}
+                                maxLength={1000}
+                                value={closeReason}
+                                disabled={closePending}
+                                onChange={(event) => {
+                                  closeCommand.current = null
+                                  setCloseReason(event.target.value)
+                                }}
+                              />
+                            </label>
+                            <label>
+                              {locale === "es"
+                                ? "Fuente observada en este eslabón"
+                                : "Source observed in this link"}
+                              <input
+                                required
+                                type="url"
+                                pattern="https://.*"
+                                value={closeSource}
+                                disabled={closePending}
+                                onChange={(event) => {
+                                  closeCommand.current = null
+                                  setCloseSource(event.target.value)
+                                }}
+                              />
+                            </label>
+                            <button type="submit" disabled={closePending}>
+                              {closePending
+                                ? locale === "es"
+                                  ? "Registrando…"
+                                  : "Recording…"
+                                : locale === "es"
+                                  ? "Registrar decisión para el Engine"
+                                  : "Record decision for the Engine"}
+                            </button>
+                            <p className="acq-muted">
+                              {locale === "es"
+                                ? "La decisión queda pendiente de aplicación por el Engine. No inicia contacto externo."
+                                : "The Engine must apply this decision. It does not initiate outreach."}
+                            </p>
+                          </form>
+                        )}
+                        {closeNotice && <p role="status">{closeNotice}</p>}
                         {contactDraftCompanyId === companyProfile.companyId &&
                           companyProfile.attention.reasons.some(
                             (reason) => reason.code === "NO_VERIFIED_CONTACT",
