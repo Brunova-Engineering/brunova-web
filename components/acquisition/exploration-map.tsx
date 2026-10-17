@@ -1676,8 +1676,8 @@ export function ExplorationMap({
       <span className="acq-eyebrow">
         {mode === "attention"
           ? locale === "es"
-            ? "Necesita tu atención"
-            : "Needs your attention"
+            ? "Decisión pendiente"
+            : "Pending decision"
           : mode === "opportunities"
             ? locale === "es"
               ? "Oportunidades"
@@ -1689,8 +1689,8 @@ export function ExplorationMap({
       <h2>
         {mode === "attention"
           ? locale === "es"
-            ? "De la industria a la decisión pendiente"
-            : "From industry to the pending decision"
+            ? "Necesita tu atención"
+            : "Needs your attention"
           : mode === "opportunities"
             ? locale === "es"
               ? "De la industria al encaje comercial"
