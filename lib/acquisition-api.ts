@@ -322,6 +322,19 @@ const poolItemSchema = z.object({
 })
 export type CyclePoolItem = z.infer<typeof poolItemSchema>
 export const acquisitionApi = {
+  nextWindowPlan: (cycleId: string) => request(`/routine/next-window-plan?cycleId=${id(cycleId)}`, z.object({
+    plan: z.object({
+      command_id: z.string(), cycle_id: z.string(), version: z.number(),
+      plan: z.object({order: z.array(z.string()), settings: z.record(z.string(), z.record(z.string(), z.string()))}),
+      actor_type: z.string(), actor_id: z.string(), recorded_at: z.string(),
+    }).nullable(),
+  })),
+  publishNextWindowPlan: (commandId: string, body: {cycleId:string;expectedVersion:number;
+    plan:{order:string[];settings:Record<string,Record<string,string>>}}, csrf:string) =>
+    request('/routine/next-window-plan', z.object({
+      status:z.enum(['published','already_published']),commandId:z.string(),version:z.number(),externalEffect:z.literal(false),
+    }), {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
+      body:JSON.stringify({commandId,request:body})}),
   routineSupervision: (sessionId: string) =>
     request(`/routine/supervision?sessionId=${id(sessionId)}`, z.object({
       direction: z.object({
