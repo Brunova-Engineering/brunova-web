@@ -182,7 +182,32 @@ it("moves one identity between exclusive active maps and leads with its link the
     chainCoverage: [],
     companyProfiles: [
       profile("discovery", "DISCOVERY"),
-      { ...profile("opportunity", "FILTERING"), contactScreenRequired: true },
+      {
+        ...profile("opportunity", "FILTERING"),
+        contactScreenRequired: true,
+        contactMethods: [
+          {
+            methodId: "email-route",
+            channelType: "EMAIL",
+            channelValue: "info@empresa.example",
+            contactName: null,
+            sourceUrl: "https://empresa.example/contacto",
+            attribution: "Correo atribuido por la página propia de la empresa.",
+            stageVersion: 4,
+            recordedAt: now,
+          },
+          {
+            methodId: "linkedin-route",
+            channelType: "LINKEDIN",
+            channelValue: "https://www.linkedin.com/company/empresa/",
+            contactName: "María López",
+            sourceUrl: "https://empresa.example/equipo",
+            attribution: "Perfil enlazado por el sitio propio de la empresa.",
+            stageVersion: 4,
+            recordedAt: now,
+          },
+        ],
+      },
       profile("attention", "FILTERING"),
       profile("closed", "CLOSED"),
     ],
@@ -256,6 +281,14 @@ it("moves one identity between exclusive active maps and leads with its link the
         within(brief).getByLabelText("Contexto del eslabón seleccionado"),
       ) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy()
+  fireEvent.click(within(brief).getByText("Contacto"))
+  const methods = within(brief).getByLabelText("Medios de contacto")
+  expect(methods).toHaveTextContent("info@empresa.example")
+  expect(methods).toHaveTextContent("Empresa Avanzada")
+  expect(methods).toHaveTextContent("María López")
+  expect(
+    within(methods).getByRole("button", { name: "Añadir medio" }),
+  ).toBeInTheDocument()
   second.unmount()
   const third = render(<ExplorationMap {...props} mode="attention" />)
   const attentionSearch = await screen.findByRole("searchbox", {
@@ -353,9 +386,12 @@ it("moves one identity between exclusive active maps and leads with its link the
   fireEvent.click(
     within(reasons).getByRole("button", { name: "Registrar medio con fuente" }),
   )
-  fireEvent.change(within(reasons).getByLabelText("Correo, perfil o número"), {
-    target: { value: "contacto@empresa.example" },
-  })
+  fireEvent.change(
+    within(reasons).getByLabelText("Dirección, perfil o número"),
+    {
+      target: { value: "contacto@empresa.example" },
+    },
+  )
   fireEvent.change(within(reasons).getByLabelText("Fuente original HTTPS"), {
     target: { value: "https://empresa.example/contacto" },
   })
@@ -369,7 +405,7 @@ it("moves one identity between exclusive active maps and leads with its link the
   )
   fireEvent.click(
     within(reasons).getByRole("button", {
-      name: "Guardar y resolver este motivo",
+      name: "Guardar medio",
     }),
   )
   await waitFor(() =>

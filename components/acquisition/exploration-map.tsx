@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { ContactMethods } from "@/components/acquisition/contact-methods"
 import { acquisitionApi, type PortalSession } from "@/lib/acquisition-api"
 import type { Locale } from "@/lib/i18n"
 
@@ -448,9 +449,10 @@ export function ExplorationMap({
     string | null
   >(null)
   const [contactType, setContactType] = useState<
-    "EMAIL" | "FACEBOOK" | "INSTAGRAM" | "WHATSAPP"
+    "EMAIL" | "FACEBOOK" | "INSTAGRAM" | "WHATSAPP" | "LINKEDIN"
   >("EMAIL")
   const [contactValue, setContactValue] = useState("")
+  const [contactName, setContactName] = useState("")
   const [contactSource, setContactSource] = useState("")
   const [contactAttribution, setContactAttribution] = useState("")
   const [contactPending, setContactPending] = useState(false)
@@ -939,11 +941,12 @@ export function ExplorationMap({
       (item) => item.code === "NO_VERIFIED_CONTACT",
     )
     const linkId = reason?.linkId ?? selected[4]?.id
+    const stageVersion = attention?.stageVersion ?? profile?.enrichment?.version
     if (
       !profile ||
-      !attention ||
-      !reason ||
-      !linkId ||
+      !stageVersion ||
+      !["FILTERING", "SELECTED"].includes(profile.enrichment?.stage ?? "") ||
+      (reason && !linkId) ||
       contactPending ||
       !session.actor.capabilities.includes("MANAGE_CYCLE")
     )
@@ -982,45 +985,53 @@ export function ExplorationMap({
           {
             cycleId,
             companyId: profile.companyId,
-            expectedStageVersion: attention.stageVersion,
+            expectedStageVersion: stageVersion,
             channelType: contactType,
             channelValue: value,
             sourceUrl,
             attribution,
+            ...(contactName.trim() ? { contactName: contactName.trim() } : {}),
           },
           session.csrfToken,
         )
         command.methodId = receipt.methodId
         setContactRecorded(true)
       }
-      command.resolveCommandId ??= crypto.randomUUID()
-      await acquisitionApi.candidateAttentionCommand(
-        command.resolveCommandId,
-        {
-          cycleId,
-          companyId: profile.companyId,
-          linkId,
-          expectedStageVersion: attention.stageVersion,
-          action: "RESOLVE",
-          reasonCode: "NO_VERIFIED_CONTACT",
-          summary: reason.summary,
-          evidenceRefs: [sourceUrl],
-          resolution: attribution,
-          resolutionAction: "REGISTER_CONTACT",
-          contactMethodId: command.methodId,
-        },
-        session.csrfToken,
-      )
+      if (reason && linkId) {
+        command.resolveCommandId ??= crypto.randomUUID()
+        await acquisitionApi.candidateAttentionCommand(
+          command.resolveCommandId,
+          {
+            cycleId,
+            companyId: profile.companyId,
+            linkId,
+            expectedStageVersion: stageVersion,
+            action: "RESOLVE",
+            reasonCode: "NO_VERIFIED_CONTACT",
+            summary: reason.summary,
+            evidenceRefs: [sourceUrl],
+            resolution: attribution,
+            resolutionAction: "REGISTER_CONTACT",
+            contactMethodId: command.methodId,
+          },
+          session.csrfToken,
+        )
+      }
       contactCommand.current = null
       setContactRecorded(false)
       setContactDraftCompanyId(null)
       setContactValue("")
+      setContactName("")
       setContactSource("")
       setContactAttribution("")
       setContactNotice(
         locale === "es"
-          ? "Medio registrado y motivo resuelto. Se actualizó la sección de la empresa."
-          : "Contact method recorded and reason resolved. The company section has been updated.",
+          ? reason
+            ? "Medio registrado y motivo resuelto. Se actualizó la sección de la empresa."
+            : "Medio registrado con su fuente."
+          : reason
+            ? "Contact method recorded and reason resolved. The company section has been updated."
+            : "Contact method and source recorded.",
       )
       await acquisitionApi
         .explorationMap(cycleId)
@@ -1035,6 +1046,123 @@ export function ExplorationMap({
     } finally {
       setContactPending(false)
     }
+  }
+
+  function renderContactForm() {
+    return (
+      <form
+        className="acq-attention-contact-form"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void recordContactMethod()
+        }}
+      >
+        <h5>
+          {locale === "es"
+            ? "Añadir medio de contacto"
+            : "Add a contact method"}
+        </h5>
+        <p className="acq-muted">
+          {locale === "es"
+            ? "Cada medio conserva su fuente. Registrar uno no envía mensajes."
+            : "Each method keeps its source. Recording it sends no messages."}
+        </p>
+        <div className="acq-contact-form-grid">
+          <label>
+            {locale === "es" ? "Medio" : "Method"}
+            <select
+              value={contactType}
+              disabled={contactPending || contactRecorded}
+              onChange={(event) => {
+                contactCommand.current = null
+                setContactRecorded(false)
+                setContactType(event.target.value as typeof contactType)
+              }}
+            >
+              <option value="EMAIL">Email</option>
+              <option value="LINKEDIN">LinkedIn</option>
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="FACEBOOK">Facebook</option>
+              <option value="WHATSAPP">WhatsApp</option>
+            </select>
+          </label>
+          <label>
+            {locale === "es"
+              ? "Dirección, perfil o número"
+              : "Address, profile, or number"}
+            <input
+              required
+              minLength={5}
+              maxLength={500}
+              value={contactValue}
+              disabled={contactPending || contactRecorded}
+              onChange={(event) => {
+                contactCommand.current = null
+                setContactRecorded(false)
+                setContactValue(event.target.value)
+              }}
+            />
+          </label>
+          <label>
+            {locale === "es" ? "Persona (opcional)" : "Person (optional)"}
+            <input
+              minLength={2}
+              maxLength={200}
+              value={contactName}
+              disabled={contactPending || contactRecorded}
+              onChange={(event) => {
+                contactCommand.current = null
+                setContactRecorded(false)
+                setContactName(event.target.value)
+              }}
+            />
+          </label>
+          <label>
+            {locale === "es"
+              ? "Fuente original HTTPS"
+              : "Original HTTPS source"}
+            <input
+              required
+              type="url"
+              pattern="https://.*"
+              value={contactSource}
+              disabled={contactPending || contactRecorded}
+              onChange={(event) => {
+                contactCommand.current = null
+                setContactRecorded(false)
+                setContactSource(event.target.value)
+              }}
+            />
+          </label>
+        </div>
+        <label>
+          {locale === "es"
+            ? "Cómo se atribuye a esta empresa"
+            : "How this belongs to the company"}
+          <textarea
+            required
+            minLength={20}
+            maxLength={1000}
+            value={contactAttribution}
+            disabled={contactPending || contactRecorded}
+            onChange={(event) => {
+              contactCommand.current = null
+              setContactRecorded(false)
+              setContactAttribution(event.target.value)
+            }}
+          />
+        </label>
+        <button type="submit" disabled={contactPending}>
+          {contactPending
+            ? locale === "es"
+              ? "Guardando…"
+              : "Saving…"
+            : locale === "es"
+              ? "Guardar medio"
+              : "Save method"}
+        </button>
+      </form>
+    )
   }
 
   async function requestAttentionResearch() {
@@ -2607,107 +2735,8 @@ export function ExplorationMap({
                         {contactDraftCompanyId === companyProfile.companyId &&
                           companyProfile.attention.reasons.some(
                             (reason) => reason.code === "NO_VERIFIED_CONTACT",
-                          ) && (
-                            <form
-                              className="acq-attention-contact-form"
-                              onSubmit={(event) => {
-                                event.preventDefault()
-                                void recordContactMethod()
-                              }}
-                            >
-                              <h5>
-                                {locale === "es"
-                                  ? "Acreditar un medio de contacto"
-                                  : "Verify a contact method"}
-                              </h5>
-                              <label>
-                                {locale === "es"
-                                  ? "Tipo de medio"
-                                  : "Channel type"}
-                                <select
-                                  value={contactType}
-                                  disabled={contactPending || contactRecorded}
-                                  onChange={(event) => {
-                                    contactCommand.current = null
-                                    setContactRecorded(false)
-                                    setContactType(
-                                      event.target.value as typeof contactType,
-                                    )
-                                  }}
-                                >
-                                  <option value="EMAIL">Email</option>
-                                  <option value="FACEBOOK">Facebook</option>
-                                  <option value="INSTAGRAM">Instagram</option>
-                                  <option value="WHATSAPP">WhatsApp</option>
-                                </select>
-                              </label>
-                              <label>
-                                {locale === "es"
-                                  ? "Correo, perfil o número"
-                                  : "Address, profile, or number"}
-                                <input
-                                  required
-                                  minLength={3}
-                                  maxLength={500}
-                                  value={contactValue}
-                                  disabled={contactPending || contactRecorded}
-                                  onChange={(event) => {
-                                    contactCommand.current = null
-                                    setContactRecorded(false)
-                                    setContactValue(event.target.value)
-                                  }}
-                                />
-                              </label>
-                              <label>
-                                {locale === "es"
-                                  ? "Fuente original HTTPS"
-                                  : "Original HTTPS source"}
-                                <input
-                                  required
-                                  type="url"
-                                  pattern="https://.*"
-                                  value={contactSource}
-                                  disabled={contactPending || contactRecorded}
-                                  onChange={(event) => {
-                                    contactCommand.current = null
-                                    setContactRecorded(false)
-                                    setContactSource(event.target.value)
-                                  }}
-                                />
-                              </label>
-                              <label>
-                                {locale === "es"
-                                  ? "Cómo se atribuye a esta empresa"
-                                  : "How this belongs to the company"}
-                                <textarea
-                                  required
-                                  minLength={20}
-                                  maxLength={1000}
-                                  value={contactAttribution}
-                                  disabled={contactPending || contactRecorded}
-                                  onChange={(event) => {
-                                    contactCommand.current = null
-                                    setContactRecorded(false)
-                                    setContactAttribution(event.target.value)
-                                  }}
-                                />
-                              </label>
-                              <button type="submit" disabled={contactPending}>
-                                {contactPending
-                                  ? locale === "es"
-                                    ? "Guardando…"
-                                    : "Saving…"
-                                  : locale === "es"
-                                    ? "Guardar y resolver este motivo"
-                                    : "Save and resolve this reason"}
-                              </button>
-                              <p className="acq-muted">
-                                {locale === "es"
-                                  ? "Registrar el medio no envía mensajes ni autoriza contacto externo."
-                                  : "Recording the method sends no messages and does not authorize outreach."}
-                              </p>
-                            </form>
-                          )}
+                          ) &&
+                          renderContactForm()}
                         {contactNotice && <p role="status">{contactNotice}</p>}
                       </section>
                     )}
@@ -3585,7 +3614,13 @@ export function ExplorationMap({
                               {knownFields > 0 && (
                                 <span>
                                   {knownFields}{" "}
-                                  {locale === "es" ? "registrados" : "recorded"}
+                                  {dimension === "outreach"
+                                    ? locale === "es"
+                                      ? "datos"
+                                      : "fields"
+                                    : locale === "es"
+                                      ? "registrados"
+                                      : "recorded"}
                                 </span>
                               )}
                               {hypothesisFields > 0 && (
@@ -3604,6 +3639,56 @@ export function ExplorationMap({
                               )}
                             </span>
                           </summary>
+                          {dimension === "outreach" && companyProfile && (
+                            <section
+                              className="acq-contact-overview"
+                              aria-label={
+                                locale === "es"
+                                  ? "Medios de contacto"
+                                  : "Contact methods"
+                              }
+                            >
+                              <ContactMethods
+                                methods={companyProfile.contactMethods ?? []}
+                                companyName={companyProfile.displayName}
+                                locale={locale}
+                              />
+                              {mode === "opportunities" &&
+                                ["FILTERING", "SELECTED"].includes(
+                                  companyProfile.enrichment?.stage ?? "",
+                                ) &&
+                                session.actor.capabilities.includes(
+                                  "MANAGE_CYCLE",
+                                ) && (
+                                  <>
+                                    {contactDraftCompanyId !==
+                                      companyProfile.companyId && (
+                                      <button
+                                        type="button"
+                                        className="acq-contact-add"
+                                        onClick={() => {
+                                          contactCommand.current = null
+                                          setContactNotice("")
+                                          setContactDraftCompanyId(
+                                            companyProfile.companyId,
+                                          )
+                                        }}
+                                      >
+                                        {locale === "es"
+                                          ? "Añadir medio"
+                                          : "Add method"}
+                                      </button>
+                                    )}
+                                    {contactDraftCompanyId ===
+                                      companyProfile.companyId &&
+                                      renderContactForm()}
+                                    {contactNotice && (
+                                      <p role="status">{contactNotice}</p>
+                                    )}
+                                  </>
+                                )}
+                            </section>
+                          )}
                           <div className="acq-company-dimension-fields">
                             {profileFields.length ? (
                               profileFields.map((item) => (

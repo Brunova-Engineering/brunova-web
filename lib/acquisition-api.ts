@@ -455,6 +455,7 @@ export const acquisitionApi = {
                     methodId: z.string(),
                     channelType: z.string(),
                     channelValue: z.string(),
+                    contactName: z.string().nullable().optional(),
                     sourceUrl: z.string(),
                     attribution: z.string(),
                     stageVersion: z.coerce.number(),
@@ -795,8 +796,9 @@ export const acquisitionApi = {
       cycleId: string
       companyId: string
       expectedStageVersion: number
-      channelType: "EMAIL" | "FACEBOOK" | "INSTAGRAM" | "WHATSAPP"
+      channelType: "EMAIL" | "FACEBOOK" | "INSTAGRAM" | "WHATSAPP" | "LINKEDIN"
       channelValue: string
+      contactName?: string
       sourceUrl: string
       attribution: string
     },
