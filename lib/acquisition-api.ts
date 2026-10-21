@@ -463,6 +463,18 @@ export const acquisitionApi = {
                   }),
                 )
                 .optional(),
+              whatsappChecks: z
+                .array(
+                  z.object({
+                    checkId: z.string(),
+                    normalizedNumber: z.string(),
+                    sourceUrl: z.string(),
+                    outcome: z.enum(["EXISTS", "NOT_FOUND", "UNAVAILABLE"]),
+                    stageVersion: z.coerce.number(),
+                    checkedAt: z.string(),
+                  }),
+                )
+                .optional(),
               links: z.array(
                 z.object({
                   linkId: z.string(),

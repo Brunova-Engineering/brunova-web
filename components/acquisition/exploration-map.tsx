@@ -966,6 +966,21 @@ export function ExplorationMap({
       )
       return
     }
+    if (
+      contactType === "WHATSAPP" &&
+      !profile.whatsappChecks?.some(
+        (check) =>
+          check.normalizedNumber === value.replace(/\D/g, "") &&
+          check.outcome === "EXISTS",
+      )
+    ) {
+      setContactNotice(
+        locale === "es"
+          ? "Para registrar WhatsApp, primero comprueba que este número exista en WhatsApp."
+          : "Verify this number is on WhatsApp before recording it as a method.",
+      )
+      return
+    }
     setContactPending(true)
     setContactNotice("")
     const command =
@@ -3672,6 +3687,7 @@ export function ExplorationMap({
                             >
                               <ContactMethods
                                 methods={companyProfile.contactMethods ?? []}
+                                checks={companyProfile.whatsappChecks ?? []}
                                 companyName={companyProfile.displayName}
                                 locale={locale}
                               />
