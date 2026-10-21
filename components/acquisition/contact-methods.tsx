@@ -7,6 +7,13 @@ export type ContactMethod = {
   attribution: string
 }
 
+export type WhatsAppCheck = {
+  checkId: string
+  normalizedNumber: string
+  sourceUrl: string
+  outcome: "EXISTS" | "NOT_FOUND" | "UNAVAILABLE"
+}
+
 function safeSource(value: string) {
   try {
     const url = new URL(value)
@@ -18,13 +25,24 @@ function safeSource(value: string) {
 
 export function ContactMethods({
   methods,
+  checks = [],
   companyName,
   locale,
 }: {
   methods: ContactMethod[]
+  checks?: WhatsAppCheck[]
   companyName: string
   locale: "es" | "en"
 }) {
+  const visibleChecks = checks.filter(
+    (check) =>
+      check.outcome !== "EXISTS" ||
+      !methods.some(
+        (method) =>
+          method.channelType === "WHATSAPP" &&
+          method.channelValue.replace(/\D/g, "") === check.normalizedNumber,
+      ),
+  )
   return (
     <>
       <div className="acq-contact-overview-heading">
@@ -87,6 +105,39 @@ export function ContactMethods({
             ? "Aún no hay un medio acreditado."
             : "No verified method yet."}
         </p>
+      )}
+      {visibleChecks.length > 0 && (
+        <div className="acq-contact-checks">
+          <strong>{locale === "es" ? "Números comprobados" : "Checked numbers"}</strong>
+          <ul className="acq-contact-method-list">
+            {visibleChecks.map((check) => (
+              <li key={check.checkId}>
+                <div className="acq-contact-method-main">
+                  <span className="acq-contact-channel">
+                    {check.outcome === "EXISTS"
+                      ? "WhatsApp"
+                      : locale === "es" ? "Número publicado" : "Published number"}
+                  </span>
+                  <strong>{check.normalizedNumber}</strong>
+                </div>
+                <div className="acq-contact-method-meta">
+                  <span>
+                    {check.outcome === "EXISTS"
+                      ? locale === "es" ? "Disponible; medio por registrar" : "Available; method to record"
+                      : check.outcome === "NOT_FOUND"
+                        ? locale === "es" ? "No figura en WhatsApp" : "Not on WhatsApp"
+                        : locale === "es" ? "Comprobación pendiente" : "Check pending"}
+                  </span>
+                  {safeSource(check.sourceUrl) && (
+                    <a href={safeSource(check.sourceUrl)!} target="_blank" rel="noopener noreferrer">
+                      {locale === "es" ? "Fuente" : "Source"}
+                    </a>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </>
   )
