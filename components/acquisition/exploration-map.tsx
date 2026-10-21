@@ -3592,14 +3592,24 @@ export function ExplorationMap({
                                   },
                                 ]
                               : []
-                      const knownFields = profileFields.filter(
+                      const contactMethods =
+                        dimension === "outreach"
+                          ? (companyProfile?.contactMethods ?? [])
+                          : []
+                      const previousChannel = contactMethods.length
+                        ? profileFields.find((item) => item.key === "channel")
+                        : null
+                      const displayedFields = previousChannel
+                        ? profileFields.filter((item) => item.key !== "channel")
+                        : profileFields
+                      const knownFields = displayedFields.filter(
                         (item) => item.status === "KNOWN" && !item.conflict,
                       ).length
-                      const pendingFields = profileFields.filter(
+                      const pendingFields = displayedFields.filter(
                         (item) => item.status === "PENDING",
                       ).length
                       const hypothesisFields =
-                        profileFields.length - knownFields - pendingFields
+                        displayedFields.length - knownFields - pendingFields
                       return (
                         <details
                           className="acq-company-dimension"
@@ -3611,6 +3621,18 @@ export function ExplorationMap({
                               {title}
                             </span>
                             <span className="acq-company-dimension-status">
+                              {contactMethods.length > 0 && (
+                                <span>
+                                  {contactMethods.length}{" "}
+                                  {locale === "es"
+                                    ? contactMethods.length === 1
+                                      ? "medio"
+                                      : "medios"
+                                    : contactMethods.length === 1
+                                      ? "method"
+                                      : "methods"}
+                                </span>
+                              )}
                               {knownFields > 0 && (
                                 <span>
                                   {knownFields}{" "}
@@ -3690,8 +3712,8 @@ export function ExplorationMap({
                             </section>
                           )}
                           <div className="acq-company-dimension-fields">
-                            {profileFields.length ? (
-                              profileFields.map((item) => (
+                            {displayedFields.length ? (
+                              displayedFields.map((item) => (
                                 <article key={item.key}>
                                   <strong>
                                     {companyFieldLabel(item.key, locale)}
@@ -3823,6 +3845,30 @@ export function ExplorationMap({
                               </p>
                             )}
                           </div>
+                          {previousChannel && (
+                            <details className="acq-contact-previous-context">
+                              <summary>
+                                {locale === "es"
+                                  ? "Contexto anterior del canal"
+                                  : "Earlier channel context"}
+                              </summary>
+                              <p>
+                                {cleanExplorationText(
+                                  previousChannel.value,
+                                  locale,
+                                )}
+                              </p>
+                              {safeHttpUrl(previousChannel.sourceUrl) && (
+                                <a
+                                  href={previousChannel.sourceUrl!}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {locale === "es" ? "Fuente" : "Source"}
+                                </a>
+                              )}
+                            </details>
+                          )}
                         </details>
                       )
                     })}
