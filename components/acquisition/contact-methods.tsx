@@ -28,11 +28,17 @@ export function ContactMethods({
   checks = [],
   companyName,
   locale,
+  hasContactRecord = false,
+  receiptConfirmed = false,
+  sentMethodId,
 }: {
   methods: ContactMethod[]
   checks?: WhatsAppCheck[]
   companyName: string
   locale: "es" | "en"
+  hasContactRecord?: boolean
+  receiptConfirmed?: boolean
+  sentMethodId?: string
 }) {
   const visibleChecks = checks.filter(
     (check) =>
@@ -51,9 +57,17 @@ export function ContactMethods({
             {locale === "es" ? "Medios acreditados" : "Verified methods"}
           </strong>
           <p className="acq-muted">
-            {locale === "es"
-              ? "Datos publicados y atribuidos a esta empresa; sin contacto realizado."
-              : "Published methods attributed to this company; no outreach sent."}
+            {receiptConfirmed
+              ? locale === "es"
+                ? "El envío tiene recibo confirmado; estos son los medios atribuidos."
+                : "The send has a confirmed receipt; these are the attributed methods."
+              : hasContactRecord
+              ? locale === "es"
+                ? "La ficha registra contacto; el recibo del envío aún no está disponible aquí."
+                : "Contact is recorded; the send receipt is not available here yet."
+              : locale === "es"
+                ? "Datos publicados y atribuidos a esta empresa; sin contacto realizado."
+                : "Published methods attributed to this company; no outreach sent."}
           </p>
         </div>
         <span>{methods.length}</span>
@@ -90,6 +104,11 @@ export function ContactMethods({
                   </a>
                 )}
               </div>
+              <p className="acq-muted">
+                {sentMethodId === method.methodId
+                  ? locale === "es" ? "Medio del envío confirmado" : "Method used for the confirmed send"
+                  : locale === "es" ? "Medio atribuido · envío automático no habilitado" : "Attributed method · automatic sending not enabled"}
+              </p>
               <details>
                 <summary>
                   {locale === "es" ? "Atribución" : "Attribution"}

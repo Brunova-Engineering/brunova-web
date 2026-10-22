@@ -42,6 +42,7 @@ it("moves one identity between exclusive active maps and leads with its link the
     make("link", "LINK", "Congelación rápida", "chain"),
     make("discovery", "COMPANY_LEAD", "Pista Nueva", "link"),
     make("opportunity", "COMPANY_LEAD", "Empresa Avanzada", "link"),
+    make("selected", "COMPANY_LEAD", "Empresa en Contacto", "link"),
     make("attention", "COMPANY_LEAD", "Empresa en Revisión", "link"),
     make("closed", "COMPANY_LEAD", "Empresa Cerrada", "link"),
   ]
@@ -209,6 +210,7 @@ it("moves one identity between exclusive active maps and leads with its link the
         ],
       },
       profile("attention", "FILTERING"),
+      profile("selected", "SELECTED"),
       profile("closed", "CLOSED"),
     ],
   } as unknown as Awaited<ReturnType<typeof acquisitionApi.explorationMap>>)
@@ -251,6 +253,7 @@ it("moves one identity between exclusive active maps and leads with its link the
   expect(results).not.toHaveTextContent("Pista Nueva")
   expect(results).not.toHaveTextContent("Empresa Cerrada")
   expect(results).not.toHaveTextContent("Empresa en Revisión")
+  expect(results).not.toHaveTextContent("Empresa en Contacto")
   fireEvent.click(
     within(results).getByRole("button", { name: /Empresa Avanzada/ }),
   )
@@ -291,6 +294,8 @@ it("moves one identity between exclusive active maps and leads with its link the
   ).toBeInTheDocument()
   second.unmount()
   const third = render(<ExplorationMap {...props} mode="attention" />)
+  const reasonFilter = await screen.findByRole("group", { name: "Filtrar por motivo de atención" })
+  expect(within(reasonFilter).getByRole("button", { name: "Sin medio verificable" })).toHaveTextContent("1")
   const attentionSearch = await screen.findByRole("searchbox", {
     name: "Buscar empresa en todo el mapa",
   })

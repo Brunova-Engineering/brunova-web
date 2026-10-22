@@ -359,6 +359,54 @@ export const acquisitionApi = {
       sessionId: z.string(), externalEffect: z.literal(false),
     }), {method: "POST", headers: {"content-type": "application/json", "x-csrf-token": csrf},
       body: JSON.stringify(body)}),
+  candidateContactPreparations: (cycle: string) => request(
+    `/exploration/contact-preparations?cycleId=${id(cycle)}`,
+    z.object({truncated: z.boolean(), preparations: z.array(z.object({
+      companyId: z.string(), linkId: z.string(), preparationId: z.string(),
+      methodId: z.string(), stageVersion: z.coerce.number(),
+      channelType: z.enum(["EMAIL", "FACEBOOK", "INSTAGRAM", "WHATSAPP", "LINKEDIN"]),
+      recipientLabel: z.string(), subject: z.string().nullable(),
+      messageText: z.string(), rationale: z.string(), evidenceRefs: z.array(z.string()),
+      recordedAt: z.string(), sendAuthorized: z.literal(false),
+    }))}),
+  ),
+  candidateContactAttempts: (cycle: string) => request(
+    `/exploration/contact-attempts?cycleId=${id(cycle)}`,
+    z.object({truncated:z.boolean(),attempts:z.array(z.object({
+      companyId:z.string(),linkId:z.string(),methodId:z.string(),stageVersion:z.coerce.number(),
+      preparationId:z.string(),intentId:z.string(),
+      channelType:z.enum(["EMAIL","FACEBOOK","INSTAGRAM","WHATSAPP","LINKEDIN"]),
+      authorizedAt:z.string(),expiresAt:z.string(),
+      outcome:z.enum(["DISPATCH_STARTED","SEND_CONFIRMED","FAILED_BEFORE_MUTATION",
+        "OUTCOME_UNKNOWN","RECONCILED_CONFIRMED","RECONCILIATION_REQUIRED"]).nullable(),
+      providerReceiptId:z.string().nullable(),outcomeAt:z.string().nullable(),
+    }))}),
+  ),
+  candidateContactReplies: (cycle: string) => request(
+    `/exploration/contact-replies?cycleId=${id(cycle)}`,
+    z.object({truncated:z.boolean(),replies:z.array(z.object({
+      companyId:z.string(),linkId:z.string(),methodId:z.string(),stageVersion:z.coerce.number(),
+      preparationId:z.string(),intentId:z.string(),replyId:z.string(),
+      channelType:z.enum(["EMAIL","FACEBOOK","INSTAGRAM","WHATSAPP","LINKEDIN"]),
+      providerMessageId:z.string(),originalText:z.string(),receivedAt:z.string(),recordedAt:z.string(),
+      classification:z.enum(["POSITIVE","NEGATIVE","OPT_OUT","BAD_TIMING","QUESTION","UNCERTAIN"]).nullable(),
+      interestSummary:z.string().nullable(),rationale:z.string().nullable(),interpretedAt:z.string().nullable(),
+      attentionAction:z.enum(["CONFIRM_CLOSE","RETURN_TO_CONTACT"]).nullable().optional(),
+      attentionDecidedAt:z.string().nullable().optional(),
+    }))}),
+  ),
+  candidateContactReply: (cycle: string, company: string, reply: string) => request(
+    `/exploration/contact-reply?cycleId=${id(cycle)}&companyId=${id(company)}&replyId=${id(reply)}`,
+    z.object({
+      replyId:z.string(),companyId:z.string(),
+      channelType:z.enum(["EMAIL","FACEBOOK","INSTAGRAM","WHATSAPP","LINKEDIN"]),
+      providerMessageId:z.string(),originalText:z.string(),receivedAt:z.string(),
+      classification:z.enum(["POSITIVE","NEGATIVE","OPT_OUT","BAD_TIMING","QUESTION","UNCERTAIN"]).nullable(),
+      interestSummary:z.string().nullable(),rationale:z.string().nullable(),interpretedAt:z.string().nullable(),
+      attentionAction:z.enum(["CONFIRM_CLOSE","RETURN_TO_CONTACT"]).nullable().optional(),
+      attentionDecidedAt:z.string().nullable().optional(),
+    }),
+  ),
   explorationMap: (cycle: string) =>
     request(
       `/exploration/map?cycleId=${id(cycle)}`,
@@ -567,6 +615,7 @@ export const acquisitionApi = {
                       checkedChannels: z.array(z.string()).optional(),
                       relatedRecordRef: z.string().nullable().optional(),
                       openedAt: z.string().nullable().optional(),
+                      replyId: z.string().optional(),
                     }),
                   ),
                   actions: z.array(
@@ -831,6 +880,24 @@ export const acquisitionApi = {
         body: JSON.stringify({ commandId, request: body }),
       },
     ),
+  candidateContactAttentionDecision: (
+    commandId: string,
+    body: {
+      cycleId: string
+      companyId: string
+      replyId: string
+      expectedStageVersion: number
+      action: "CONFIRM_CLOSE" | "RETURN_TO_CONTACT"
+      reason: string
+    },
+    csrf: string,
+  ) => request(
+    "/exploration/contact-attention/decisions",
+    z.object({ status: z.string(), decisionId: z.string(), companyId: z.string(),
+      action: z.string(), externalEffect: z.literal(false) }).passthrough(),
+    { method: "POST", headers: { "content-type": "application/json", "x-csrf-token": csrf },
+      body: JSON.stringify({ commandId, request: body }) },
+  ),
   candidateAttentionCommand: (
     commandId: string,
     body: {

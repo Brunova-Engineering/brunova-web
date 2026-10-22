@@ -934,6 +934,28 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   background: var(--color-foreground);
   color: var(--color-background);
 }
+.acq-attention-reason-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+.acq .acq-attention-reason-filter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font: inherit;
+  font-size: 0.82rem;
+}
+.acq .acq-attention-reason-filter button[aria-pressed="true"] {
+  border-color: var(--color-foreground);
+  background: var(--color-foreground);
+  color: var(--color-background);
+}
+.acq-attention-reason-filter button span { opacity: 0.7; font-variant-numeric: tabular-nums; }
 .acq-global-search {
   display: grid;
   gap: 0.5rem;
@@ -1376,6 +1398,16 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 .acq-attention-actions span {
   font-size: 0.78rem;
   color: var(--color-muted-foreground);
+}
+.acq-contact-attention-choice {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 26rem;
+  font-size: 0.86rem;
+}
+.acq-contact-attention-choice select {
+  width: 100%;
+  min-height: 2.65rem;
 }
 .acq-attention-contact-form,
 .acq-attention-contact-form label {
@@ -1921,4 +1953,242 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 .acq-contact-method-meta span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.acq-contact-workspace {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.acq-contact-workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+.acq-contact-workspace-header h2 {
+  margin: 0.35rem 0 0.55rem;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.035em;
+}
+.acq-contact-workspace-header p {
+  margin: 0;
+  max-width: 58ch;
+}
+.acq-contact-total {
+  border: 1px solid #494640;
+  border-radius: 99px;
+  padding: 0.55rem 0.85rem;
+  white-space: nowrap;
+  font-size: 0.83rem;
+  font-weight: 500;
+}
+.acq-contact-filters {
+  display: grid;
+  gap: 1rem;
+  border-block: 1px solid #383630;
+  padding: 1.15rem 0;
+}
+.acq-contact-filters fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.acq-contact-filters fieldset[data-compact="true"] {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.acq-contact-filters fieldset[data-compact="true"] button[aria-pressed="false"] {
+  max-width: 0;
+  opacity: 0;
+  padding-inline: 0;
+  border-width: 0;
+  transform: translateX(-1rem);
+  pointer-events: none;
+  overflow: hidden;
+}
+.acq-contact-filters fieldset[data-compact="true"][data-reveal="true"] button[aria-pressed="false"],
+.acq-contact-filters fieldset[data-compact="true"]:focus-within button[aria-pressed="false"] {
+  max-width: 22rem;
+  opacity: 1;
+  padding-inline: 0.8rem;
+  border-width: 1px;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.acq-contact-filters fieldset[data-compact="true"] button[aria-pressed="true"] {
+  order: -1;
+}
+.acq-contact-filters legend {
+  color: #a7a39c;
+  font-size: 0.73rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.acq-contact-filter-detail {
+  border-top: 1px solid #383630;
+  padding-top: 0.8rem;
+}
+.acq-contact-filter-detail > summary {
+  width: fit-content;
+  color: #e2dfd8;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+.acq-contact-filter-detail > summary:hover,
+.acq-contact-filter-detail > summary:focus-visible {
+  color: #f2dba9;
+}
+.acq-contact-filter-detail[open] fieldset {
+  margin-top: 0.85rem;
+}
+.acq-contact-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #48443e;
+  border-radius: 99px;
+  background: #181715;
+  color: #e2dfd8;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 22rem;
+  transition: max-width 260ms ease, opacity 190ms ease, padding 260ms ease,
+    border-width 260ms ease, transform 260ms ease;
+}
+.acq-contact-filters button:hover,
+.acq-contact-filters button:focus-visible {
+  border-color: #d9c99b;
+}
+.acq-contact-filters button[aria-pressed="true"] {
+  background: #eee9dd;
+  color: #181715;
+  border-color: #eee9dd;
+}
+.acq-contact-filters button span {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+.acq-contact-search {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 25rem;
+  margin-top: 1.15rem;
+  color: #aaa69f;
+  font-size: 0.78rem;
+}
+.acq-contact-search input {
+  min-height: 2.6rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #48443e;
+  border-radius: 0.25rem;
+  background: #12110f;
+  color: #eee9dd;
+  font: inherit;
+  font-size: 0.88rem;
+}
+.acq-contact-search input:focus-visible {
+  outline: 2px solid #d9c99b;
+  outline-offset: 2px;
+}
+.acq-contact-result-count {
+  color: #aaa69f;
+  font-size: 0.8rem;
+  margin: 1.1rem 0;
+}
+.acq-contact-list {
+  display: grid;
+  gap: 0.8rem;
+}
+.acq-contact-card {
+  border: 1px solid #3e3b36;
+  background: #171613;
+  padding: 1.25rem;
+  border-radius: 0.4rem;
+}
+.acq-contact-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.acq-contact-card-top h3 {
+  font-size: 1.25rem;
+  margin: 0.4rem 0 1rem;
+  line-height: 1.25;
+}
+.acq-contact-stage-tag {
+  display: inline-block;
+  border: 1px solid #aa9160;
+  color: #e2ceaa;
+  border-radius: 99px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.acq-contact-card-main {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 0.7fr) minmax(0, 0.9fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.9rem 0 1.15rem;
+  border-block: 1px solid #35332e;
+}
+.acq-contact-card-main p {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.acq-contact-card-main span {
+  color: #aaa69f;
+  font-size: 0.74rem;
+}
+.acq-contact-card-main strong {
+  font-size: 0.93rem;
+  font-weight: 550;
+}
+.acq-contact-card-main small {
+  color: #aaa69f;
+  font-size: 0.76rem;
+  font-weight: 400;
+}
+.acq-contact-card > details {
+  margin-top: 0.9rem;
+}
+.acq-contact-card > details > summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.acq-contact-card > details[open] > summary {
+  margin-bottom: 1.1rem;
+}
+@media (max-width: 700px) {
+  .acq-contact-workspace-header,
+  .acq-contact-card-top {
+    flex-direction: column;
+  }
+  .acq-contact-card-main {
+    grid-template-columns: 1fr;
+  }
+  .acq-contact-filters fieldset {
+    gap: 0.4rem;
+  }
+  .acq-contact-filters fieldset[data-compact="true"] button[aria-pressed="false"] {
+    max-width: 22rem;
+    opacity: 1;
+    padding-inline: 0.8rem;
+    border-width: 1px;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .acq-contact-filters button { transition: none; }
 }

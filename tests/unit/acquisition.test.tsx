@@ -211,6 +211,9 @@ beforeEach(() => {
   vi.spyOn(api, "work").mockResolvedValue({ items: [], nextCursor: null })
 })
 function populated() {
+  vi.spyOn(api, "candidateContactPreparations").mockResolvedValue({ truncated: false, preparations: [] })
+  vi.spyOn(api, "candidateContactAttempts").mockResolvedValue({ truncated: false, attempts: [] })
+  vi.spyOn(api, "candidateContactReplies").mockResolvedValue({ truncated: false, replies: [] })
   vi.spyOn(api, "explorationMap").mockResolvedValue({
     cycleId: "synthetic",
     headers: [],
@@ -570,7 +573,7 @@ it("navigation keeps the selected section aligned with its content without a pag
   const panel = container.querySelector<HTMLElement>("#acq-active-panel")!
   const sections = [
     ["Opportunities", "From industry to commercial fit"],
-    ["Outreach", "Outreach"],
+    ["Outreach", "Precision outreach"],
     ["Needs your attention", "Needs your attention"],
     ["System status", "Dirige la siguiente ventana"],
     ["Overview", "Cycle 1"],
