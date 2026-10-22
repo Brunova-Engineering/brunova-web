@@ -21,3 +21,12 @@ it("does not repeat a verified WhatsApp number after it becomes a contact method
   expect(screen.getByText("WhatsApp")).toBeInTheDocument()
   expect(screen.queryByText("Números comprobados")).not.toBeInTheDocument()
 })
+
+it("keeps the confirmed receipt distinct from method availability", () => {
+  render(<ContactMethods locale="es" companyName="Empresa" receiptConfirmed sentMethodId="method-1"
+    methods={[{methodId:"method-1",channelType:"EMAIL",channelValue:"hola@empresa.example",
+      sourceUrl:"https://empresa.example/contacto",attribution:"El sitio publica este correo."}]} />)
+  expect(screen.getByText("El envío tiene recibo confirmado; estos son los medios atribuidos.")).toBeInTheDocument()
+  expect(screen.getByText("Medio del envío confirmado")).toBeInTheDocument()
+  expect(screen.queryByText(/recibo del envío aún no está disponible/)).not.toBeInTheDocument()
+})

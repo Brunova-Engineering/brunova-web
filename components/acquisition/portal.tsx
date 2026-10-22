@@ -7,7 +7,7 @@ import { PolicySettings } from "./policy-settings"
 import { WorkHealthSummary } from "./work-health-summary"
 import { C6Preview } from "./c6-preview"
 import { ActivationPreflight } from "./activation-preflight"
-import { OutreachState } from "./outreach-state"
+import { ContactWorkspace } from "./contact-workspace"
 import { DiscoveryHealth } from "./discovery-health"
 import { CycleAttention } from "./operating-overview"
 import { ManagementOverview } from "./management-overview"
@@ -517,19 +517,27 @@ export function AcquisitionPortal({
           />
         )}
         {tab === "Outreach" && (
-          <OutreachState
+          <ContactWorkspace
             key={`outreach:${cycleId}:${projectionRevision}`}
+            cycleId={cycleId}
             locale={locale}
           />
         )}
         {tab === "Outreach" && (
-          <CycleControlSection
-            key={`cycle-control:${cycleId}:${projectionRevision}`}
-            cycleId={cycleId}
-            session={session}
-            locale={locale}
-            onInspect={(accountId) => void inspect(accountId, null)}
-          />
+          <details className="acq-panel acq-executive-diagnostics">
+            <summary>
+              {locale === "es"
+                ? "Controles y antecedentes del ciclo"
+                : "Cycle controls and history"}
+            </summary>
+            <CycleControlSection
+              key={`cycle-control:${cycleId}:${projectionRevision}`}
+              cycleId={cycleId}
+              session={session}
+              locale={locale}
+              onInspect={(accountId) => void inspect(accountId, null)}
+            />
+          </details>
         )}
         {health && (tab === "Overview" || tab === "SystemStatus") && (
           <p className="acq-safety">

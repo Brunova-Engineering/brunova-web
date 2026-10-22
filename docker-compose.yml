@@ -15,6 +15,7 @@ services:
       HOSTNAME: 0.0.0.0
       NODE_ENV: production
       PORT: 3000
+      LOCAL_C6_PREVIEW_ENABLED: ${LOCAL_C6_PREVIEW_ENABLED:-false}
     labels:
       org.opencontainers.image.revision: ${VCS_REF:-unknown}
     ports:

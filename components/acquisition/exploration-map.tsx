@@ -42,9 +42,17 @@ const candidateStageNames: Record<string, [string, string]> = {
   ENRICHMENT: ["En enriquecimiento", "In research"],
   BRUNOVA_FIT: ["Evaluar conexión con Brunova", "Assess Brunova fit"],
   FILTERING: ["En selección", "In selection"],
-  SELECTED: ["Seleccionada", "Selected"],
-  CONTACTED: ["Primer contacto confirmado", "First contact confirmed"],
+  SELECTED: ["Priorizada para contacto", "Prioritized for contact"],
+  CONTACTED: ["En Contacto · ver actividad", "In Contact · view activity"],
   CLOSED: ["Cerrada", "Closed"],
+}
+const attentionReasonNames: Record<string, [string, string]> = {
+  CONTACT_NEGATIVE_REPLY: ["Respuesta negativa", "Negative reply"],
+  CONTACT_OPT_OUT: ["No contactar", "Do not contact"],
+  NO_VERIFIED_CONTACT: ["Sin medio verificable", "No verified channel"],
+  IDENTITY_CONFLICT: ["Identidad por conciliar", "Identity conflict"],
+  PRIOR_RELATIONSHIP_CONFLICT: ["Relación previa por revisar", "Prior relationship"],
+  FIT_EVIDENCE_CONFLICT: ["Encaje por revisar", "Fit evidence conflict"],
 }
 function candidateDate(value: string | null | undefined, locale: Locale) {
   if (!value) return locale === "es" ? "Pendiente" : "Pending"
@@ -412,13 +420,17 @@ export function ExplorationMap({
   locale,
   session,
   mode = "exploration",
+  previewMap,
+  previewReplyTexts,
 }: {
   cycleId: string
   locale: Locale
   session: PortalSession
   mode?: "exploration" | "opportunities" | "attention"
+  previewMap?: MapData
+  previewReplyTexts?: Record<string, string>
 }) {
-  const [data, setData] = useState<MapData | null>(null)
+  const [data, setData] = useState<MapData | null>(previewMap ?? null)
   const [error, setError] = useState(false)
   const [selectedIds, setSelectedIds] = useState<(string | null)[]>(
     stages.map(() => null),
@@ -436,6 +448,7 @@ export function ExplorationMap({
   const [globalQuery, setGlobalQuery] = useState("")
   const [globalSearchOpen, setGlobalSearchOpen] = useState(true)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [attentionReasonFilter, setAttentionReasonFilter] = useState<string | null>(null)
   const [marketFilter, setMarketFilter] = useState<"ALL" | "MX" | "US">("ALL")
   const [showClosedHistory, setShowClosedHistory] = useState(false)
   const [dispositionScopeSelection, setDispositionScopeSelection] = useState<{
@@ -488,6 +501,31 @@ export function ExplorationMap({
   const [resolutionEvidence, setResolutionEvidence] = useState("")
   const [resolutionPending, setResolutionPending] = useState(false)
   const [resolutionNotice, setResolutionNotice] = useState("")
+  const [contactAttentionDraft, setContactAttentionDraft] = useState<{
+    companyId: string
+    replyId: string
+    action: "CONFIRM_CLOSE" | "RETURN_TO_CONTACT"
+  } | null>(null)
+  const [contactAttentionReason, setContactAttentionReason] = useState("")
+  const [contactAttentionPending, setContactAttentionPending] = useState(false)
+  const [contactAttentionNotice, setContactAttentionNotice] = useState("")
+  const [contactReply, setContactReply] = useState<{
+    companyId:string;replyId:string;originalText:string;classification:string|null;
+    interestSummary:string|null;rationale:string|null
+  }|null>(null)
+  const [contactReplyLoading, setContactReplyLoading] = useState(false)
+  const [contactReplyError, setContactReplyError] = useState(false)
+  const contactAttentionCommand = useRef<{companyId:string;replyId:string;action:string;commandId:string}|null>(null)
+  useEffect(()=>{
+    const draft=contactAttentionDraft
+    if(!draft||previewMap)return
+    let live=true
+    acquisitionApi.candidateContactReply(cycleId,draft.companyId,draft.replyId)
+      .then((value)=>{if(live)setContactReply(value)})
+      .catch(()=>{if(live)setContactReplyError(true)})
+      .finally(()=>{if(live)setContactReplyLoading(false)})
+    return ()=>{live=false}
+  },[cycleId,contactAttentionDraft,previewMap,previewReplyTexts])
   const resolutionCommand = useRef<{
     companyId: string
     actionCode: string
@@ -512,6 +550,7 @@ export function ExplorationMap({
     "PRIORITIZE" | "PAUSE_BRANCH" | "DISCARD_BRANCH" | "REOPEN_BRANCH"
 
   useEffect(() => {
+    if (previewMap) return
     let live = true
     acquisitionApi
       .explorationMap(cycleId)
@@ -527,28 +566,36 @@ export function ExplorationMap({
     return () => {
       live = false
     }
-  }, [cycleId])
+  }, [cycleId, previewMap])
 
+  const attentionReasonCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    if (mode !== "attention") return counts
+    for (const profile of data?.companyProfiles ?? []) {
+      if (!["FILTERING", "SELECTED", "CONTACTED"].includes(profile.enrichment?.stage ?? "")) continue
+      if (profile.attention?.status !== "OPEN") continue
+      for (const code of new Set(profile.attention.reasons.map((reason) => reason.code)))
+        counts.set(code, (counts.get(code) ?? 0) + 1)
+    }
+    return counts
+  }, [data, mode])
   const visibleProfiles = useMemo(
     () =>
       (data?.companyProfiles ?? []).filter((profile) => {
         const stage = profile.enrichment?.stage ?? "DISCOVERY"
-        const inCommercialStage = [
-          "FILTERING",
-          "SELECTED",
-          "CONTACTED",
-        ].includes(stage)
+        const inCommercialStage = ["FILTERING", "SELECTED", "CONTACTED"].includes(stage)
         const needsAttention =
           profile.attention?.status === "OPEN" &&
           profile.attention.reasons.length > 0
         return mode === "attention"
-          ? inCommercialStage && needsAttention
+          ? inCommercialStage && needsAttention &&
+            (!attentionReasonFilter || profile.attention?.reasons.some((reason) => reason.code === attentionReasonFilter))
           : mode === "opportunities"
-            ? inCommercialStage && !needsAttention
+            ? stage === "FILTERING" && !needsAttention
             : ["DISCOVERY", "ENRICHMENT", "BRUNOVA_FIT"].includes(stage) ||
               (showClosedHistory && stage === "CLOSED")
       }),
-    [data, mode, showClosedHistory],
+    [data, mode, showClosedHistory, attentionReasonFilter],
   )
   const nodes = useMemo(() => {
     if (!data) return []
@@ -598,7 +645,7 @@ export function ExplorationMap({
     [data],
   )
   const governance = data?.governance ?? []
-  const canManage = session.actor.capabilities.includes("MANAGE_CYCLE")
+  const canManage = !previewMap && session.actor.capabilities.includes("MANAGE_CYCLE")
 
   function equivalentChainIds(chainId: string) {
     const counterparts = new Set<string>()
@@ -1337,6 +1384,52 @@ export function ExplorationMap({
     }
   }
 
+  async function decideContactAttention() {
+    const profile=companyProfile
+    const draft=contactAttentionDraft
+    const attention=profile?.attention
+    if(!profile||!draft||!attention||draft.companyId!==profile.companyId||contactAttentionPending||
+      !session.actor.capabilities.includes("MANAGE_CYCLE"))return
+    const reason=attention.reasons.find((item)=>item.replyId===draft.replyId &&
+      (item.code==="CONTACT_NEGATIVE_REPLY"||item.code==="CONTACT_OPT_OUT"))
+    if(!reason|| (draft.action==="RETURN_TO_CONTACT"&&reason.code==="CONTACT_OPT_OUT"))return
+    if(contactReply?.companyId!==draft.companyId||contactReply.replyId!==draft.replyId||
+      !contactReply.originalText.trim()){
+      setContactAttentionNotice(locale==="es"?"Primero hay que cargar la respuesta original.":
+        "Load the original reply before deciding.")
+      return
+    }
+    const explanation=contactAttentionReason.trim()
+    if(explanation.length<20||explanation.length>1000){
+      setContactAttentionNotice(locale==="es"?"Explica la decisión en 20 a 1000 caracteres.":
+        "Explain the decision in 20 to 1000 characters.")
+      return
+    }
+    const command=contactAttentionCommand.current?.companyId===profile.companyId&&
+      contactAttentionCommand.current.replyId===draft.replyId&&
+      contactAttentionCommand.current.action===draft.action?contactAttentionCommand.current:
+      {companyId:profile.companyId,replyId:draft.replyId,action:draft.action,commandId:crypto.randomUUID()}
+    contactAttentionCommand.current=command
+    setContactAttentionPending(true)
+    setContactAttentionNotice("")
+    try{
+      await acquisitionApi.candidateContactAttentionDecision(command.commandId,{
+        cycleId,companyId:profile.companyId,replyId:draft.replyId,
+        expectedStageVersion:attention.stageVersion,action:draft.action,reason:explanation,
+      },session.csrfToken)
+      setData(await acquisitionApi.explorationMap(cycleId))
+      setContactAttentionDraft(null)
+      setContactAttentionReason("")
+      contactAttentionCommand.current=null
+      setContactAttentionNotice(locale==="es"?"Decisión registrada; la ficha se actualizó.":
+        "Decision recorded; the company view is updated.")
+    }catch{
+      setContactAttentionNotice(locale==="es"?
+        "No se pudo registrar la decisión. Revisa la ficha y su versión actual.":
+        "The decision could not be recorded. Review the current company version.")
+    }finally{setContactAttentionPending(false)}
+  }
+
   async function resolveMaterialAttention() {
     const profile = companyProfile
     const attention = profile?.attention
@@ -1910,6 +2003,23 @@ export function ExplorationMap({
           </button>
         ))}
       </div>
+      {mode === "attention" && attentionReasonCounts.size > 0 && (
+        <div className="acq-attention-reason-filter" role="group"
+          aria-label={locale === "es" ? "Filtrar por motivo de atención" : "Filter by attention reason"}>
+          <button type="button" aria-pressed={attentionReasonFilter === null}
+            onClick={() => setAttentionReasonFilter(null)}>
+            {locale === "es" ? "Todos los motivos" : "All reasons"}
+          </button>
+          {[...attentionReasonCounts].sort(([a], [b]) => a.localeCompare(b)).map(([code, count]) => (
+            <button type="button" key={code} aria-pressed={attentionReasonFilter === code}
+              onClick={() => setAttentionReasonFilter(code)}>
+              {attentionReasonNames[code]?.[locale === "es" ? 0 : 1] ??
+                code.replaceAll("_", " ").toLocaleLowerCase(locale === "es" ? "es-MX" : "en-US")}
+              <span aria-hidden="true">{count}</span>
+            </button>
+          ))}
+        </div>
+      )}
       <div className="acq-global-search">
         <label htmlFor={`acq-global-company-search-${mode}`}>
           {locale === "es"
@@ -2272,9 +2382,11 @@ export function ExplorationMap({
                 <>
                   <span className="acq-eyebrow">
                     {mode !== "exploration"
-                      ? locale === "es"
-                        ? "Ficha de oportunidad · hipótesis"
-                        : "Opportunity brief · hypothesis"
+                      ? mode === "attention"
+                        ? locale === "es" ? "Ficha de atención · decisión" : "Attention brief · decision"
+                        : locale === "es"
+                          ? "Ficha de oportunidad · hipótesis"
+                          : "Opportunity brief · hypothesis"
                       : locale === "es"
                         ? "Ficha de empresa · pista"
                         : "Company brief · lead"}
@@ -2360,13 +2472,12 @@ export function ExplorationMap({
                               ) : null}
                             </article>
                           ))}
-                        <h5>
-                          {locale === "es"
-                            ? "Opciones disponibles"
-                            : "Available options"}
-                        </h5>
+                        {companyProfile.attention.actions.some((action) =>
+                          action.code !== "CONFIRM_CONTACT_CLOSE" && action.code !== "RETURN_TO_CONTACT") &&
+                          <h5>{locale === "es" ? "Opciones disponibles" : "Available options"}</h5>}
                         <div className="acq-attention-actions">
-                          {companyProfile.attention.actions.map((action) => (
+                          {companyProfile.attention.actions.filter((action) =>
+                            action.code !== "CONFIRM_CONTACT_CLOSE" && action.code !== "RETURN_TO_CONTACT").map((action) => (
                             <article key={action.code}>
                               <strong>{action.label}</strong>
                               <span>
@@ -2507,6 +2618,77 @@ export function ExplorationMap({
                             </article>
                           ))}
                         </div>
+                        {companyProfile.attention?.reasons.some((reason) =>
+                          !!reason.replyId && (reason.code === "CONTACT_NEGATIVE_REPLY" ||
+                            reason.code === "CONTACT_OPT_OUT")) &&
+                          (session.actor.capabilities.includes("MANAGE_CYCLE") || !!previewMap) && (
+                          <label className="acq-contact-attention-choice">
+                            {locale === "es" ? "Elige qué hacer" : "Choose what to do"}
+                            <select value={contactAttentionDraft?.companyId === companyProfile.companyId
+                                ? contactAttentionDraft.action : ""}
+                              onChange={(event) => {
+                                const selectedAction=event.target.value
+                                if(selectedAction !== "CONFIRM_CLOSE" && selectedAction !== "RETURN_TO_CONTACT"){
+                                  setContactAttentionDraft(null)
+                                  setContactReply(null)
+                                  return
+                                }
+                                const reason=companyProfile.attention?.reasons.find((item)=>
+                                  !!item.replyId && (item.code === "CONTACT_NEGATIVE_REPLY" ||
+                                    item.code === "CONTACT_OPT_OUT"))
+                                if(!reason?.replyId)return
+                                contactAttentionCommand.current=null
+                                const sample=previewReplyTexts?.[reason.replyId]
+                                setContactReply(sample ? {
+                                  companyId:companyProfile.companyId,replyId:reason.replyId,
+                                  originalText:sample,classification:null,interestSummary:null,rationale:null,
+                                } : null)
+                                setContactReplyError(!!previewMap&&!sample)
+                                setContactReplyLoading(!previewMap)
+                                setContactAttentionDraft({companyId:companyProfile.companyId,
+                                  replyId:reason.replyId,action:selectedAction})
+                                setContactAttentionReason("")
+                                setContactAttentionNotice("")
+                              }}>
+                              <option value="" disabled hidden>—</option>
+                              {companyProfile.attention.actions.filter((action) =>
+                                action.enabled !== false && (action.code === "CONFIRM_CONTACT_CLOSE" ||
+                                  action.code === "RETURN_TO_CONTACT")).map((action) =>
+                                <option key={action.code} value={action.code === "CONFIRM_CONTACT_CLOSE"
+                                  ? "CONFIRM_CLOSE" : "RETURN_TO_CONTACT"}>{action.label}</option>)}
+                            </select>
+                          </label>
+                        )}
+                        {contactAttentionDraft?.companyId === companyProfile.companyId && (
+                          <form className="acq-attention-contact-form" onSubmit={(event)=>{
+                            event.preventDefault();void decideContactAttention()
+                          }}>
+                            {previewMap && <p className="acq-muted" role="note">{locale === "es"
+                              ? "Vista de muestra: puedes revisar la decisión, pero no guardarla."
+                              : "Sample view: you can review the decision, but not save it."}</p>}
+                            {contactReplyLoading && <p role="status">{locale === "es" ? "Cargando respuesta original…" : "Loading original reply…"}</p>}
+                            {contactReplyError && <p role="alert">{locale === "es" ? "No se pudo cargar la respuesta. Cierra y abre esta decisión para reintentar." : "Could not load the reply. Close and reopen this decision to retry."}</p>}
+                            {contactReply?.companyId===companyProfile.companyId &&
+                              contactReply.replyId===contactAttentionDraft.replyId && <>
+                                <details><summary>{locale === "es" ? "Respuesta original" : "Original reply"}</summary>
+                                  <blockquote>{contactReply.originalText}</blockquote></details>
+                                {contactReply.interestSummary && <p><strong>{locale === "es" ? "Lectura de Panky: " : "Panky assessment: "}</strong>{contactReply.interestSummary}</p>}
+                              </>}
+                            <label>{locale === "es" ? "Motivo de la decisión" : "Decision reason"}
+                              <textarea required minLength={20} maxLength={1000}
+                                value={contactAttentionReason} disabled={contactAttentionPending}
+                                onChange={(event)=>{contactAttentionCommand.current=null;
+                                  setContactAttentionReason(event.target.value)}}/>
+                            </label>
+                            <button type="submit" disabled={!!previewMap || contactAttentionPending ||
+                              contactReply?.companyId!==companyProfile.companyId ||
+                              contactReply.replyId!==contactAttentionDraft.replyId}>
+                              {contactAttentionPending ? locale === "es" ? "Guardando…" : "Saving…"
+                                : locale === "es" ? "Confirmar decisión" : "Confirm decision"}
+                            </button>
+                          </form>
+                        )}
+                        {contactAttentionNotice && <p role="status">{contactAttentionNotice}</p>}
                         {researchActionCode &&
                           researchDraftCompanyId ===
                             companyProfile.companyId && (

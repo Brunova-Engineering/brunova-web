@@ -5,7 +5,7 @@ import { acquisitionApi } from "@/lib/acquisition-api"
 import { readDiscovery } from "@/lib/acquisition-discovery-read"
 import "./c6-preview.css"
 
-type WorkKey = "discover" | "investigate" | "review" | "fit" | "select" | "resolve"
+type WorkKey = "discover" | "investigate" | "review" | "fit" | "select" | "resolve" | "contact"
 type WorkCard = { key: WorkKey; title: string; short: string; detail: string; metric: string }
 const cards: WorkCard[] = [
   { key: "discover", title: "Descubrir empresas", short: "Ampliar el mapa con candidatas nuevas", detail: "Buscar empresas atribuibles al eslabón elegido. Cada hallazgo sigue siendo una candidata hasta revisar sus fuentes.", metric: "Nuevas candidatas" },
@@ -14,6 +14,7 @@ const cards: WorkCard[] = [
   { key: "fit", title: "Evaluar encaje", short: "Contrastar operación y capacidad Brunova", detail: "Formar una hipótesis comercial trazable para una empresa y un eslabón, distinguiendo hechos de supuestos.", metric: "Encajes por evaluar" },
   { key: "select", title: "Seleccionar oportunidades", short: "Tomar una decisión comercial", detail: "Revisar tesis, canal verificable y restricciones antes de seleccionar, seguir evaluando o pedir atención.", metric: "Decisiones" },
   { key: "resolve", title: "Resolver pendientes", short: "Atender bloqueos que impiden avanzar", detail: "Priorizar las excepciones con una acción concreta para Jorge o Panky. No autoriza contacto externo.", metric: "Pendientes" },
+  { key: "contact", title: "Preparar contacto", short: "Elegir el mejor medio y adaptar el mensaje", detail: "Panky revisa los medios con fuente de empresas priorizadas, elige uno para preparar un mensaje apropiado y deja la decisión trazable. Esta prioridad no envía mensajes ni cambia HubSpot.", metric: "Mensajes por preparar" },
 ]
 const initial = cards.map((card) => card.key)
 type Parameter = { id: string; label: string; hint: string; choices?: { value: string; label: string }[]; placeholder?: string }
@@ -42,8 +43,17 @@ const parameters: Record<WorkKey, Parameter[]> = {
     { id: "blocker", label: "Tipo de bloqueo", hint: "Filtra la cola de atención por motivo, sin cerrar ni resolver automáticamente ninguna ficha.", choices: [{ value: "all", label: "El más urgente" }, { value: "contact", label: "Falta de contacto" }, { value: "identity", label: "Identidad incierta" }, { value: "evidence", label: "Conflicto de evidencia" }, { value: "relationship", label: "Relación previa" }] },
     { id: "owner", label: "Quién puede resolverlo", hint: "Prioriza acciones disponibles para ese responsable; no transfiere permisos ni autoriza contacto.", choices: [{ value: "either", label: "Jorge o Panky" }, { value: "jorge", label: "Jorge" }, { value: "panky", label: "Panky" }] },
   ],
+  contact: [
+    { id: "channel", label: "Medio inicial", hint: "Orienta qué medio considerar primero. Panky debe elegir el mejor disponible y no puede usar un adaptador no autorizado.", choices: [{ value: "best", label: "El mejor medio disponible" }, { value: "email", label: "Correo" }, { value: "whatsapp", label: "WhatsApp" }, { value: "social", label: "Red social" }] },
+    { id: "company", label: "Empresa de foco (opcional)", hint: "Acota la preparación a una empresa priorizada. No autoriza envío ni cambia su etapa.", placeholder: "Sin empresa fija" },
+  ],
 }
 type Draft = { order: WorkKey[]; settings: Partial<Record<WorkKey, Record<string, string>>> }
+const normalizePlan = (value: Draft): Draft | null => {
+  if (!Array.isArray(value.order) || !value.order.every((key) => initial.includes(key)) || new Set(value.order).size !== value.order.length) return null
+  if (value.order.length !== initial.length && !(value.order.length === initial.length - 1 && !value.order.includes("contact"))) return null
+  return { order: [...value.order, ...initial.filter((key) => !value.order.includes(key))], settings: value.settings ?? {} }
+}
 const draftKey = "brunova-c6-local-draft-v2"
 const hasActiveDraft = (draft: Draft, baseline: Draft) => draft.order.some((key, index) => key !== baseline.order[index]) || cards.some((card) =>
   parameters[card.key].some((parameter) => {
@@ -82,7 +92,7 @@ export function C6Preview({cycleId,csrf}: {cycleId?:string;csrf?:string}) {
         const value = window.localStorage.getItem(storageKey)
         if (value) {
           const parsed = JSON.parse(value) as Draft
-          if (Array.isArray(parsed.order) && parsed.order.length === initial.length && initial.every((key) => parsed.order.includes(key))) local = parsed
+          local = normalizePlan(parsed)
         }
       } catch { /* Keep the editor usable without browser storage. */ }
       let published: Draft = {order:initial,settings:{}}
@@ -92,7 +102,7 @@ export function C6Preview({cycleId,csrf}: {cycleId?:string;csrf?:string}) {
           const result = await acquisitionApi.nextWindowPlan(cycleId)
           if (result.plan) {
             const plan = result.plan.plan as Draft
-            if (plan.order.length === initial.length && initial.every((key) => plan.order.includes(key))) published = plan
+            published = normalizePlan(plan) ?? published
             version = result.plan.version
           }
           if (alive) setRemoteReady(true)
