@@ -23,6 +23,7 @@ const nodes = [
   make("link", "LINK", "Almacenamiento", "chain"),
   make("negative", "COMPANY_LEAD", "Logística del Sur · ejemplo", "link"),
   make("optout", "COMPANY_LEAD", "Almacén Pacífico · ejemplo", "link"),
+  make("silence", "COMPANY_LEAD", "Operadora Norte · ejemplo", "link"),
 ]
 const profile = (id: "negative" | "optout") => {
   const optout = id === "optout"
@@ -51,9 +52,26 @@ const profile = (id: "negative" | "optout") => {
       contactedAt: date, closedAt: null, closureReason: null, stageHistory: [], minimumsByLink: {}, attempts: []},
   }
 }
+const silenceProfile = {
+  ...profile("negative"), companyId: "silence", displayName: "Operadora Norte · ejemplo",
+  leadNodeIds: ["silence"],
+  attention: {status: "OPEN", primaryReasonCode: "CONTACT_SILENCE", stageVersion: 6,
+    reasons: [{code: "CONTACT_SILENCE", lastIntentId: "third-confirmed-intent", linkId: "link",
+      summary: "Tres acercamientos confirmados, sin respuesta; corresponde decidir si cerrar o conservar la ficha.",
+      evidenceRefs: ["contact-intent:third-confirmed-intent", "provider-receipt:third-receipt"],
+      openedAt: date, openedBy: {type: "SYSTEM", id: "contact-cadence"}, stageVersion: 6,
+      actions: [{code: "CONFIRM_CONTACT_CLOSE", label: "Confirmar cierre por silencio", actor: "MANAGEMENT",
+        enabled: true, resultHint: "Conservar intentos y recibos"},
+        {code: "KEEP_CONTACT_OPEN", label: "Mantener en Contacto", actor: "MANAGEMENT",
+          enabled: true, resultHint: "Esperar sin autorizar un cuarto envío"}]}],
+    actions: [{code: "CONFIRM_CONTACT_CLOSE", label: "Confirmar cierre por silencio", actor: "MANAGEMENT",
+      enabled: true, resultHint: "Conservar intentos y recibos"},
+      {code: "KEEP_CONTACT_OPEN", label: "Mantener en Contacto", actor: "MANAGEMENT",
+        enabled: true, resultHint: "Esperar sin autorizar un cuarto envío"}]},
+}
 const previewMap = {cycleId: "preview", headers: [], nodes, directives: [], chainProgress: [],
   governance: [], marketPresence: [], chainEquivalences: [], chainCoverage: [],
-  companyProfiles: [profile("negative"), profile("optout")]} as unknown as Map
+  companyProfiles: [profile("negative"), profile("optout"), silenceProfile]} as unknown as Map
 const previewReplyTexts = {
   "reply-negative": "Gracias, por ahora no nos interesa esta propuesta.",
   "reply-optout": "Por favor no vuelvan a contactarnos.",

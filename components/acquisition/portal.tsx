@@ -521,6 +521,7 @@ export function AcquisitionPortal({
             key={`outreach:${cycleId}:${projectionRevision}`}
             cycleId={cycleId}
             locale={locale}
+            session={session}
           />
         )}
         {tab === "Outreach" && (

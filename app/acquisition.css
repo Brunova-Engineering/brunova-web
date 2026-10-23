@@ -1982,6 +1982,62 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   font-size: 0.83rem;
   font-weight: 500;
 }
+.acq-contact-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.acq-contact-cadence-action {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.acq-contact-cadence-action > button {
+  border: 1px solid #494640;
+  border-radius: 99px;
+  padding: 0.55rem 0.85rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.83rem;
+  cursor: pointer;
+}
+.acq-contact-cadence-action > button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+.acq-contact-cadence-action > span {
+  font-size: 0.8rem;
+}
+.acq-contact-cadence-dialog {
+  width: min(36rem, calc(100vw - 2rem));
+}
+.acq-contact-cadence-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.4rem 0;
+}
+.acq-contact-cadence-fields label,
+.acq-contact-cadence-reason {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+.acq-contact-cadence-fields input,
+.acq-contact-cadence-reason textarea {
+  width: 100%;
+  border: 1px solid #494640;
+  border-radius: 0.4rem;
+  background: #151514;
+  color: inherit;
+  padding: 0.65rem;
+  font: inherit;
+}
+.acq-contact-cadence-reason textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
 .acq-contact-filters {
   display: grid;
   gap: 1rem;
@@ -2159,6 +2215,34 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   font-size: 0.76rem;
   font-weight: 400;
 }
+.acq-contact-executive-outcomes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #35332e;
+}
+.acq-contact-executive-outcomes p {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+}
+.acq-contact-executive-outcomes span,
+.acq-contact-executive-outcomes small {
+  color: #aaa69f;
+  font-size: 0.74rem;
+}
+.acq-contact-executive-outcomes strong {
+  font-size: 0.9rem;
+  font-weight: 550;
+  line-height: 1.45;
+}
+.acq-contact-executive-outcomes p:first-child strong {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 .acq-contact-card > details {
   margin-top: 0.9rem;
 }
@@ -2170,6 +2254,12 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   margin-bottom: 1.1rem;
 }
 @media (max-width: 700px) {
+  .acq-contact-header-actions {
+    flex-wrap: wrap;
+  }
+  .acq-contact-cadence-fields {
+    grid-template-columns: 1fr;
+  }
   .acq-contact-workspace-header,
   .acq-contact-card-top {
     flex-direction: column;

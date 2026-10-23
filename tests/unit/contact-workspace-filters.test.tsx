@@ -1,8 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react"
 import { expect, it } from "vitest"
 import { ContactWorkspace } from "@/components/acquisition/contact-workspace"
-import type { ContactPreparation } from "@/lib/acquisition-contact-view"
-import type { ContactAttempt } from "@/lib/acquisition-contact-view"
+import type { ContactAttempt, ContactCrmOutcome, ContactPreparation, ContactReply } from "@/lib/acquisition-contact-view"
 
 type PreviewMap = NonNullable<Parameters<typeof ContactWorkspace>[0]["previewMap"]>
 
@@ -87,4 +86,56 @@ it("filters a confirmed send only when a receipt belongs to the current company 
   fireEvent.click(screen.getByText("Medios, tesis y trazabilidad"))
   expect(screen.getByText("Recibo: receipt-1")).toBeInTheDocument()
   expect(screen.getByText("Medio del envío confirmado")).toBeInTheDocument()
+})
+
+it("shows the original social reply and HubSpot receipt in the executive card", () => {
+  const previewMap={companyProfiles:[{companyId:"one",displayName:"Empresa Uno",
+    links:[{linkId:"one-link",market:"MX"}],attention:null,
+    contactMethods:[{methodId:"one-method",channelType:"FACEBOOK",channelValue:"https://facebook.com/one",
+      sourceUrl:"https://one.example/contacto",attribution:"Fuente propia de la empresa"}],
+    enrichment:{stage:"CONTACTED",version:6,lastTouchedAt:"2026-10-22T00:00:00Z"}}]} as unknown as PreviewMap
+  const attempt={companyId:"one",linkId:"one-link",methodId:"one-method",stageVersion:5,
+    preparationId:"one-prep",intentId:"one-intent",channelType:"FACEBOOK",authorizedAt:"2026-10-22T00:00:00Z",
+    expiresAt:"2026-10-23T00:00:00Z",outcome:"SEND_CONFIRMED",providerReceiptId:"send-receipt",
+    outcomeAt:"2026-10-22T00:01:00Z"} as ContactAttempt
+  const reply={companyId:"one",linkId:"one-link",methodId:"one-method",stageVersion:5,
+    preparationId:"one-prep",intentId:"one-intent",replyId:"reply-one",channelType:"FACEBOOK",
+    providerMessageId:"provider-reply",originalText:"Sí, podemos conversar sobre el relevo operativo.",
+    receivedAt:"2026-10-22T00:02:00Z",recordedAt:"2026-10-22T00:03:00Z",classification:"POSITIVE",
+    interestSummary:"Propone conversar sobre el relevo.",rationale:"Clasificación limitada al texto recibido.",
+    interpretedAt:"2026-10-22T00:04:00Z",attentionAction:null,attentionDecidedAt:null} as ContactReply
+  const crm={companyId:"one",replyId:"reply-one",intentId:"crm-one",decisionKind:"QUALIFY",
+    requestedLeadStatus:"CONNECTED",requestedLifecycleStage:"salesqualifiedlead",outcome:"CONFIRMED",
+    providerCompanyId:"crm-company-9",outcomeAt:"2026-10-22T00:05:00Z"} as ContactCrmOutcome
+  render(<ContactWorkspace cycleId="preview" locale="es" previewMap={previewMap}
+    previewAttempts={[attempt]} previewReplies={[reply]} previewCrmOutcomes={[crm]}/> )
+  const executiveSummary=screen.getByRole("heading", {name:"Empresa Uno"}).closest("article")
+    ?.querySelector(".acq-contact-executive-outcomes")
+  expect(executiveSummary).toHaveTextContent("Sí, podemos conversar sobre el relevo operativo.")
+  expect(executiveSummary).toHaveTextContent("Confirmado · crm-company-9")
+  expect(screen.getByRole("button", {name:"Calificada en HubSpot: 1"})).toBeVisible()
+})
+
+it("shows the dated wait and closure review without implying that a follow-up was sent", () => {
+  const previewMap={companyProfiles:[{companyId:"one",displayName:"Empresa Uno",
+    links:[{linkId:"one-link",market:"MX"}],attention:null,
+    contactMethods:[{methodId:"one-method",channelType:"EMAIL",channelValue:"hola@one.example",
+      sourceUrl:"https://one.example/contacto",attribution:"Fuente de la empresa"}],
+    enrichment:{stage:"CONTACTED",version:6,lastTouchedAt:"2026-10-22T00:00:00Z"}}]} as unknown as PreviewMap
+  const wait={companyId:"one",stage:"CONTACTED",stageVersion:6,contactedAt:"2026-10-22T00:00:00Z",
+    cadence:{action:"WAIT",earliestLocalDate:"2026-10-27",attemptCount:1,sendAuthorized:false}} as const
+  const view=render(<ContactWorkspace cycleId="preview" locale="es" previewMap={previewMap}
+    previewCadence={[wait]}/> )
+  expect(screen.getByText(/No revisar antes del 2026-10-27/)).toBeVisible()
+  expect(screen.queryByText("Revisar otro acercamiento")).toBeNull()
+  view.unmount()
+  const review=render(<ContactWorkspace cycleId="preview" locale="es" previewMap={previewMap}
+    previewCadence={[{...wait,cadence:{action:"REVIEW_CLOSE_FOR_SILENCE",attemptCount:3,
+      sendAuthorized:false}}]}/> )
+  expect(screen.getByText("Revisar cierre por silencio")).toBeVisible()
+  review.unmount()
+  render(<ContactWorkspace cycleId="preview" locale="es" previewMap={previewMap}
+    previewCadence={[{...wait,cadence:{action:"KEPT_OPEN_NO_MORE_SENDS",attemptCount:3,
+      sendAuthorized:false}}]}/> )
+  expect(screen.getByText("Esperar respuesta · sin más envíos")).toBeVisible()
 })

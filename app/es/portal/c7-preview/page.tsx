@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ContactWorkspace } from "@/components/acquisition/contact-workspace"
-import type { acquisitionApi } from "@/lib/acquisition-api"
+import type { acquisitionApi, PortalSession } from "@/lib/acquisition-api"
 import "@/app/acquisition.css"
 
 export const dynamic = "force-dynamic"
@@ -100,6 +100,11 @@ const previewCrmOutcomes = ([
   requestedLifecycleStage:"salesqualifiedlead",outcome,providerCompanyId,
   outcomeAt:"2026-10-22T16:08:00Z",
 }))
+const previewSession: PortalSession = {
+  authenticated: true,
+  actor: {email: "preview@local.example", capabilities: ["MANAGE_CYCLE"]},
+  csrfToken: "preview-only", expiresAt: "2099-01-01T00:00:00Z",
+}
 
 export default function Page() {
   if (process.env.LOCAL_C6_PREVIEW_ENABLED !== "true") notFound()
@@ -107,7 +112,7 @@ export default function Page() {
     <p className="acq-eyebrow">VISTA LOCAL C.7 · DATOS DE MUESTRA · SIN ENVÍOS</p>
     <p className="acq-muted">Las dos respuestas que requieren decisión de Jorge salen de Contacto y pertenecen exclusivamente a Necesita tu atención.</p>
     <Link href="/es/portal/c7-attention-preview">Revisar esas decisiones en Atención</Link>
-    <ContactWorkspace cycleId="preview" locale="es" previewMap={previewMap}
+    <ContactWorkspace cycleId="preview" locale="es" session={previewSession} previewMap={previewMap}
       previewPreparations={previewPreparations} previewAttempts={previewAttempts}
       previewReplies={previewReplies} previewCrmOutcomes={previewCrmOutcomes}/>
   </main>
