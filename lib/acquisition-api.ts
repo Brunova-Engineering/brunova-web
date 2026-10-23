@@ -428,6 +428,32 @@ export const acquisitionApi = {
         externalEffect:z.literal(false)}),
       {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
         body:JSON.stringify({revisionId,reason})}),
+  candidateContactEffectGrants: (cycle:string) => request(
+    `/exploration/contact-effect-grants?cycleId=${id(cycle)}`,
+    z.object({cycleId:z.string(),grants:z.array(z.object({
+      grantId:z.string(),effectKind:z.string(),providerAccountId:z.string(),
+      senderUrl:z.string().nullable(),
+      policyHash:z.string(),approvalReference:z.string(),approvedBy:z.string(),
+      effectiveAt:z.string(),expiresAt:z.string(),recordedAt:z.string(),
+      revokedAt:z.string().nullable(),current:z.boolean(),
+    }))}),
+  ),
+  publishCandidateContactEffectGrant: (commandId:string,body:{
+    cycleId:string;expectedMandateId:string;expectedPolicyHash:string;
+    effectKind:string;providerAccountId:string;reason:string;expiresAt:string;
+    chromeProfile?:"Brunova";senderUrl?:string;
+  },csrf:string) => request('/exploration/contact-effect-grants',
+    z.object({status:z.enum(['recorded','already_recorded']),grantId:z.string(),
+      policyHash:z.string(),effectKind:z.string().optional(),
+      providerAccountId:z.string().optional(),externalEffect:z.literal(false)}),
+    {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
+      body:JSON.stringify({commandId,request:body})}),
+  revokeCandidateContactEffectGrant: (grantId:string,reason:string,csrf:string) =>
+    request('/exploration/contact-effect-grants/revoke',
+      z.object({status:z.enum(['revoked','already_revoked']),grantId:z.string(),
+        externalEffect:z.literal(false)}),
+      {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
+        body:JSON.stringify({grantId,reason})}),
   candidateContactAttempts: (cycle: string) => request(
     `/exploration/contact-attempts?cycleId=${id(cycle)}`,
     z.object({truncated:z.boolean(),attempts:z.array(z.object({
