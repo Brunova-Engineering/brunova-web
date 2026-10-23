@@ -564,7 +564,7 @@ export function AcquisitionPortal({
             </span>
             <small>
               {t(
-                "Estado de seguridad intencional. No hay controles de activación.",
+                "Estado de seguridad intencional. Cada efecto de contacto requiere un permiso exacto.",
               )}
             </small>
           </p>

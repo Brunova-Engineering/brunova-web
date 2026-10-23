@@ -26,8 +26,8 @@ export const acquisitionEnglish = {
   "EFECTOS EXTERNOS:": "EXTERNAL EFFECTS:",
   HABILITADOS: "ENABLED",
   DESHABILITADOS: "DISABLED",
-  "Estado de seguridad intencional. No hay controles de activación.":
-    "Intentional safety state. No activation controls are available.",
+  "Estado de seguridad intencional. Cada efecto de contacto requiere un permiso exacto.":
+    "Intentional safety state. Each contact effect requires an exact grant.",
   "Secciones de Adquisición": "Acquisition sections",
   "Necesita tu atención": "Needs your attention",
   Cuentas: "Accounts",
