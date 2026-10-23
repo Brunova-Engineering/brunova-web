@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { contactRows, filterContactRows, type ContactAttempt, type ContactPreparation, type ContactReply } from "@/lib/acquisition-contact-view"
+import { contactRows, filterContactRows, type ContactAttempt, type ContactPreparation, type ContactReply, type ContactCrmOutcome } from "@/lib/acquisition-contact-view"
 import type { acquisitionApi } from "@/lib/acquisition-api"
 
 type Map = Awaited<ReturnType<typeof acquisitionApi.explorationMap>>
@@ -85,6 +85,25 @@ it("shows an attributed reply without treating interpretation as a HubSpot write
     rationale:"El mensaje pide una conversación.",interpretedAt:"2026-10-22T00:03:00Z"} as ContactReply
   expect(contactRows(map,[],[attempt],[reply])[0]?.phase).toBe("REPLY_POSITIVE")
   expect(contactRows(map,[],[attempt],[reply])[0]?.decision).toBe("VERIFY_CRM")
+  const crm={companyId:"a",replyId:"reply-a",intentId:"crm-a",decisionKind:"QUALIFY",
+    requestedLeadStatus:"CONNECTED",requestedLifecycleStage:"salesqualifiedlead",
+    outcome:"CONFIRMED",providerCompanyId:"54321",outcomeAt:"2026-10-22T00:05:00Z"} as ContactCrmOutcome
+  const qualified=contactRows(map,[],[attempt],[reply],[crm])[0]!
+  expect(qualified.phase).toBe("CRM_CONFIRMED")
+  expect(qualified.decision).toBe("NONE")
+  expect(qualified.lastActivity).toBe(crm.outcomeAt)
+  expect(filterContactRows([qualified],"CRM_CONFIRMED","ALL")).toHaveLength(1)
+  expect(contactRows(map,[],[attempt],[reply],[{...crm,outcome:"OUTCOME_UNKNOWN",
+    providerCompanyId:null}])[0]?.decision).toBe("RECONCILE_CRM")
+  expect(contactRows(map,[],[attempt],[reply],[{...crm,providerCompanyId:null}])[0]?.phase).toBe("REPLY_POSITIVE")
+  expect(contactRows(map,[],[attempt],[reply],[{...crm,requestedLeadStatus:"BAD_TIMING"}])[0]?.phase).toBe("REPLY_POSITIVE")
+  expect(contactRows(map,[],[attempt],[reply],[{...crm,replyId:"other"}])[0]?.phase).toBe("REPLY_POSITIVE")
+  expect(contactRows(map,[],[attempt],[{...reply,classification:"NEGATIVE"}],[crm])[0]?.phase).toBe("REPLY_NEGATIVE")
+  const badTiming={...reply,classification:"BAD_TIMING"} as ContactReply
+  const updated={...crm,decisionKind:"UPDATE",requestedLeadStatus:"BAD_TIMING"} as ContactCrmOutcome
+  expect(contactRows(map,[],[attempt],[badTiming],[updated])[0]?.phase).toBe("CRM_UPDATED")
+  expect(contactRows(map,[],[attempt],[badTiming],[updated])[0]?.decision).toBe("PREPARE_RESPONSE")
+  expect(contactRows(map,[],[attempt],[badTiming],[{...updated,requestedLeadStatus:"CONNECTED"}])[0]?.phase).toBe("REPLY_BAD_TIMING")
   expect(contactRows(map,[],[attempt],[reply])[0]?.chosenChannel).toBe("EMAIL")
   expect(contactRows(map,[],[attempt],[reply])[0]?.recipientLabel).toBe("A")
   const laterAttempt={...attempt,intentId:"intent-b",channelType:"WHATSAPP",

@@ -395,6 +395,16 @@ export const acquisitionApi = {
       attentionDecidedAt:z.string().nullable().optional(),
     }))}),
   ),
+  candidateContactCrmOutcomes: (cycle: string) => request(
+    `/exploration/contact-crm-outcomes?cycleId=${id(cycle)}`,
+    z.object({truncated:z.boolean(),outcomes:z.array(z.object({
+      companyId:z.string(),replyId:z.string(),intentId:z.string(),
+      decisionKind:z.enum(["QUALIFY","UPDATE"]),requestedLeadStatus:z.string(),
+      requestedLifecycleStage:z.string(),
+      outcome:z.enum(["DISPATCH_STARTED","CONFIRMED","OUTCOME_UNKNOWN"]).nullable(),
+      providerCompanyId:z.string().nullable(),outcomeAt:z.string().nullable(),
+    }))}),
+  ),
   candidateContactReply: (cycle: string, company: string, reply: string) => request(
     `/exploration/contact-reply?cycleId=${id(cycle)}&companyId=${id(company)}&replyId=${id(reply)}`,
     z.object({

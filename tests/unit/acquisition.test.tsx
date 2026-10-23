@@ -214,6 +214,7 @@ function populated() {
   vi.spyOn(api, "candidateContactPreparations").mockResolvedValue({ truncated: false, preparations: [] })
   vi.spyOn(api, "candidateContactAttempts").mockResolvedValue({ truncated: false, attempts: [] })
   vi.spyOn(api, "candidateContactReplies").mockResolvedValue({ truncated: false, replies: [] })
+  vi.spyOn(api, "candidateContactCrmOutcomes").mockResolvedValue({ truncated: false, outcomes: [] })
   vi.spyOn(api, "explorationMap").mockResolvedValue({
     cycleId: "synthetic",
     headers: [],

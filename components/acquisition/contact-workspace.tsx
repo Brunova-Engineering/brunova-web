@@ -8,6 +8,7 @@ import {
   type ContactPreparation,
   type ContactAttempt,
   type ContactReply,
+  type ContactCrmOutcome,
   type ContactDecision,
   type ContactPhase,
 } from "@/lib/acquisition-contact-view"
@@ -32,6 +33,9 @@ const phaseText: Record<ContactPhase, [string, string]> = {
   REPLY_QUESTION: ["Pregunta recibida · respuesta pendiente", "Question received · response pending"],
   REPLY_UNCERTAIN: ["Respuesta ambigua · revisar", "Ambiguous reply · review"],
   RETURNED_TO_CONTACT: ["Retomar conversación", "Resume conversation"],
+  CRM_CONFIRMED: ["Calificada en HubSpot", "Qualified in HubSpot"],
+  CRM_UPDATED: ["Estado CRM actualizado", "CRM status updated"],
+  CRM_UNCERTAIN: ["Resultado CRM por conciliar", "CRM outcome needs reconciliation"],
 }
 const decisionText: Record<
   Exclude<ContactDecision, "NONE">,
@@ -50,6 +54,7 @@ const decisionText: Record<
   ENFORCE_SUPPRESSION: ["Bloquear nuevos envíos", "Block new sends"],
   PREPARE_RESPONSE: ["Preparar respuesta", "Prepare reply"],
   REVIEW_REPLY: ["Revisar respuesta", "Review reply"],
+  RECONCILE_CRM: ["Conciliar HubSpot", "Reconcile HubSpot"],
 }
 const channelText: Record<string, [string, string]> = {
   EMAIL: ["Correo", "Email"],
@@ -66,6 +71,7 @@ export function ContactWorkspace({
   previewPreparations,
   previewAttempts,
   previewReplies,
+  previewCrmOutcomes,
 }: {
   cycleId: string
   locale: Locale
@@ -73,12 +79,14 @@ export function ContactWorkspace({
   previewPreparations?: ContactPreparation[]
   previewAttempts?: ContactAttempt[]
   previewReplies?: ContactReply[]
+  previewCrmOutcomes?: ContactCrmOutcome[]
 }) {
   const es = locale === "es"
   const [map, setMap] = useState<Map | null>(previewMap ?? null)
   const [preparations, setPreparations] = useState<ContactPreparation[]>(previewPreparations ?? [])
   const [attempts, setAttempts] = useState<ContactAttempt[]>(previewAttempts ?? [])
   const [replies, setReplies] = useState<ContactReply[]>(previewReplies ?? [])
+  const [crmOutcomes, setCrmOutcomes] = useState<ContactCrmOutcome[]>(previewCrmOutcomes ?? [])
   const [error, setError] = useState(false)
   const [phase, setPhase] = useState<ContactPhase | "ALL">("ALL")
   const [decision, setDecision] = useState<ContactDecision | "ALL">("ALL")
@@ -93,14 +101,16 @@ export function ContactWorkspace({
       acquisitionApi.candidateContactPreparations(cycleId),
       acquisitionApi.candidateContactAttempts(cycleId),
       acquisitionApi.candidateContactReplies(cycleId),
+      acquisitionApi.candidateContactCrmOutcomes(cycleId),
     ])
-      .then(([value, prepared, sent, answered]) => {
-        if (prepared.truncated || sent.truncated || answered.truncated) throw new Error("CONTACT_LEDGER_TRUNCATED")
+      .then(([value, prepared, sent, answered, crm]) => {
+        if (prepared.truncated || sent.truncated || answered.truncated || crm.truncated) throw new Error("CONTACT_LEDGER_TRUNCATED")
         if (live) {
           setMap(value)
           setPreparations(prepared.preparations)
           setAttempts(sent.attempts)
           setReplies(answered.replies)
+          setCrmOutcomes(crm.outcomes)
           setError(false)
         }
       })
@@ -111,7 +121,7 @@ export function ContactWorkspace({
       live = false
     }
   }, [cycleId, previewMap])
-  const rows = useMemo(() => (map ? contactRows(map, preparations, attempts, replies) : []), [map, preparations, attempts, replies])
+  const rows = useMemo(() => (map ? contactRows(map, preparations, attempts, replies, crmOutcomes) : []), [map, preparations, attempts, replies, crmOutcomes])
   const visible = useMemo(() => {
     const filtered = filterContactRows(rows, phase, decision)
     const needle = query.trim().toLocaleLowerCase(locale)
@@ -166,7 +176,8 @@ export function ContactWorkspace({
           {(["ALL", "PRIORITIZED", "PREPARED", "AUTHORIZED_PENDING", "OUTCOME_UNKNOWN",
             "SEND_CONFIRMED", "ATTEMPT_FAILED", "CONTACT_UNVERIFIED", "REPLY_UNINTERPRETED",
             "REPLY_POSITIVE", "REPLY_NEGATIVE", "REPLY_OPT_OUT", "REPLY_BAD_TIMING",
-            "REPLY_QUESTION", "REPLY_UNCERTAIN", "RETURNED_TO_CONTACT"] as const).map((value) => {
+            "REPLY_QUESTION", "REPLY_UNCERTAIN", "RETURNED_TO_CONTACT",
+            "CRM_CONFIRMED", "CRM_UPDATED", "CRM_UNCERTAIN"] as const).map((value) => {
             const label = value === "ALL"
                 ? es
                   ? "Todas"
@@ -200,7 +211,7 @@ export function ContactWorkspace({
           {(["ALL", "ADD_METHOD", "PREPARE_MESSAGE", "REVIEW_PREPARATION", "REVIEW_ATTEMPT",
             "WAIT_FOR_RESPONSE", "RECONCILE_OUTCOME", "VERIFY_CONTACT", "INTERPRET_REPLY",
             "VERIFY_CRM", "REVIEW_CLOSURE", "ENFORCE_SUPPRESSION", "PREPARE_RESPONSE",
-            "REVIEW_REPLY"] as const).map((value) => {
+            "REVIEW_REPLY", "RECONCILE_CRM"] as const).map((value) => {
             const label = value === "ALL"
                 ? es
                   ? "Todas"
@@ -245,7 +256,7 @@ export function ContactWorkspace({
       )}
       <div className="acq-contact-list">
         {visible.map(
-          ({ profile, phase: currentPhase, decision: nextDecision, preparation, attempt, reply, chosenChannel, recipientLabel, lastActivity }) => (
+          ({ profile, phase: currentPhase, decision: nextDecision, preparation, attempt, reply, crmOutcome, chosenChannel, recipientLabel, lastActivity }) => (
             <article className="acq-contact-card" key={profile.companyId}>
               <div className="acq-contact-card-top">
                 <div>
@@ -334,6 +345,18 @@ export function ContactWorkspace({
                     {reply.rationale && <p className="acq-muted">{reply.rationale}</p>}
                   </div>
                 )}
+                {crmOutcome && (
+                  <div className="acq-contact-preparation">
+                    <strong>{es ? "Resultado de HubSpot" : "HubSpot outcome"}</strong>
+                    <p>{crmOutcome.outcome === "CONFIRMED" && crmOutcome.providerCompanyId
+                      ? es ? "Confirmado con recibo" : "Confirmed with receipt"
+                      : crmOutcome.outcome === "OUTCOME_UNKNOWN"
+                        ? es ? "Pendiente de conciliación" : "Reconciliation required"
+                        : es ? "Pendiente de confirmación" : "Awaiting confirmation"}</p>
+                    {crmOutcome.outcome === "CONFIRMED" && crmOutcome.providerCompanyId &&
+                      <p className="acq-muted">{es ? "Empresa en CRM" : "CRM company"}: {crmOutcome.providerCompanyId}</p>}
+                  </div>
+                )}
                 {profile.fitReviews?.at(-1) && (
                   <p>
                     <strong>
@@ -343,7 +366,10 @@ export function ContactWorkspace({
                   </p>
                 )}
                 <p className="acq-muted">
-                  {reply?.classification === "POSITIVE"
+                  {currentPhase === "CRM_CONFIRMED"
+                    ? es ? "La calificación en HubSpot tiene recibo confirmado."
+                      : "HubSpot qualification has a confirmed receipt."
+                    : reply?.classification === "POSITIVE"
                     ? es ? "La respuesta positiva está registrada; el alta en HubSpot requiere su propio recibo."
                       : "The positive reply is recorded; HubSpot qualification needs its own receipt."
                     : es
