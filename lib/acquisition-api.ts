@@ -401,6 +401,33 @@ export const acquisitionApi = {
       version:z.string().optional(),externalEffect:z.literal(false)}),
     {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
       body:JSON.stringify({commandId,request:body})}),
+  candidateContactChannelPolicy: (cycle:string) => request(
+    `/exploration/contact-channel-policy?cycleId=${id(cycle)}`,
+    z.object({cycleId:z.string(),baseline:z.object({
+      mandateId:z.string(),policyHash:z.string(),allowedChannels:z.array(z.string()),
+      current:z.boolean(),
+    }).nullable(),revisions:z.array(z.object({
+      revisionId:z.string(),allowedChannels:z.array(z.string()),
+      basePolicyHash:z.string(),policyHash:z.string(),approvalReference:z.string(),
+      approvedBy:z.string(),effectiveAt:z.string(),expiresAt:z.string(),
+      recordedAt:z.string(),revokedAt:z.string().nullable(),current:z.boolean(),
+    }))}),
+  ),
+  publishCandidateContactChannelPolicy: (commandId:string,body:{
+    cycleId:string;expectedMandateId:string;expectedPolicyHash:string;
+    allowedChannels:string[];reason:string;expiresAt:string;
+  },csrf:string) => request('/exploration/contact-channel-policy',
+    z.object({status:z.enum(['recorded','already_recorded']),revisionId:z.string(),
+      policyHash:z.string(),allowedChannels:z.array(z.string()).optional(),
+      externalEffect:z.literal(false)}),
+    {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
+      body:JSON.stringify({commandId,request:body})}),
+  revokeCandidateContactChannelPolicy: (revisionId:string,reason:string,csrf:string) =>
+    request('/exploration/contact-channel-policy/revoke',
+      z.object({status:z.enum(['revoked','already_revoked']),revisionId:z.string(),
+        externalEffect:z.literal(false)}),
+      {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
+        body:JSON.stringify({revisionId,reason})}),
   candidateContactAttempts: (cycle: string) => request(
     `/exploration/contact-attempts?cycleId=${id(cycle)}`,
     z.object({truncated:z.boolean(),attempts:z.array(z.object({
