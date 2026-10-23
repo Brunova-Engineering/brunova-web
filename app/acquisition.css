@@ -2282,3 +2282,49 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
 @media (prefers-reduced-motion: reduce) {
   .acq-contact-filters button { transition: none; }
 }
+.acq-contact-policy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 1rem 1.5rem;
+  margin-block: 1rem;
+}
+.acq-contact-policy h3,
+.acq-contact-policy p { margin: 0.25rem 0 0; }
+.acq-contact-policy h3 { font-size: 1rem; font-weight: 600; }
+.acq-contact-policy p { color: var(--color-muted-foreground); font-size: 0.9rem; }
+.acq-contact-policy > [role="status"] { flex-basis: 100%; font-size: 0.85rem; }
+.acq-contact-policy-dialog { width: min(590px, calc(100% - 2rem)); }
+.acq-contact-policy-dialog h2 { margin: 0 0 0.5rem; }
+.acq-contact-policy-dialog .acq-muted { line-height: 1.5; }
+.acq-contact-policy-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+.acq-contact-policy-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.7rem;
+  cursor: pointer;
+}
+.acq-contact-policy-field { display: grid; gap: 0.35rem; margin-block: 0.8rem; }
+.acq-contact-policy-field input,
+.acq-contact-policy-field textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding: 0.6rem;
+}
+.acq-contact-policy-field textarea { min-height: 5rem; resize: vertical; }
+.acq-contact-policy-revoke { border-top: 1px solid var(--color-border); margin-block: 1.2rem; padding-top: 0.5rem; }
+.acq-contact-policy-dialog .acq-actions { justify-content: flex-end; margin-top: 1.25rem; }

@@ -6,6 +6,7 @@ import { CycleControlSection } from "./cycle-control"
 import { PolicySettings } from "./policy-settings"
 import { WorkHealthSummary } from "./work-health-summary"
 import { C6Preview } from "./c6-preview"
+import { ContactChannelPolicyControl } from "./contact-channel-policy-control"
 import { ActivationPreflight } from "./activation-preflight"
 import { ContactWorkspace } from "./contact-workspace"
 import { DiscoveryHealth } from "./discovery-health"
@@ -468,6 +469,9 @@ export function AcquisitionPortal({
         )}
         {tab === "SystemStatus" && (
           <C6Preview key={`plan:${cycleId}`} cycleId={cycleId} csrf={session.csrfToken} />
+        )}
+        {tab === "SystemStatus" && cycleId && (
+          <ContactChannelPolicyControl cycleId={cycleId} locale={locale} session={session} />
         )}
         {tab === "SystemStatus" && (
           <details className="acq-panel acq-executive-diagnostics">
