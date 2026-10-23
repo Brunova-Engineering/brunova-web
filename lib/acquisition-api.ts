@@ -370,6 +370,37 @@ export const acquisitionApi = {
       recordedAt: z.string(), sendAuthorized: z.literal(false),
     }))}),
   ),
+  candidateContactCadencePolicy: (cycle: string) => request(
+    `/exploration/contact-cadence-policy?cycleId=${id(cycle)}`,
+    z.object({cycleId:z.string(),version:z.string(),
+      coverageStart:z.string().nullable(),coverageEnd:z.string().nullable(),
+      closedDates:z.array(z.string()),
+      secondAfterFirstBusinessDays:z.number().int(),
+      thirdAfterSecondBusinessDays:z.number().int(),
+      closeAfterThirdBusinessDays:z.number().int(),
+      policyReason:z.string().nullable(),recordedAt:z.string().nullable()}),
+  ),
+  candidateContactCadence: (cycle: string) => request(
+    `/exploration/contact-cadence?cycleId=${id(cycle)}`,
+    z.object({truncated:z.boolean(),candidates:z.array(z.object({
+      companyId:z.string(),stage:z.enum(["SELECTED","CONTACTED"]),stageVersion:z.number().int(),
+      contactedAt:z.string().nullable(),cadence:z.object({
+        action:z.string(),reviewNeed:z.string().optional(),
+        earliestLocalDate:z.string().nullable().optional(),attemptCount:z.number().int().optional(),
+        nextAttemptNumber:z.number().int().nullable().optional(),sendAuthorized:z.literal(false),
+      }),
+    }))}),
+  ),
+  publishCandidateContactCadence: (commandId:string, body:{
+    cycleId:string;version:string;coverageStart:string;coverageEnd:string;
+    closedDates:string[];secondAfterFirstBusinessDays:number;
+    thirdAfterSecondBusinessDays:number;closeAfterThirdBusinessDays:number;
+    policyReason:string;
+  },csrf:string) => request('/exploration/contact-cadence',
+    z.object({status:z.enum(['recorded','already_recorded']),calendarId:z.string(),
+      version:z.string().optional(),externalEffect:z.literal(false)}),
+    {method:'POST',headers:{'content-type':'application/json','x-csrf-token':csrf},
+      body:JSON.stringify({commandId,request:body})}),
   candidateContactAttempts: (cycle: string) => request(
     `/exploration/contact-attempts?cycleId=${id(cycle)}`,
     z.object({truncated:z.boolean(),attempts:z.array(z.object({
@@ -626,6 +657,7 @@ export const acquisitionApi = {
                       relatedRecordRef: z.string().nullable().optional(),
                       openedAt: z.string().nullable().optional(),
                       replyId: z.string().optional(),
+                      lastIntentId: z.string().optional(),
                     }),
                   ),
                   actions: z.array(
@@ -903,6 +935,24 @@ export const acquisitionApi = {
     csrf: string,
   ) => request(
     "/exploration/contact-attention/decisions",
+    z.object({ status: z.string(), decisionId: z.string(), companyId: z.string(),
+      action: z.string(), externalEffect: z.literal(false) }).passthrough(),
+    { method: "POST", headers: { "content-type": "application/json", "x-csrf-token": csrf },
+      body: JSON.stringify({ commandId, request: body }) },
+  ),
+  candidateContactSilenceDecision: (
+    commandId: string,
+    body: {
+      cycleId: string
+      companyId: string
+      lastIntentId: string
+      expectedStageVersion: number
+      action: "CONFIRM_CLOSE" | "KEEP_OPEN"
+      reason: string
+    },
+    csrf: string,
+  ) => request(
+    "/exploration/contact-silence/decisions",
     z.object({ status: z.string(), decisionId: z.string(), companyId: z.string(),
       action: z.string(), externalEffect: z.literal(false) }).passthrough(),
     { method: "POST", headers: { "content-type": "application/json", "x-csrf-token": csrf },

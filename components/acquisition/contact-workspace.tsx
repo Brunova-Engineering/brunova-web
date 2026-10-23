@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { acquisitionApi } from "@/lib/acquisition-api"
+import { acquisitionApi, type PortalSession } from "@/lib/acquisition-api"
 import {
   contactRows,
   filterContactRows,
@@ -14,8 +14,10 @@ import {
 } from "@/lib/acquisition-contact-view"
 import type { Locale } from "@/lib/i18n"
 import { ContactMethods } from "./contact-methods"
+import { ContactCadenceControl } from "./contact-cadence-control"
 
 type Map = Awaited<ReturnType<typeof acquisitionApi.explorationMap>>
+type Cadence = Awaited<ReturnType<typeof acquisitionApi.candidateContactCadence>>["candidates"][number]
 
 const phaseText: Record<ContactPhase, [string, string]> = {
   PRIORITIZED: ["Priorizada para contacto", "Prioritized for contact"],
@@ -67,19 +69,23 @@ const channelText: Record<string, [string, string]> = {
 export function ContactWorkspace({
   cycleId,
   locale,
+  session,
   previewMap,
   previewPreparations,
   previewAttempts,
   previewReplies,
   previewCrmOutcomes,
+  previewCadence,
 }: {
   cycleId: string
   locale: Locale
+  session?: PortalSession
   previewMap?: Map
   previewPreparations?: ContactPreparation[]
   previewAttempts?: ContactAttempt[]
   previewReplies?: ContactReply[]
   previewCrmOutcomes?: ContactCrmOutcome[]
+  previewCadence?: Cadence[]
 }) {
   const es = locale === "es"
   const [map, setMap] = useState<Map | null>(previewMap ?? null)
@@ -87,6 +93,7 @@ export function ContactWorkspace({
   const [attempts, setAttempts] = useState<ContactAttempt[]>(previewAttempts ?? [])
   const [replies, setReplies] = useState<ContactReply[]>(previewReplies ?? [])
   const [crmOutcomes, setCrmOutcomes] = useState<ContactCrmOutcome[]>(previewCrmOutcomes ?? [])
+  const [cadence, setCadence] = useState<Cadence[]>(previewCadence ?? [])
   const [error, setError] = useState(false)
   const [phase, setPhase] = useState<ContactPhase | "ALL">("ALL")
   const [decision, setDecision] = useState<ContactDecision | "ALL">("ALL")
@@ -102,15 +109,17 @@ export function ContactWorkspace({
       acquisitionApi.candidateContactAttempts(cycleId),
       acquisitionApi.candidateContactReplies(cycleId),
       acquisitionApi.candidateContactCrmOutcomes(cycleId),
+      acquisitionApi.candidateContactCadence(cycleId),
     ])
-      .then(([value, prepared, sent, answered, crm]) => {
-        if (prepared.truncated || sent.truncated || answered.truncated || crm.truncated) throw new Error("CONTACT_LEDGER_TRUNCATED")
+      .then(([value, prepared, sent, answered, crm, timing]) => {
+        if (prepared.truncated || sent.truncated || answered.truncated || crm.truncated || timing.truncated) throw new Error("CONTACT_LEDGER_TRUNCATED")
         if (live) {
           setMap(value)
           setPreparations(prepared.preparations)
           setAttempts(sent.attempts)
           setReplies(answered.replies)
           setCrmOutcomes(crm.outcomes)
+          setCadence(timing.candidates)
           setError(false)
         }
       })
@@ -122,6 +131,7 @@ export function ContactWorkspace({
     }
   }, [cycleId, previewMap])
   const rows = useMemo(() => (map ? contactRows(map, preparations, attempts, replies, crmOutcomes) : []), [map, preparations, attempts, replies, crmOutcomes])
+  const cadenceByCompany = useMemo(() => new Map(cadence.map(item => [item.companyId, item])), [cadence])
   const visible = useMemo(() => {
     const filtered = filterContactRows(rows, phase, decision)
     const needle = query.trim().toLocaleLowerCase(locale)
@@ -162,9 +172,12 @@ export function ContactWorkspace({
               : "Verified state and next decision, without confusing preparation with sending."}
           </p>
         </div>
-        <strong className="acq-contact-total">
-          {rows.length} {es ? "empresas" : "companies"}
-        </strong>
+        <div className="acq-contact-header-actions">
+          <ContactCadenceControl cycleId={cycleId} locale={locale} session={session} preview={!!previewMap}/>
+          <strong className="acq-contact-total">
+            {rows.length} {es ? "empresas" : "companies"}
+          </strong>
+        </div>
       </header>
       <div
         className="acq-contact-filters"
@@ -276,13 +289,26 @@ export function ContactWorkspace({
                 <p>
                   <span>{es ? "Siguiente paso" : "Next step"}</span>
                   <strong>
-                    {nextDecision === "NONE"
+                    {cadenceByCompany.get(profile.companyId)?.cadence.action === "REVIEW_CLOSE_FOR_SILENCE"
+                      ? es ? "Revisar cierre por silencio" : "Review closure for no reply"
+                      : cadenceByCompany.get(profile.companyId)?.cadence.action === "KEPT_OPEN_NO_MORE_SENDS"
+                        ? es ? "Esperar respuesta · sin más envíos" : "Await reply · no further sends"
+                      : cadenceByCompany.get(profile.companyId)?.cadence.action === "REVIEW_FOLLOW_UP"
+                        ? es ? "Revisar otro acercamiento" : "Review another outreach"
+                        : nextDecision === "NONE"
                       ? es
                         ? "Revisar historial de contacto"
                         : "Review contact history"
                       : decisionText[nextDecision][es ? 0 : 1]}
                   </strong>
                 </p>
+                {cadenceByCompany.get(profile.companyId)?.cadence.action === "WAIT" &&
+                  cadenceByCompany.get(profile.companyId)?.cadence.earliestLocalDate && <p>
+                    <span>{es ? "Seguimiento" : "Follow-up"}</span>
+                    <strong>{es ? "No revisar antes del " : "Review no earlier than "}
+                      {cadenceByCompany.get(profile.companyId)?.cadence.earliestLocalDate}
+                    </strong>
+                  </p>}
                 <p>
                   <span>{es ? "Destinatario" : "Recipient"}</span>
                   <strong>{recipientLabel}</strong>
@@ -304,6 +330,29 @@ export function ContactWorkspace({
                   </strong>
                 </p>
               </div>
+              {(reply || crmOutcome) && (
+                <div className="acq-contact-executive-outcomes">
+                  {reply && (
+                    <p>
+                      <span>{es ? "Respuesta recibida" : "Reply received"}</span>
+                      <strong>{reply.originalText}</strong>
+                      <small>{channelText[reply.channelType]?.[es ? 0 : 1] ?? reply.channelType} · {reply.receivedAt}</small>
+                    </p>
+                  )}
+                  {(crmOutcome || reply?.classification === "POSITIVE" || reply?.classification === "BAD_TIMING") && (
+                    <p>
+                      <span>{es ? "Recibo de HubSpot" : "HubSpot receipt"}</span>
+                      <strong>{crmOutcome?.outcome === "CONFIRMED" && crmOutcome.providerCompanyId
+                        ? `${es ? "Confirmado" : "Confirmed"} · ${crmOutcome.providerCompanyId}`
+                        : crmOutcome?.outcome === "OUTCOME_UNKNOWN"
+                          ? es ? "Pendiente de conciliación" : "Reconciliation required"
+                          : crmOutcome?.outcome === "DISPATCH_STARTED"
+                            ? es ? "En proceso · recibo pendiente" : "In progress · receipt pending"
+                            : es ? "Pendiente de confirmación" : "Awaiting confirmation"}</strong>
+                    </p>
+                  )}
+                </div>
+              )}
               <details>
                 <summary>
                   {es

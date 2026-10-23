@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ContactMethods } from "@/components/acquisition/contact-methods"
+import { ContactSilenceDecision } from "@/components/acquisition/contact-silence-decision"
 import { acquisitionApi, type PortalSession } from "@/lib/acquisition-api"
 import type { Locale } from "@/lib/i18n"
 
@@ -49,6 +50,7 @@ const candidateStageNames: Record<string, [string, string]> = {
 const attentionReasonNames: Record<string, [string, string]> = {
   CONTACT_NEGATIVE_REPLY: ["Respuesta negativa", "Negative reply"],
   CONTACT_OPT_OUT: ["No contactar", "Do not contact"],
+  CONTACT_SILENCE: ["Sin respuesta tras tres intentos", "No reply after three attempts"],
   NO_VERIFIED_CONTACT: ["Sin medio verificable", "No verified channel"],
   IDENTITY_CONFLICT: ["Identidad por conciliar", "Identity conflict"],
   PRIOR_RELATIONSHIP_CONFLICT: ["Relación previa por revisar", "Prior relationship"],
@@ -2689,6 +2691,16 @@ export function ExplorationMap({
                           </form>
                         )}
                         {contactAttentionNotice && <p role="status">{contactAttentionNotice}</p>}
+                        {(session.actor.capabilities.includes("MANAGE_CYCLE")||!!previewMap) &&
+                          companyProfile.attention?.reasons.filter(reason=>reason.code==="CONTACT_SILENCE" &&
+                          !!reason.lastIntentId).map(reason=>(
+                          <ContactSilenceDecision key={reason.lastIntentId}
+                            cycleId={cycleId} companyId={companyProfile.companyId}
+                            lastIntentId={reason.lastIntentId!}
+                            stageVersion={companyProfile.attention!.stageVersion}
+                            locale={locale} session={session} preview={!!previewMap}
+                            onSaved={async()=>setData(await acquisitionApi.explorationMap(cycleId))}/>
+                        ))}
                         {researchActionCode &&
                           researchDraftCompanyId ===
                             companyProfile.companyId && (
