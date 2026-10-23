@@ -42,6 +42,8 @@ const previewMap = { companyProfiles: [
   profile("conciliar-demo", "Transporte Polar · ejemplo", "SELECTED", 1),
   profile("confirmado-demo", "Grupo Glaciar · ejemplo", "SELECTED", 1),
   profile("positivo-demo", "Red Fría · ejemplo", "CONTACTED", 1),
+  profile("calificado-demo", "Servicios Boreales · ejemplo", "CONTACTED", 1),
+  profile("crm-incierto-demo", "Operadora Andina · ejemplo", "CONTACTED", 1),
   profile("retomar-demo", "Puente Frío · ejemplo", "CONTACTED", 1),
   profile("negativo-demo", "Logística del Sur · ejemplo", "CONTACTED", 1),
   profile("baja-demo", "Almacén Pacífico · ejemplo", "CONTACTED", 1),
@@ -60,6 +62,8 @@ const previewAttempts = ([
   ["conciliar-demo", "OUTCOME_UNKNOWN", null],
   ["confirmado-demo", "SEND_CONFIRMED", "receipt-example"],
   ["positivo-demo", "SEND_CONFIRMED", "receipt-positive"],
+  ["calificado-demo", "SEND_CONFIRMED", "receipt-qualified"],
+  ["crm-incierto-demo", "SEND_CONFIRMED", "receipt-crm-uncertain"],
   ["retomar-demo", "SEND_CONFIRMED", "receipt-returned"],
   ["negativo-demo", "SEND_CONFIRMED", "receipt-negative"],
   ["baja-demo", "SEND_CONFIRMED", "receipt-opt-out"],
@@ -71,6 +75,8 @@ const previewAttempts = ([
 }))
 const previewReplies = ([
   ["positivo-demo", "POSITIVE", "Sí, nos interesa conversar sobre los relevos en nuestra operación."],
+  ["calificado-demo", "POSITIVE", "Sí, nos interesa conversar sobre cómo mejorar esos relevos."],
+  ["crm-incierto-demo", "POSITIVE", "Sí, podemos conversar sobre la operación de frío."],
   ["retomar-demo", "NEGATIVE", "Ahora no es el momento; podemos retomar la conversación más adelante."],
   ["negativo-demo", "NEGATIVE", "Gracias, por ahora no nos interesa esta propuesta."],
   ["baja-demo", "OPT_OUT", "Por favor no vuelvan a contactarnos."],
@@ -85,6 +91,15 @@ const previewReplies = ([
   attentionAction:companyId === "retomar-demo" ? "RETURN_TO_CONTACT" as const : null,
   attentionDecidedAt:companyId === "retomar-demo" ? "2026-10-22T16:05:00Z" : null,
 }))
+const previewCrmOutcomes = ([
+  ["calificado-demo", "CONFIRMED", "54321"],
+  ["crm-incierto-demo", "OUTCOME_UNKNOWN", null],
+] as const).map(([companyId,outcome,providerCompanyId])=>({
+  companyId,replyId:"reply-"+companyId,intentId:"crm-"+companyId,
+  decisionKind:"QUALIFY" as const,requestedLeadStatus:"CONNECTED",
+  requestedLifecycleStage:"salesqualifiedlead",outcome,providerCompanyId,
+  outcomeAt:"2026-10-22T16:08:00Z",
+}))
 
 export default function Page() {
   if (process.env.LOCAL_C6_PREVIEW_ENABLED !== "true") notFound()
@@ -94,6 +109,6 @@ export default function Page() {
     <Link href="/es/portal/c7-attention-preview">Revisar esas decisiones en Atención</Link>
     <ContactWorkspace cycleId="preview" locale="es" previewMap={previewMap}
       previewPreparations={previewPreparations} previewAttempts={previewAttempts}
-      previewReplies={previewReplies}/>
+      previewReplies={previewReplies} previewCrmOutcomes={previewCrmOutcomes}/>
   </main>
 }

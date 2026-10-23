@@ -5,15 +5,18 @@ type Profile = NonNullable<Map["companyProfiles"]>[number]
 export type ContactPreparation = Awaited<ReturnType<typeof acquisitionApi.candidateContactPreparations>>["preparations"][number]
 export type ContactAttempt = Awaited<ReturnType<typeof acquisitionApi.candidateContactAttempts>>["attempts"][number]
 export type ContactReply = Awaited<ReturnType<typeof acquisitionApi.candidateContactReplies>>["replies"][number]
+export type ContactCrmOutcome = Awaited<ReturnType<typeof acquisitionApi.candidateContactCrmOutcomes>>["outcomes"][number]
 
 export type ContactPhase = "PRIORITIZED" | "PREPARED" | "AUTHORIZED_PENDING" |
   "OUTCOME_UNKNOWN" | "SEND_CONFIRMED" | "ATTEMPT_FAILED" | "CONTACT_UNVERIFIED" |
   "REPLY_UNINTERPRETED" | "REPLY_POSITIVE" | "REPLY_NEGATIVE" | "REPLY_OPT_OUT" |
   "REPLY_BAD_TIMING" | "REPLY_QUESTION" | "REPLY_UNCERTAIN" | "RETURNED_TO_CONTACT"
+  | "CRM_CONFIRMED" | "CRM_UPDATED" | "CRM_UNCERTAIN"
 export type ContactDecision = "ADD_METHOD" | "PREPARE_MESSAGE" | "REVIEW_PREPARATION" |
   "REVIEW_ATTEMPT" | "WAIT_FOR_RESPONSE" | "RECONCILE_OUTCOME" | "VERIFY_CONTACT" |
   "INTERPRET_REPLY" | "VERIFY_CRM" | "REVIEW_CLOSURE" | "ENFORCE_SUPPRESSION" |
   "PREPARE_RESPONSE" | "REVIEW_REPLY" | "NONE"
+  | "RECONCILE_CRM"
 
 export type ContactRow = {
   profile: Profile
@@ -22,6 +25,7 @@ export type ContactRow = {
   preparation: ContactPreparation | null
   attempt: ContactAttempt | null
   reply: ContactReply | null
+  crmOutcome: ContactCrmOutcome | null
   chosenChannel: string | null
   recipientLabel: string
   lastActivity: string | null
@@ -30,7 +34,8 @@ export type ContactRow = {
 /** Only backed Engine stages enter Contacto. A technical SELECTED is a
  * pre-contact priority, never evidence of a positive response. */
 export function contactRows(map: Map, preparations: readonly ContactPreparation[] = [],
-  attempts: readonly ContactAttempt[] = [], replies: readonly ContactReply[] = []): ContactRow[] {
+  attempts: readonly ContactAttempt[] = [], replies: readonly ContactReply[] = [],
+  crmOutcomes: readonly ContactCrmOutcome[] = []): ContactRow[] {
   return (map.companyProfiles ?? [])
     .flatMap((profile) => {
       if (profile.attention?.status === "OPEN") return []
@@ -59,8 +64,21 @@ export function contactRows(map: Map, preparations: readonly ContactPreparation[
           (sent.outcome === "SEND_CONFIRMED" || sent.outcome === "RECONCILED_CONFIRMED") &&
           !!sent.providerReceiptId),
       ).sort((a,b)=>b.receivedAt.localeCompare(a.receivedAt))[0] ?? null
+      const crmOutcome = reply && (reply.classification === "POSITIVE" || reply.classification === "BAD_TIMING")
+        ? crmOutcomes.filter((item) => item.companyId === profile.companyId &&
+            item.replyId === reply.replyId &&
+            item.requestedLifecycleStage === "salesqualifiedlead" &&
+            (item.decisionKind === "QUALIFY"
+              ? reply.classification === "POSITIVE" && item.requestedLeadStatus === "CONNECTED"
+              : item.decisionKind === "UPDATE" &&
+                (item.requestedLeadStatus === "IN_PROGRESS" || item.requestedLeadStatus === "BAD_TIMING")))
+          .sort((a,b)=>(b.outcomeAt ?? "").localeCompare(a.outcomeAt ?? ""))[0] ?? null
+        : null
       const phase: ContactPhase =
         reply ? reply.attentionAction === "RETURN_TO_CONTACT" ? "RETURNED_TO_CONTACT" :
+          crmOutcome?.outcome === "OUTCOME_UNKNOWN" ? "CRM_UNCERTAIN" :
+          crmOutcome?.outcome === "CONFIRMED" && !!crmOutcome.providerCompanyId
+            ? crmOutcome.decisionKind === "QUALIFY" ? "CRM_CONFIRMED" : "CRM_UPDATED" :
           reply.classification === null ? "REPLY_UNINTERPRETED" :
           reply.classification === "POSITIVE" ? "REPLY_POSITIVE" :
           reply.classification === "NEGATIVE" ? "REPLY_NEGATIVE" :
@@ -78,6 +96,9 @@ export function contactRows(map: Map, preparations: readonly ContactPreparation[
                 : stage === "CONTACTED" ? "CONTACT_UNVERIFIED"
                   : preparation ? "PREPARED" : "PRIORITIZED"
       const decision: ContactDecision =
+        phase === "CRM_UNCERTAIN" ? "RECONCILE_CRM" :
+        phase === "CRM_CONFIRMED" ? "NONE" :
+        phase === "CRM_UPDATED" ? "PREPARE_RESPONSE" :
         phase === "RETURNED_TO_CONTACT" ? "PREPARE_RESPONSE" :
         phase === "REPLY_UNINTERPRETED" ? "INTERPRET_REPLY" :
         phase === "REPLY_POSITIVE" ? "VERIFY_CRM" :
@@ -103,11 +124,12 @@ export function contactRows(map: Map, preparations: readonly ContactPreparation[
           preparation,
           attempt,
           reply,
+          crmOutcome,
           chosenChannel: reply?.channelType ?? attempt?.channelType ?? preparation?.channelType ?? null,
           recipientLabel: currentMethod?.contactName?.trim() ||
             (preparation && preparation.methodId === currentMethodId ? preparation.recipientLabel : null) ||
             profile.displayName,
-          lastActivity: [reply?.attentionDecidedAt, reply?.receivedAt, attempt?.outcomeAt, attempt?.authorizedAt,
+          lastActivity: [crmOutcome?.outcomeAt, reply?.attentionDecidedAt, reply?.receivedAt, attempt?.outcomeAt, attempt?.authorizedAt,
             profile.enrichment?.contactedAt, profile.enrichment?.lastTouchedAt]
             .filter((value): value is string => !!value).sort().at(-1) ?? null,
         },
