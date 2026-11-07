@@ -2002,7 +2002,7 @@ export function ExplorationMap({
             key={market}
             type="button"
             aria-pressed={marketFilter === market}
-            aria-description={`${marketCounts[market]} ${locale === "es" ? "empresas registradas" : "recorded companies"}`}
+            title={`${marketCounts[market]} ${locale === "es" ? "empresas registradas" : "recorded companies"}`}
             onClick={() => {
               setMarketFilter(market)
               setSelectedIds((current) =>
@@ -2032,14 +2032,14 @@ export function ExplorationMap({
         <div className="acq-attention-reason-filter" role="group"
           aria-label={locale === "es" ? "Filtrar por motivo de atención" : "Filter by attention reason"}>
           <button type="button" aria-pressed={attentionReasonFilter === null}
-            aria-description={`${attentionProfilesForMarket.length} ${locale === "es" ? "empresas" : "companies"}`}
+            title={`${attentionProfilesForMarket.length} ${locale === "es" ? "empresas" : "companies"}`}
             onClick={() => setAttentionReasonFilter(null)}>
             {locale === "es" ? "Todos los motivos" : "All reasons"}
             <span aria-hidden="true">{attentionProfilesForMarket.length}</span>
           </button>
           {[...attentionReasonCounts].sort(([a], [b]) => a.localeCompare(b)).map(([code, count]) => (
             <button type="button" key={code} aria-pressed={attentionReasonFilter === code}
-              aria-description={`${count} ${locale === "es" ? "empresas" : "companies"}`}
+              title={`${count} ${locale === "es" ? "empresas" : "companies"}`}
               onClick={() => setAttentionReasonFilter(code)}>
               {attentionReasonNames[code]?.[locale === "es" ? 0 : 1] ??
                 code.replaceAll("_", " ").toLocaleLowerCase(locale === "es" ? "es-MX" : "en-US")}
@@ -2234,7 +2234,7 @@ export function ExplorationMap({
                             type="button"
                             key={tag}
                             aria-pressed={active}
-                            aria-description={`${tagCount} ${locale === "es" ? "registros" : "records"}`}
+                            title={`${tagCount} ${locale === "es" ? "registros" : "records"}`}
                             onClick={() =>
                               setSelectedTags((current) =>
                                 active
