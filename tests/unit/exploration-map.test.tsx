@@ -47,6 +47,10 @@ it("shows one conceptual route with separate market observations and company con
     csrfToken:"synthetic-csrf",expiresAt:now,
   }}/>)
   const roots = await screen.findByRole("group",{name:"Opciones de Macroindustria"})
+  const markets = screen.getByRole("group", {name:"Mercado de exploración"})
+  expect(within(markets).getByRole("button", {name:"Todos"})).toHaveTextContent("3")
+  expect(within(markets).getByRole("button", {name:"México"})).toHaveTextContent("1")
+  expect(within(markets).getByRole("button", {name:"Estados Unidos"})).toHaveTextContent("2")
   expect(within(roots).getAllByRole("button")).toHaveLength(1)
   expect(roots).toHaveTextContent("Alimentos")
   expect(roots).toHaveTextContent("MX · US")
@@ -672,6 +676,8 @@ it("reveals every recorded branch one level at a time and keeps company context"
   })
   expect(companies).toHaveTextContent("Cintli")
   expect(companies).toHaveTextContent("Molino El Obrero")
+  expect(within(screen.getByLabelText("Filtrar por etiqueta"))
+    .getByRole("button", {name: "nixtamal"})).toHaveTextContent("1")
   expect(companies).toHaveTextContent("MX · México")
   expect(companies).toHaveTextContent(
     "Registro heredado de descubrimiento; presencia pendiente de verificación.",

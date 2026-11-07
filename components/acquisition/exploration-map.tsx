@@ -570,17 +570,23 @@ export function ExplorationMap({
     }
   }, [cycleId, previewMap])
 
+  const attentionProfilesForMarket = useMemo(() => {
+    if (mode !== "attention") return []
+    const marketByLead = new Map((data?.nodes ?? []).filter(node => node.kind === "COMPANY_LEAD")
+      .map(node => [node.id, node.market] as const))
+    return (data?.companyProfiles ?? []).filter(profile =>
+      ["FILTERING", "SELECTED", "CONTACTED"].includes(profile.enrichment?.stage ?? "") &&
+      profile.attention?.status === "OPEN" && profile.attention.reasons.length > 0 &&
+      (marketFilter === "ALL" || profile.leadNodeIds.some(id => marketByLead.get(id) === marketFilter)))
+  }, [data, mode, marketFilter])
   const attentionReasonCounts = useMemo(() => {
     const counts = new Map<string, number>()
-    if (mode !== "attention") return counts
-    for (const profile of data?.companyProfiles ?? []) {
-      if (!["FILTERING", "SELECTED", "CONTACTED"].includes(profile.enrichment?.stage ?? "")) continue
-      if (profile.attention?.status !== "OPEN") continue
-      for (const code of new Set(profile.attention.reasons.map((reason) => reason.code)))
+    for (const profile of attentionProfilesForMarket) {
+      for (const code of new Set((profile.attention?.reasons ?? []).map((reason) => reason.code)))
         counts.set(code, (counts.get(code) ?? 0) + 1)
     }
     return counts
-  }, [data, mode])
+  }, [attentionProfilesForMarket])
   const visibleProfiles = useMemo(
     () =>
       (data?.companyProfiles ?? []).filter((profile) => {
@@ -627,6 +633,18 @@ export function ExplorationMap({
     }
     return data.nodes.filter((node) => allowed.has(node.id))
   }, [data, mode, visibleProfiles])
+  const marketCounts = useMemo(() => {
+    const profileByLead = new Map(visibleProfiles.flatMap(profile =>
+      profile.leadNodeIds.map(id => [id, profile.companyId] as const)))
+    const identities = {ALL: new Set<string>(), MX: new Set<string>(), US: new Set<string>()}
+    for (const node of nodes) {
+      if (node.kind !== "COMPANY_LEAD") continue
+      const identity = profileByLead.get(node.id) ?? node.id
+      identities.ALL.add(identity)
+      identities[node.market].add(identity)
+    }
+    return {ALL: identities.ALL.size, MX: identities.MX.size, US: identities.US.size}
+  }, [nodes, visibleProfiles])
   const byId = useMemo(
     () => new Map(nodes.map((node) => [node.id, node])),
     [nodes],
@@ -1967,6 +1985,9 @@ export function ExplorationMap({
             : locale === "es"
               ? "Consultar historial cerrado"
               : "View closed history"}
+          <span aria-hidden="true">{(data?.companyProfiles ?? []).filter(profile =>
+            profile.enrichment?.stage === "CLOSED" && (marketFilter === "ALL" ||
+              profile.leadNodeIds.some(id => data?.nodes.some(node => node.id === id && node.market === marketFilter)))).length}</span>
         </button>
       )}
       <div
@@ -1981,6 +2002,7 @@ export function ExplorationMap({
             key={market}
             type="button"
             aria-pressed={marketFilter === market}
+            aria-description={`${marketCounts[market]} ${locale === "es" ? "empresas registradas" : "recorded companies"}`}
             onClick={() => {
               setMarketFilter(market)
               setSelectedIds((current) =>
@@ -2002,6 +2024,7 @@ export function ExplorationMap({
                 : locale === "es"
                   ? "Estados Unidos"
                   : "United States"}
+            <span aria-hidden="true">{marketCounts[market]}</span>
           </button>
         ))}
       </div>
@@ -2009,11 +2032,14 @@ export function ExplorationMap({
         <div className="acq-attention-reason-filter" role="group"
           aria-label={locale === "es" ? "Filtrar por motivo de atención" : "Filter by attention reason"}>
           <button type="button" aria-pressed={attentionReasonFilter === null}
+            aria-description={`${attentionProfilesForMarket.length} ${locale === "es" ? "empresas" : "companies"}`}
             onClick={() => setAttentionReasonFilter(null)}>
             {locale === "es" ? "Todos los motivos" : "All reasons"}
+            <span aria-hidden="true">{attentionProfilesForMarket.length}</span>
           </button>
           {[...attentionReasonCounts].sort(([a], [b]) => a.localeCompare(b)).map(([code, count]) => (
             <button type="button" key={code} aria-pressed={attentionReasonFilter === code}
+              aria-description={`${count} ${locale === "es" ? "empresas" : "companies"}`}
               onClick={() => setAttentionReasonFilter(code)}>
               {attentionReasonNames[code]?.[locale === "es" ? 0 : 1] ??
                 code.replaceAll("_", " ").toLocaleLowerCase(locale === "es" ? "es-MX" : "en-US")}
@@ -2163,7 +2189,7 @@ export function ExplorationMap({
                 </div>
                 <span className="acq-state">
                   {locale === "es"
-                    ? `${options.length} ${options.length === 1 ? "opción registrada" : "opciones registradas"}`
+                    ? `${filteredOptions.length} ${filteredOptions.length === 1 ? "opción registrada" : "opciones registradas"}`
                     : `${filteredOptions.length} recorded ${filteredOptions.length === 1 ? "option" : "options"}`}
                 </span>
               </div>
@@ -2196,11 +2222,19 @@ export function ExplorationMap({
                     >
                       {allTags.map((tag) => {
                         const active = selectedTags.includes(tag)
+                        const otherTags = selectedTags.filter(selected => selected !== tag)
+                        const tagCount = options.filter(node => {
+                          const profile = profileByLead.get(node.id)
+                          if (!profile?.tags.includes(tag) || !otherTags.every(selected => profile.tags.includes(selected))) return false
+                          const text = [node.label, ...profile.aliases, ...profile.tags].join(" ").toLocaleLowerCase(locale)
+                          return text.includes(companyQuery.trim().toLocaleLowerCase(locale))
+                        }).length
                         return (
                           <button
                             type="button"
                             key={tag}
                             aria-pressed={active}
+                            aria-description={`${tagCount} ${locale === "es" ? "registros" : "records"}`}
                             onClick={() =>
                               setSelectedTags((current) =>
                                 active
@@ -2209,7 +2243,7 @@ export function ExplorationMap({
                               )
                             }
                           >
-                            {tag}
+                            {tag}<span aria-hidden="true">{tagCount}</span>
                           </button>
                         )
                       })}
