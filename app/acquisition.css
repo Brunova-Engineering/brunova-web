@@ -925,10 +925,16 @@ body:has(.acq[data-authenticated="true"]) .back-to-top {
   margin-top: 1.25rem;
 }
 .acq .acq-market-filter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   padding: 0.4rem 0.85rem;
 }
+.acq-market-filter button span { opacity: 0.7; font-variant-numeric: tabular-nums; }
+.acq-global-search-return span,
+.acq-company-tags button span { margin-left: 0.45rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
 .acq .acq-market-filter button[aria-pressed="true"] {
   border-color: var(--color-foreground);
   background: var(--color-foreground);

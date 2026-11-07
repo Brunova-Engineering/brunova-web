@@ -43,6 +43,11 @@ it("requires the exact original company reply before enabling a Human decision",
     csrfToken: "fixture", expiresAt: now,
   }}/>)
   const search = await screen.findByRole("searchbox", {name: "Buscar empresa en todo el mapa"})
+  const markets = screen.getByRole("group", {name: "Mercado de exploración"})
+  expect(within(markets).getByRole("button", {name: "Todos"})).toHaveTextContent("1")
+  expect(within(markets).getByRole("button", {name: "Estados Unidos"})).toHaveTextContent("0")
+  expect(within(screen.getByRole("group", {name: "Filtrar por motivo de atención"}))
+    .getByRole("button", {name: "Todos los motivos"})).toHaveTextContent("1")
   fireEvent.change(search, {target: {value: "Empresa de prueba"}})
   const results = screen.getByRole("group", {name: "Resultados de búsqueda global"})
   fireEvent.click(within(results).getByRole("button", {name: /Empresa de prueba/}))
