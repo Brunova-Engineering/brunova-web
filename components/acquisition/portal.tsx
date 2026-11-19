@@ -14,6 +14,7 @@ import { DiscoveryHealth } from "./discovery-health"
 import { CycleAttention } from "./operating-overview"
 import { ManagementOverview } from "./management-overview"
 import { ExplorationMap } from "./exploration-map"
+import { UnplacedCompanyInbox } from "./unplaced-company-inbox"
 import { EvidenceDimensions } from "./evidence-dimensions"
 import { ProblemOwner } from "./problem-owner"
 import {
@@ -446,14 +447,15 @@ export function AcquisitionPortal({
         ))}
       </nav>
       <div id="acq-active-panel" aria-live="off">
-        {tab === "Exploration" && cycle && (
+        {tab === "Exploration" && cycle && <>
+          <UnplacedCompanyInbox key={`inbox:${cycleId}:${projectionRevision}`} cycleId={cycleId} locale={locale}/>
           <ExplorationMap
             key={`${cycleId}:${projectionRevision}`}
             cycleId={cycleId}
             locale={locale}
             session={session}
           />
-        )}
+        </>}
         {tab === "SystemStatus" && (
           <section className="acq-section-heading">
             <div>

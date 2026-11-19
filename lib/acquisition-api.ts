@@ -322,6 +322,17 @@ const poolItemSchema = z.object({
 })
 export type CyclePoolItem = z.infer<typeof poolItemSchema>
 export const acquisitionApi = {
+  unplacedCompanies: (cycle: string) => request(
+    `/exploration/unplaced-companies?cycleId=${id(cycle)}`,
+    z.object({truncated:z.boolean(),leads:z.array(z.object({
+      id:z.string(),cycleId:z.string(),market:z.enum(["MX","US"]),name:z.string(),
+      sourceUrl:z.string().nullable(),sourceNote:z.string(),
+      suggestedChain:z.string().nullable(),suggestedLink:z.string().nullable(),
+      placementSourceUrl:z.string().nullable(),placementReason:z.string().nullable(),
+      placementStatus:z.enum(["UNPLACED","PROPOSED"]),version:z.number(),
+      recordedAt:z.string(),updatedAt:z.string(),
+    }))}),
+  ),
   nextWindowPlan: (cycleId: string) => request(`/routine/next-window-plan?cycleId=${id(cycleId)}`, z.object({
     plan: z.object({
       command_id: z.string(), cycle_id: z.string(), version: z.number(),
