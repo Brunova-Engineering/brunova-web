@@ -170,9 +170,10 @@ export function ExecutiveSystemStatus({
   const [cancelReason, setCancelReason] = useState("")
   const [cancelling, setCancelling] = useState(false)
   const [cancelRequested, setCancelRequested] = useState(false)
-  const [manualStartPending, setManualStartPending] = useState(false)
+  const [manualStartStatus, setManualStartStatus] = useState<"PENDING" | "CLAIMED" | null>(null)
   const [manualStartLoading, setManualStartLoading] = useState(false)
   const manualStartCommandId = useRef<string | null>(null)
+  const manualStartMutation = useRef(0)
   const [message, setMessage] = useState("")
   const synced = useRef("")
   useEffect(() => {
@@ -191,13 +192,30 @@ export function ExecutiveSystemStatus({
   const remaining = remainingTime(session, now, es)
   const active = session?.operational_status === "ACTIVE"
   const stopPending = cancelRequested || Boolean(session?.cancel_requested_at)
+  useEffect(() => {
+    if (!canManage) return
+    let alive = true
+    const refresh = () => {
+      const mutation = manualStartMutation.current
+      void acquisitionApi.manualRoutineStartStatus()
+        .then(({status}) => {
+          if (alive && mutation === manualStartMutation.current)
+            setManualStartStatus(status === "NONE" ? null : status)
+        })
+        .catch(() => {})
+    }
+    void refresh()
+    const timer = setInterval(refresh, 15_000)
+    return () => { alive = false; clearInterval(timer) }
+  }, [canManage])
   const requestManualStart = async () => {
-    if (!canManage || active || manualStartPending || manualStartLoading) return
+    if (!canManage || active || manualStartStatus || manualStartLoading) return
     setManualStartLoading(true); setMessage("")
     manualStartCommandId.current ??= crypto.randomUUID()
     try {
       const receipt = await acquisitionApi.requestManualRoutineStart(manualStartCommandId.current, csrf)
-      setManualStartPending(true)
+      manualStartMutation.current += 1
+      setManualStartStatus("PENDING")
       setMessage(es
         ? `Solicitud ${receipt.status === "ALREADY_QUEUED" ? "ya estaba en cola" : "enviada a la cola"}. En espera de que el listener de Mac la reciba; esto no confirma que el Engine haya iniciado.`
         : `Request ${receipt.status === "ALREADY_QUEUED" ? "was already queued" : "queued"}. Waiting for the Mac listener; this does not confirm the Engine has started.`)
@@ -308,16 +326,17 @@ export function ExecutiveSystemStatus({
         </div>
       </div>
       {canManage && <div className="acq-executive-manual-start">
-        <button type="button" disabled={active || manualStartPending || manualStartLoading || !data}
+        <button type="button" disabled={active || !!manualStartStatus || manualStartLoading || !data}
           onClick={() => void requestManualStart()}>
           {active ? es ? "Engine activo" : "Engine active"
             : manualStartLoading ? es ? "Enviando solicitud…" : "Sending request…"
-            : manualStartPending ? es ? "Solicitud pendiente" : "Request pending"
+            : manualStartStatus ? manualStartStatus === "CLAIMED" ? es ? "Señal recibida por Mac" : "Signal received by Mac" : es ? "Solicitud pendiente" : "Request pending"
             : es ? "Solicitar ejecución manual · 2 horas" : "Request manual run · 2 hours"}
         </button>
         <p className="acq-muted" role="status" aria-live="polite">
           {active ? es ? "La sesión activa está confirmada por el estado del Engine." : "The active session is confirmed by Engine status."
-            : manualStartPending ? es ? "En espera de que el listener de Mac reciba la señal; la solicitud no confirma el inicio." : "Waiting for the Mac listener to receive the signal; the request does not confirm startup."
+            : manualStartStatus === "CLAIMED" ? es ? "El listener de Mac recibió la señal; el Engine aún no confirma una sesión activa." : "The Mac listener claimed the signal; the Engine has not confirmed an active session yet."
+            : manualStartStatus ? es ? "En espera de que el listener de Mac reciba la señal; la solicitud no confirma el inicio." : "Waiting for the Mac listener to receive the signal; the request does not confirm startup."
             : es ? "Dirección puede solicitar una ventana manual de hasta dos horas." : "Management can request a manual window of up to two hours."}
         </p>
       </div>}

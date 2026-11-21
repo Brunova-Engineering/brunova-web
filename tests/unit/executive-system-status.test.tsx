@@ -29,6 +29,7 @@ it("shows one current high-level block and does not invent a candidate priority"
 it("queues one manual run with CSRF and reports pending without claiming it started", async () => {
   vi.spyOn(api, "discovery").mockResolvedValue({routineOperatingSessions: []} as unknown as DiscoveryTruth)
   vi.spyOn(api, "routineSupervision").mockResolvedValue({direction: null})
+  vi.spyOn(api, "manualRoutineStartStatus").mockResolvedValue({status:"NONE"})
   const request = vi.spyOn(api, "requestManualRoutineStart").mockResolvedValue({status:"QUEUED", signalId:"signal-one", commandId:"command-one"})
   render(<ExecutiveSystemStatus locale="es" health={null} csrf="test-csrf" canManage onAttention={() => {}} />)
   fireEvent.click(await screen.findByRole("button", {name:"Solicitar ejecución manual · 2 horas"}))
@@ -44,6 +45,14 @@ it("hides the manual run action from non-management sessions", async () => {
   await waitFor(() => expect(screen.queryByRole("button", {name:/Solicitar ejecución manual/})).not.toBeInTheDocument())
 })
 
+it("restores a claimed signal as pending without claiming the Engine started", async () => {
+  vi.spyOn(api, "discovery").mockResolvedValue({routineOperatingSessions: []} as unknown as DiscoveryTruth)
+  vi.spyOn(api, "manualRoutineStartStatus").mockResolvedValue({status:"CLAIMED", signalId:"signal-one"})
+  render(<ExecutiveSystemStatus locale="es" health={null} csrf="test-csrf" canManage onAttention={() => {}} />)
+  expect(await screen.findByRole("button", {name:"Señal recibida por Mac"})).toBeDisabled()
+  expect(screen.getByText(/el Engine aún no confirma una sesión activa/i)).toBeVisible()
+})
+
 it("reorders only the six known pieces", () => {
   expect(moveExecutivePiece(["focus","investigate","review","decide","attention","continue"],"attention","focus"))
     .toEqual(["attention","focus","investigate","review","decide","continue"])
@@ -54,6 +63,7 @@ it("keeps the executive canvas concise while exposing details and the Attention 
     routineOperatingSessions: [activeSession],
   } as unknown as DiscoveryTruth)
   vi.spyOn(api, "routineSupervision").mockResolvedValue({direction:null})
+  vi.spyOn(api, "manualRoutineStartStatus").mockResolvedValue({status:"NONE"})
   const onAttention = vi.fn()
   render(<ExecutiveSystemStatus locale="es" health={null} csrf="test-csrf" canManage onAttention={onAttention} />)
   await waitFor(() => expect(screen.getByRole("button", { name: /Investigar/ })).toBeVisible())
@@ -70,6 +80,7 @@ it("keeps the executive canvas concise while exposing details and the Attention 
 it("submits a bounded priority only after a human confirmation", async () => {
   vi.spyOn(api,"discovery").mockResolvedValue({routineOperatingSessions:[activeSession]} as unknown as DiscoveryTruth)
   vi.spyOn(api,"routineSupervision").mockResolvedValue({direction:null})
+  vi.spyOn(api,"manualRoutineStartStatus").mockResolvedValue({status:"NONE"})
   const submit=vi.spyOn(api,"setRoutineSupervision").mockResolvedValue({status:"accepted",commandId:"command-one",version:1,externalEffect:false})
   render(<ExecutiveSystemStatus locale="es" health={null} csrf="test-csrf" canManage onAttention={() => {}} />)
   await waitFor(() => expect(screen.getByRole("button",{name:"Confirmar dirección"})).toBeVisible())

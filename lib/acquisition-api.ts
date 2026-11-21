@@ -368,6 +368,10 @@ export const acquisitionApi = {
     status: z.enum(["QUEUED", "ALREADY_QUEUED"]), signalId: z.string(), commandId: z.string(),
   }), {method: "POST", headers: {"content-type": "application/json", "x-csrf-token": csrf},
     body: JSON.stringify({commandId})}),
+  manualRoutineStartStatus: () => request("/routine/manual-start/status", z.object({
+    status: z.enum(["PENDING", "CLAIMED", "NONE"]), signalId: z.string().optional(),
+    requestedAt: z.string().optional(), expiresAt: z.string().optional(),
+  })),
   cancelRoutine: (body: {sessionId: string; expectedVersion: number; reason: string}, csrf: string) =>
     request("/routine/cancel", z.object({
       status: z.enum(["cancel_requested", "already_requested"]),
