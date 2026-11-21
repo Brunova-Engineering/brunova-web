@@ -8,6 +8,7 @@ import { WorkHealthSummary } from "./work-health-summary"
 import { C6Preview } from "./c6-preview"
 import { ContactChannelPolicyControl } from "./contact-channel-policy-control"
 import { ContactEffectGrantControl } from "./contact-effect-grant-control"
+import { ExecutiveSystemStatus } from "./executive-system-status"
 import { ActivationPreflight } from "./activation-preflight"
 import { ContactWorkspace } from "./contact-workspace"
 import { DiscoveryHealth } from "./discovery-health"
@@ -469,6 +470,16 @@ export function AcquisitionPortal({
               </p>
             </div>
           </section>
+        )}
+        {tab === "SystemStatus" && (
+          <ExecutiveSystemStatus
+            key={`executive-status:${projectionRevision}`}
+            locale={locale}
+            health={health}
+            csrf={session.csrfToken}
+            canManage={session.actor.capabilities.includes("MANAGE_CYCLE")}
+            onAttention={() => setTab("Attention")}
+          />
         )}
         {tab === "SystemStatus" && (
           <C6Preview key={`plan:${cycleId}`} cycleId={cycleId} csrf={session.csrfToken} />
