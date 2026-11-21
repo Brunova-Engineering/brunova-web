@@ -39,6 +39,22 @@ it("queues one manual run with CSRF and reports pending without claiming it star
   expect(screen.getByText(/no confirma que el Engine haya iniciado/i)).toBeVisible()
 })
 
+it("reuses the command ID when retrying an unconfirmed request", async () => {
+  vi.spyOn(api, "discovery").mockResolvedValue({routineOperatingSessions: []} as unknown as DiscoveryTruth)
+  vi.spyOn(api, "routineSupervision").mockResolvedValue({direction: null})
+  vi.spyOn(api, "manualRoutineStartStatus").mockResolvedValue({status:"NONE"})
+  const request = vi.spyOn(api, "requestManualRoutineStart")
+    .mockRejectedValueOnce(new Error("network unavailable"))
+    .mockResolvedValueOnce({status:"QUEUED", signalId:"signal-one", commandId:"command-one"})
+  render(<ExecutiveSystemStatus locale="es" health={null} csrf="test-csrf" canManage onAttention={() => {}} />)
+  const button = await screen.findByRole("button", {name:"Solicitar ejecución manual · 2 horas"})
+  fireEvent.click(button)
+  await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
+  fireEvent.click(button)
+  await waitFor(() => expect(request).toHaveBeenCalledTimes(2))
+  expect(request.mock.calls[0]?.[0]).toBe(request.mock.calls[1]?.[0])
+})
+
 it("hides the manual run action from non-management sessions", async () => {
   vi.spyOn(api, "discovery").mockResolvedValue({routineOperatingSessions: []} as unknown as DiscoveryTruth)
   render(<ExecutiveSystemStatus locale="es" health={null} csrf="test-csrf" canManage={false} onAttention={() => {}} />)

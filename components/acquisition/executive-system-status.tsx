@@ -199,8 +199,10 @@ export function ExecutiveSystemStatus({
       const mutation = manualStartMutation.current
       void acquisitionApi.manualRoutineStartStatus()
         .then(({status}) => {
-          if (alive && mutation === manualStartMutation.current)
+          if (alive && mutation === manualStartMutation.current) {
             setManualStartStatus(status === "NONE" ? null : status)
+            if (status === "NONE") manualStartCommandId.current = null
+          }
         })
         .catch(() => {})
     }
@@ -208,6 +210,9 @@ export function ExecutiveSystemStatus({
     const timer = setInterval(refresh, 15_000)
     return () => { alive = false; clearInterval(timer) }
   }, [canManage])
+  useEffect(() => {
+    if (active) manualStartCommandId.current = null
+  }, [active])
   const requestManualStart = async () => {
     if (!canManage || active || manualStartStatus || manualStartLoading) return
     setManualStartLoading(true); setMessage("")
