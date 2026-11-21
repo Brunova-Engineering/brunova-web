@@ -142,11 +142,13 @@ export function ExecutiveSystemStatus({
   locale,
   health,
   csrf,
+  canManage,
   onAttention,
 }: {
   locale: Locale
   health: Health | null
   csrf: string
+  canManage: boolean
   onAttention: () => void
 }) {
   const es = locale === "es"
@@ -168,6 +170,10 @@ export function ExecutiveSystemStatus({
   const [cancelReason, setCancelReason] = useState("")
   const [cancelling, setCancelling] = useState(false)
   const [cancelRequested, setCancelRequested] = useState(false)
+  const [manualStartStatus, setManualStartStatus] = useState<"PENDING" | "CLAIMED" | null>(null)
+  const [manualStartLoading, setManualStartLoading] = useState(false)
+  const manualStartCommandId = useRef<string | null>(null)
+  const manualStartMutation = useRef(0)
   const [message, setMessage] = useState("")
   const synced = useRef("")
   useEffect(() => {
@@ -186,6 +192,47 @@ export function ExecutiveSystemStatus({
   const remaining = remainingTime(session, now, es)
   const active = session?.operational_status === "ACTIVE"
   const stopPending = cancelRequested || Boolean(session?.cancel_requested_at)
+  useEffect(() => {
+    if (!canManage) return
+    let alive = true
+    const refresh = () => {
+      const mutation = manualStartMutation.current
+      void acquisitionApi.manualRoutineStartStatus()
+        .then(({status}) => {
+          if (alive && mutation === manualStartMutation.current) {
+            setManualStartStatus(status === "NONE" ? null : status)
+            if (status === "NONE") manualStartCommandId.current = null
+          }
+        })
+        .catch(() => {})
+    }
+    void refresh()
+    const timer = setInterval(refresh, 15_000)
+    return () => { alive = false; clearInterval(timer) }
+  }, [canManage])
+  useEffect(() => {
+    if (active) manualStartCommandId.current = null
+  }, [active])
+  const requestManualStart = async () => {
+    if (!canManage || active || manualStartStatus || manualStartLoading) return
+    setManualStartLoading(true); setMessage("")
+    manualStartCommandId.current ??= crypto.randomUUID()
+    try {
+      const receipt = await acquisitionApi.requestManualRoutineStart(manualStartCommandId.current, csrf)
+      manualStartMutation.current += 1
+      setManualStartStatus("PENDING")
+      setMessage(es
+        ? `Solicitud ${receipt.status === "ALREADY_QUEUED" ? "ya estaba en cola" : "enviada a la cola"}. En espera de que el listener de Mac la reciba; esto no confirma que el Engine haya iniciado.`
+        : `Request ${receipt.status === "ALREADY_QUEUED" ? "was already queued" : "queued"}. Waiting for the Mac listener; this does not confirm the Engine has started.`)
+    } catch (failure) {
+      const status = failure instanceof Error && "status" in failure ? Number(failure.status) : 0
+      setMessage(status === 409
+        ? es ? "No se pudo poner en cola: hay una sesión activa, otra solicitud pendiente o conflicto con la ventana programada. Actualiza el estado del sistema."
+          : "Could not queue the request: a session is active, another request is pending, or it conflicts with the scheduled window. Refresh system status."
+        : es ? "No se pudo confirmar la solicitud. Puedes reintentar; se conservará el mismo identificador para evitar duplicados."
+          : "The request could not be confirmed. You can retry; the same identifier will be reused to prevent duplicates.")
+    } finally { setManualStartLoading(false) }
+  }
   useEffect(() => {
     if (!session?.id) return
     if (!synced.current.startsWith(`${session.id}:`)) {
@@ -283,6 +330,21 @@ export function ExecutiveSystemStatus({
           <strong>{remaining ?? (es ? "Ventana de hasta 2 horas" : "Up to 2-hour window")}</strong>
         </div>
       </div>
+      {canManage && <div className="acq-executive-manual-start">
+        <button type="button" disabled={active || !!manualStartStatus || manualStartLoading || !data}
+          onClick={() => void requestManualStart()}>
+          {active ? es ? "Engine activo" : "Engine active"
+            : manualStartLoading ? es ? "Enviando solicitud…" : "Sending request…"
+            : manualStartStatus ? manualStartStatus === "CLAIMED" ? es ? "Señal recibida por Mac" : "Signal received by Mac" : es ? "Solicitud pendiente" : "Request pending"
+            : es ? "Solicitar ejecución manual · 2 horas" : "Request manual run · 2 hours"}
+        </button>
+        <p className="acq-muted" role="status" aria-live="polite">
+          {active ? es ? "La sesión activa está confirmada por el estado del Engine." : "The active session is confirmed by Engine status."
+            : manualStartStatus === "CLAIMED" ? es ? "El listener de Mac recibió la señal; el Engine aún no confirma una sesión activa." : "The Mac listener claimed the signal; the Engine has not confirmed an active session yet."
+            : manualStartStatus ? es ? "En espera de que el listener de Mac reciba la señal; la solicitud no confirma el inicio." : "Waiting for the Mac listener to receive the signal; the request does not confirm startup."
+            : es ? "Dirección puede solicitar una ventana manual de hasta dos horas." : "Management can request a manual window of up to two hours."}
+        </p>
+      </div>}
       {error && <p role="alert">{es ? "No se pudo verificar la actividad del Engine. No se infiere que esté trabajando." : "Engine activity could not be verified. Running status is not assumed."}</p>}
       {!data && !error && <p role="status">{es ? "Consultando la sesión…" : "Loading session…"}</p>}
       <div className="acq-executive-flow" aria-label={es ? "Flujo de la ventana" : "Window flow"}>
