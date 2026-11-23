@@ -18,6 +18,10 @@
 .presence__grid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(270px, 1fr); gap: 16px; padding-top: 26px; }
 .presence__panel { min-width: 0; padding: 28px; background: #181a16; border: 1px solid #373a32; }
 .presence__panel--wide { grid-row: span 2; }
+.presence__panel--full { grid-column: 1 / -1; }
+.presence__channels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 24px; }
+.presence__channel { min-width: 0; display: grid; gap: 7px; padding: 16px; background: #10120e; border: 1px solid #373a32; color: #aeb2a6; font-size: 12px; }
+.presence__channel strong { margin-bottom: 4px; color: #f3efe7; font-size: 15px; font-weight: 500; }
 .presence__panel h2 { margin: 8px 0 22px; font-size: clamp(25px, 3vw, 35px); font-weight: 500; letter-spacing: -.035em; line-height: 1.12; }
 .presence__panel h3 { margin: 12px 0; font-size: 20px; font-weight: 500; }
 .presence__steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 32px 0 24px; }
@@ -55,5 +59,5 @@
 .presence__error { margin: 16px 0; padding: 15px; background: #452724; color: #f5d9d2; }
 .presence__error button { margin-left: 10px; }
 .portal-app-links { display: flex; gap: 12px; flex-wrap: wrap; }
-@media (max-width: 800px) { .presence__grid { grid-template-columns: 1fr; } .presence__panel--wide { grid-row: auto; } .presence__steps { grid-template-columns: repeat(2, 1fr); } .presence__hero { display: block; min-height: auto; padding: 50px 0 30px; } .presence__hero-stat { margin-top: 30px; } .presence__top span:last-child { display: none; } }
-@media (max-width: 480px) { .presence__shell { width: min(100% - 28px, 1220px); } .presence__panel { padding: 19px; } .presence__steps { grid-template-columns: 1fr 1fr; } .presence__inline { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .presence__grid { grid-template-columns: 1fr; } .presence__panel--wide { grid-row: auto; } .presence__channels { grid-template-columns: repeat(2, minmax(0, 1fr)); } .presence__steps { grid-template-columns: repeat(2, 1fr); } .presence__hero { display: block; min-height: auto; padding: 50px 0 30px; } .presence__hero-stat { margin-top: 30px; } .presence__top span:last-child { display: none; } }
+@media (max-width: 480px) { .presence__shell { width: min(100% - 28px, 1220px); } .presence__panel { padding: 19px; } .presence__channels { grid-template-columns: 1fr; } .presence__steps { grid-template-columns: 1fr 1fr; } .presence__inline { grid-template-columns: 1fr; } }
