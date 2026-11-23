@@ -77,7 +77,7 @@ export function PresencePageView({ locale, session }: { locale: Locale; session:
   function downloadPublicationPackage(draft: Draft) {
     if (draft.status !== "APPROVED" && draft.status !== "IN_REVIEW") return
     const idea = ideas.find(item => item.id === draft.idea_id)
-    const selectedAssets = assets.filter(item => item.draft_id === draft.id && (draft.status === "APPROVED" ? item.status === "APPROVED" : true))
+    const selectedAssets = assets.filter(item => item.draft_id === draft.id && (draft.status === "APPROVED" ? item.status === "APPROVED" : item.status === "IN_REVIEW" || item.status === "APPROVED"))
     const approvedDate = calendar.find(item => item.draft_id === draft.id && item.status === "APPROVED")
     const ready = draft.status === "APPROVED"
     const text = [
