@@ -1,0 +1,53 @@
+.presence { min-height: 100vh; background: #0b0c0a; color: #eeeae1; font-family: var(--font-body), Arial, sans-serif; }
+.presence__shell { width: min(1220px, calc(100% - 48px)); margin: auto; padding: 28px 0 100px; }
+.presence__top { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 0 0 25px; border-bottom: 1px solid #34362f; color: #9da195; font-size: 12px; letter-spacing: .08em; }
+.presence__top a { color: #eeeae1; letter-spacing: 0; font-size: 14px; }
+.presence__hero { min-height: 320px; display: flex; justify-content: space-between; gap: 48px; align-items: end; padding: 62px 0 48px; }
+.presence__hero > div:first-child { max-width: 760px; }
+.presence__eyebrow { color: #c7af77; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.presence h1 { margin: 12px 0 20px; max-width: 13ch; color: #f3efe7; font-size: clamp(46px, 6vw, 82px); line-height: 1.02; letter-spacing: -.065em; font-weight: 500; }
+.presence__hero p:not(.presence__eyebrow) { max-width: 560px; color: #b6b9ad; font-size: 17px; line-height: 1.55; }
+.presence__hero-stat { min-width: 170px; padding: 22px 0; border-top: 1px solid #a99568; display: grid; gap: 5px; }
+.presence__hero-stat strong { color: #f3efe7; font-size: 58px; line-height: 1; font-weight: 400; }
+.presence__hero-stat span { color: #b6b9ad; font-size: 13px; }
+.presence__tabs { position: sticky; top: 0; z-index: 5; display: flex; gap: 6px; overflow: auto; padding: 13px 0; background: #0b0c0a; border-top: 1px solid #34362f; border-bottom: 1px solid #34362f; }
+.presence__tabs button { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid transparent; background: transparent; color: #b6b9ad; font: inherit; font-size: 14px; cursor: pointer; }
+.presence__tabs button:hover { border-color: #45473e; color: #f3efe7; }
+.presence__tabs button.active { background: #eeeae1; color: #171814; }
+.presence__tabs span { font-size: 11px; opacity: .7; }
+.presence__grid { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(270px, 1fr); gap: 16px; padding-top: 26px; }
+.presence__panel { min-width: 0; padding: 28px; background: #181a16; border: 1px solid #373a32; }
+.presence__panel--wide { grid-row: span 2; }
+.presence__panel h2 { margin: 8px 0 22px; font-size: clamp(25px, 3vw, 35px); font-weight: 500; letter-spacing: -.035em; line-height: 1.12; }
+.presence__panel h3 { margin: 12px 0; font-size: 20px; font-weight: 500; }
+.presence__steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 32px 0 24px; }
+.presence__steps > div { min-height: 105px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; background: #242720; border: 1px solid #42473a; }
+.presence__steps span { color: #c7af77; font-size: 12px; }
+.presence__steps strong { font-size: 13px; font-weight: 500; }
+.presence__muted { color: #aeb2a6; font-size: 14px; line-height: 1.55; }
+.presence__metric { display: flex; align-items: baseline; gap: 12px; padding: 12px 0; border-top: 1px solid #3c4037; }
+.presence__metric strong { font-size: 40px; font-weight: 400; }
+.presence__metric span { color: #aeb2a6; font-size: 13px; }
+.presence__row { padding: 22px 0; border-top: 1px solid #3c4037; }
+.presence__row p { margin: 12px 0; color: #d5d5ca; line-height: 1.55; }
+.presence__row a { color: #d9c18c; overflow-wrap: anywhere; font-size: 13px; }
+.presence__row small { display: block; margin-top: 9px; color: #aeb2a6; }
+.presence__row-head { display: flex; flex-wrap: wrap; gap: 7px; }
+.presence__badge { display: inline-block; margin-right: 6px; padding: 5px 8px; border: 1px solid #656956; color: #d9c18c; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.presence__body { white-space: pre-line; }
+.presence form { display: grid; gap: 15px; }
+.presence form label { display: grid; gap: 7px; color: #c1c5b8; font-size: 12px; }
+.presence input, .presence textarea, .presence select { width: 100%; min-width: 0; padding: 12px; border: 1px solid #565a4d; border-radius: 0; background: #10120e; color: #f1eee8; font: inherit; font-size: 14px; }
+.presence textarea { min-height: 92px; resize: vertical; }
+.presence button:not(.presence__tabs button) { padding: 11px 15px; border: 1px solid #c7af77; background: #c7af77; color: #12130e; font: inherit; font-size: 13px; cursor: pointer; }
+.presence button:disabled { opacity: .5; cursor: not-allowed; }
+.presence__actions { display: flex; gap: 8px; margin-top: 18px; }
+.presence__actions button:nth-child(2) { background: transparent; color: #d9c18c; }
+.presence__check { display: flex !important; align-items: center; }
+.presence__check input { width: auto; }
+.presence__inline { margin-top: 15px; grid-template-columns: 1fr auto; align-items: end; }
+.presence__error { margin: 16px 0; padding: 15px; background: #452724; color: #f5d9d2; }
+.presence__error button { margin-left: 10px; }
+.portal-app-links { display: flex; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 800px) { .presence__grid { grid-template-columns: 1fr; } .presence__panel--wide { grid-row: auto; } .presence__steps { grid-template-columns: repeat(2, 1fr); } .presence__hero { display: block; min-height: auto; padding: 50px 0 30px; } .presence__hero-stat { margin-top: 30px; } .presence__top span:last-child { display: none; } }
+@media (max-width: 480px) { .presence__shell { width: min(100% - 28px, 1220px); } .presence__panel { padding: 19px; } .presence__steps { grid-template-columns: 1fr 1fr; } .presence__inline { grid-template-columns: 1fr; } }
