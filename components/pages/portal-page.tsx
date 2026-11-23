@@ -17,6 +17,7 @@ export function PortalPageView({
 }) {
   const es = locale === "es"
   const acquisition = session?.actor.capabilities.includes("VIEW_ACQUISITION")
+  const presence = session?.actor.capabilities.includes("VIEW_PRESENCE")
   return (
     <main
       className="route-page portal-page"
@@ -67,13 +68,17 @@ export function PortalPageView({
                 {es ? "Continuar con Google" : "Continue with Google"}
               </a>
             </>
-          ) : acquisition ? (
-            <Link
-              className="action-link action-link--primary"
-              href={localizedPath(locale, "/portal/acquisition")}
-            >
-              {es ? "Adquisición" : "Acquisition"}
-            </Link>
+          ) : acquisition || presence ? (
+            <div className="portal-app-links">
+              {acquisition && <Link
+                className="action-link action-link--primary"
+                href={localizedPath(locale, "/portal/acquisition")}
+              >{es ? "Adquisición" : "Acquisition"}</Link>}
+              {presence && <Link
+                className="action-link action-link--primary"
+                href={localizedPath(locale, "/portal/presence")}
+              >{es ? "Presencia" : "Presence"}</Link>}
+            </div>
           ) : (
             <p>
               {es
