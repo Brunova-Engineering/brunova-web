@@ -28,6 +28,12 @@
 .presence__metric { display: flex; align-items: baseline; gap: 12px; padding: 12px 0; border-top: 1px solid #3c4037; }
 .presence__metric strong { font-size: 40px; font-weight: 400; }
 .presence__metric span { color: #aeb2a6; font-size: 13px; }
+.presence__chart { display: grid; gap: 12px; margin: 26px 0; padding: 20px; background: #10120e; border: 1px solid #373a32; }
+.presence__chart h3 { margin: 0 0 8px; }
+.presence__chart-row { display: grid; grid-template-columns: 100px minmax(0,1fr) 70px; gap: 12px; align-items: center; font-size: 12px; }
+.presence__chart-row strong { text-align: right; font-variant-numeric: tabular-nums; }
+.presence__chart-track { height: 12px; background: #30342b; }
+.presence__chart-track > div { height: 100%; background: #c7af77; }
 .presence__row { padding: 22px 0; border-top: 1px solid #3c4037; }
 .presence__row p { margin: 12px 0; color: #d5d5ca; line-height: 1.55; }
 .presence__row a { color: #d9c18c; overflow-wrap: anywhere; font-size: 13px; }
