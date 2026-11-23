@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { workCases } from "@/content/work"
+import { socialProfiles } from "@/content/social"
 import {
   createBreadcrumbStructuredData,
   createRobots,
@@ -92,6 +93,7 @@ describe("technical SEO contracts", () => {
       "@id": "https://brunova.example/#organization",
       name: "Brunova",
       founder: { "@id": "https://brunova.example/#jorge-vera" },
+      sameAs: socialProfiles.map((profile) => profile.href),
     })
     expect(founder).toEqual({
       "@type": "Person",
@@ -100,7 +102,6 @@ describe("technical SEO contracts", () => {
       jobTitle: "Founder and Principal Systems Architect",
       worksFor: { "@id": "https://brunova.example/#organization" },
     })
-    expect(JSON.stringify(structuredData)).not.toContain("sameAs")
     expect(JSON.stringify(structuredData)).not.toContain("address")
   })
 

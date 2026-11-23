@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 
 import { localizedSiteConfig } from "@/content/locales"
+import { socialProfiles } from "@/content/social"
 import { workCases } from "@/content/work"
 import { languageAlternates, localizedPath, type Locale } from "@/lib/i18n"
 
@@ -162,6 +163,7 @@ export function createSiteStructuredData(siteUrl: URL) {
         url: siteUrl.origin,
         logo: new URL("/brand/brunova-mark.svg", siteUrl).href,
         description: siteConfig.description,
+        sameAs: socialProfiles.map((profile) => profile.href),
         founder: { "@id": founderId },
       },
       {

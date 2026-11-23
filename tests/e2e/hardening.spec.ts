@@ -99,7 +99,12 @@ test("structured data is conservative and truthful", async ({ page }) => {
     "Organization",
     "Person",
   ])
-  expect(JSON.stringify(structuredData)).not.toContain("sameAs")
+  expect(structuredData["@graph"][1]?.["sameAs"]).toEqual([
+    "https://www.linkedin.com/company/brunova/",
+    "https://www.instagram.com/brunova.mx/",
+    "https://www.tiktok.com/@brunova.mx",
+    "https://www.facebook.com/profile.php?id=61595186410028",
+  ])
 })
 
 test("robots, sitemap and private boundaries follow the route policy", async ({
