@@ -91,14 +91,16 @@ export function PresencePageView({ locale, session }: { locale: Locale; session:
       ...(selectedAssets.length ? selectedAssets.map(item => `- ${item.kind} [${item.status}]: ${item.asset_url}\n  Derechos: ${item.rights_basis}. ${item.rights_note}`) : ["- Sin archivo registrado; comprobar si esta pieza debe llevar uno."]),
       "", "## Fuente y revisión",
       idea ? `- Fuente: ${idea.source_url}\n- Qué sustenta: ${idea.source_note}` : "- Fuente no disponible en esta vista.",
-      `- Revisión editorial: ${draft.review_note || "Aprobación registrada sin nota visible."}`,
+      `- Revisión editorial: ${draft.review_note || (ready ? "Aprobación registrada sin nota visible." : "Pendiente; no hay aprobación registrada.")}`,
       "", "## Cierre operativo", ready ? "Una persona publica en la cuenta oficial, comprueba la pieza visible y registra su URL real en el portal. Este paquete no publica ni acredita una publicación por sí mismo." : "Natalia o una persona autorizada debe revisar por separado el texto y los archivos. Este paquete no autoriza publicación.", ""
     ].join("\n")
     const url = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }))
     const link = document.createElement("a")
     link.href = url
     link.download = `brunova-${draft.platform.toLowerCase()}-${draft.id.slice(0, 8)}.md`
+    document.body.appendChild(link)
     link.click()
+    link.remove()
     window.setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
   return <main className="presence" id="main-content" lang={locale}>
