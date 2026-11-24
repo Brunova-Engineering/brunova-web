@@ -1986,7 +1986,11 @@ body:has(.portal-page[data-authenticated="true"]) .back-to-top {
 }
 
 .portal-app-links { width: min(60rem, 100%); }
-.portal-app-card, .portal-app-card > span { min-width: 0; overflow-wrap: anywhere; }
+.portal-app-card, .portal-app-card > span, .portal-app-card > strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
 
 .portal-threshold {
   min-height: 56dvh;
