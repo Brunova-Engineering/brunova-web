@@ -69,15 +69,19 @@ export function PortalPageView({
               </a>
             </>
           ) : acquisition || presence ? (
-            <div className="portal-app-links">
-              {acquisition && <Link
-                className="action-link action-link--primary"
-                href={localizedPath(locale, "/portal/acquisition")}
-              >{es ? "Adquisición" : "Acquisition"}</Link>}
-              {presence && <Link
-                className="action-link action-link--primary"
-                href={localizedPath(locale, "/portal/presence")}
-              >{es ? "Presencia" : "Presence"}</Link>}
+            <div className="portal-app-links" aria-label={es ? "Elegir espacio de trabajo" : "Choose a workspace"}>
+              {acquisition && <Link className="portal-app-card" aria-label={es ? "Adquisición" : "Acquisition"} href={localizedPath(locale, "/portal/acquisition")}>
+                <span className="portal-app-card__icon" aria-hidden="true">↗</span>
+                <strong>{es ? "Adquisición" : "Acquisition"}</strong>
+                <span>{es ? "Descubre empresas, sigue oportunidades y revisa el trabajo comercial." : "Discover companies, follow opportunities and review commercial work."}</span>
+                <span className="portal-app-card__action">{es ? "Abrir Adquisición" : "Open Acquisition"} →</span>
+              </Link>}
+              {presence && <Link className="portal-app-card" aria-label={es ? "Presencia" : "Presence"} href={localizedPath(locale, "/portal/presence")}>
+                <span className="portal-app-card__icon" aria-hidden="true">✦</span>
+                <strong>Presence Engine</strong>
+                <span>{es ? "Organiza ideas, revisa contenido y acompaña las conversaciones en redes." : "Organize ideas, review content and follow social conversations."}</span>
+                <span className="portal-app-card__action">{es ? "Abrir Presence Engine" : "Open Presence Engine"} →</span>
+              </Link>}
             </div>
           ) : (
             <p>

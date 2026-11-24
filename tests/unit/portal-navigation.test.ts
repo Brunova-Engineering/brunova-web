@@ -24,7 +24,7 @@ it.each(["en", "es"] as const)(
     )
     const pending = response.cookies.get(portalReturnCookie)!
     expect(pending.value).toBe(
-      locale === "es" ? "/es/portal/acquisition" : "/portal/acquisition",
+      locale === "es" ? "/es/portal" : "/portal",
     )
     expect(pending.httpOnly).toBe(true)
     const arrival = proxy(
@@ -33,7 +33,7 @@ it.each(["en", "es"] as const)(
       }),
     )
     expect(arrival.headers.get("location")).toBe(
-      locale === "es" ? "https://brunova.mx/es/portal/acquisition" : null,
+      locale === "es" ? "https://brunova.mx/es/portal" : "https://brunova.mx/portal",
     )
     expect(arrival.cookies.get(portalReturnCookie)?.maxAge).toBe(0)
     expect(equivalentLocalePath("/portal/acquisition", "es")).toBe(
@@ -52,7 +52,7 @@ it("never accepts external, arbitrary or malformed auth return paths", () => {
     "/admin",
     "/es/portal/acquisition?token=x",
   ])
-    expect(validPortalReturn(input)).toBe("/portal/acquisition")
+    expect(validPortalReturn(input)).toBe("/portal")
 })
 it("uses the canonical origin behind the production reverse proxy, never the internal or supplied Host", () => {
   const response = GET(
@@ -65,11 +65,11 @@ it("uses the canonical origin behind the production reverse proxy, never the int
   )
   const arrival = proxy(
     new NextRequest("http://0.0.0.0:3000/portal/acquisition", {
-      headers: { cookie: `${portalReturnCookie}=/es/portal/acquisition` },
+      headers: { cookie: `${portalReturnCookie}=/es/portal` },
     }),
   )
   expect(arrival.headers.get("location")).toBe(
-    "https://brunova.mx/es/portal/acquisition",
+    "https://brunova.mx/es/portal",
   )
 })
 it("SSR only trusts a valid backend session and never exposes the session cookie", async () => {
