@@ -99,5 +99,11 @@
 .presence__plan-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .presence__plan-footer p { margin: 0; max-width: 44rem; }
 .presence__plan-message { font-weight: 600; color: var(--color-foreground); }
+.presence__run { border-top: 1px solid var(--color-border); padding: .85rem 0; }
+.presence__run summary { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; cursor: pointer; list-style: none; }
+.presence__run summary::-webkit-details-marker { display: none; }
+.presence__run summary strong { text-transform: capitalize; }
+.presence__run summary span { color: var(--color-muted-foreground); font-size: .85rem; }
+.presence__run p { max-height: 14rem; overflow: auto; margin-bottom: 0; color: var(--color-muted-foreground); font-size: .88rem; line-height: 1.55; overflow-wrap: anywhere; }
 @media (max-width: 800px) { .presence__welcome-grid { grid-template-columns: 1fr; } .presence__steps--editable { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 480px) { .presence__steps--editable { grid-template-columns: 1fr; } .presence__plan-heading { flex-direction: column; } .presence__hero { padding: 2rem 0; } }
